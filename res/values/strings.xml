@@ -1,0 +1,41 @@
+<resources>
+
+    <string name="app_name">Coinbase Wallet</string>
+    <string name="title_section3">TRANSFER</string>
+    <string name="title_section2">BUY / SELL</string>
+    <string name="title_section1">TRANSACTIONS</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">Coinbase Wallet</string>
+    <string name="title_activity_login">Coinbase Wallet</string>
+    <string name="login_desc">Login with your Coinbase username and password to continue.</string>
+    <string name="menu_sign_out">Sign out</string>
+    <string name="login_hint_username">Username</string>
+    <string name="login_hint_password">Password</string>
+    <string name="login_button">Sign in</string>
+    <string name="login_progress">Signing in#8230;</string>
+    <string name="login_error_username_empty">Username cannot be empty.</string>
+    <string name="login_error_password_empty">Password cannot be empty.</string>
+    <string name="login_error_io">Could not login.</string>
+    <string name="login_error_auth">Could not sign in.</string>
+    <string name="transfer_send_money">Send money</string>
+    <string name="transfer_send_money_button">Send</string>
+    <string name="transfer_amt">Amount (BTC)</string>
+    <string name="transfer_notes">Notes</string>
+    <string name="wallet_balance">%1$f</string>
+    <string name="wallet_balance_currency">%1$s</string>
+    <string name="wallet_balance_def">-.---</string>
+    <string name="wallet_balance_currency_def">BTC</string>
+    <string name="wallet_balance_top">Current balance:</string>
+    <string name="transfer_button_email">Email</string>
+    <string name="transfer_button_address">Address</string>
+    <string name="transfer_button_nfc">NFC</string>
+    <string name="transfer_request_money">Request money</string>
+    <string name="transfer_request_money_button">Request</string>
+    <string name="transfer_buy_title">Buy / sell Bitcoin</string>
+    <string name="transfer_buy_message">Sorry, but buying / selling Bitcoin is not currently supported through the Android app. Visit the Coinbase website to buy or sell Bitcoin.</string>
+    <string name="transfer_buy_button">Visit the Coinbase website</string>
+    <string name="menu_accounts">Accounts</string>
+    <string name="menu_barcode">Scan barcode</string>
+
+</resources>

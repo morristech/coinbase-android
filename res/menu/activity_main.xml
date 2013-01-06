@@ -1,0 +1,9 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_barcode" android:title="@string/menu_barcode" android:showAsAction="ifRoom" android:icon="@drawable/ic_action_barcode"></item><item android:id="@+id/menu_sign_out" android:showAsAction="never" android:title="@string/menu_sign_out"></item><item android:id="@+id/menu_accounts" android:title="@string/menu_accounts" android:showAsAction="never"></item><item android:id="@+id/menu_settings"
+        android:title="@string/menu_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+    
+    
+    
+</menu>

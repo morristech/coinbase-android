@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="323dp"
+    android:padding="15dp" >
+
+    <TextView
+        android:id="@+id/wallet_balance_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="@string/wallet_balance_top"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/wallet_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/wallet_balance_top"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:text="@string/wallet_balance_def"
+        style="@style/wallet_balance_invalid"
+        android:textSize="60dp"/>
+
+    <TextView
+        android:id="@+id/wallet_balance_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/wallet_balance"
+        android:layout_alignBottom="@+id/wallet_balance"
+        android:layout_toRightOf="@+id/wallet_balance"
+        android:layout_marginLeft="10dp"
+        android:text="@string/wallet_balance_currency_def"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</RelativeLayout>

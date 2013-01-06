@@ -1,0 +1,13 @@
+<resources>
+
+    <style name="AppTheme" parent="android:Theme.Light" />
+    <color name="wallet_balance_color">#138000</color>
+    <color name="wallet_balance_color_invalid">#7D7D7D</color>
+    <style name="wallet_balance_loaded">
+        <item name="android:textColor">@color/wallet_balance_color</item>
+    </style>
+    <style name="wallet_balance_invalid">
+        <item name="android:textColor">@color/wallet_balance_color_invalid</item>
+    </style>
+
+</resources>

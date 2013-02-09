@@ -24,23 +24,14 @@ import com.siriusapplications.coinbase.api.LoginManager;
 @RequiresAuthentication
 public class MainActivity extends CoinbaseActivity implements ActionBar.TabListener {
 
-  /**
-   * The {@link android.support.v4.view.PagerAdapter} that will provide fragments for each of the
-   * sections. We use a {@link android.support.v4.app.FragmentPagerAdapter} derivative, which will
-   * keep every loaded fragment in memory. If this becomes too memory intensive, it may be best
-   * to switch to a {@link android.support.v4.app.FragmentStatePagerAdapter}.
-   */
   SectionsPagerAdapter mSectionsPagerAdapter;
-
-  /**
-   * The {@link ViewPager} that will host the section contents.
-   */
   ViewPager mViewPager;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    
     // Create the adapter that will return a fragment for each of the three primary sections
     // of the app.
     mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -111,7 +102,7 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     public Fragment getItem(int i) {
       switch (i) {
       case 0: return new TransactionsFragment();
-      case 1: return new DummyBuySellFragment();
+      case 1: return new BuySellFragment();
       case 2: return new TransferFragment();
       }
       return null;
@@ -130,38 +121,6 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       case 2: return getString(R.string.title_section3).toUpperCase();
       }
       return null;
-    }
-  }
-
-  public static class DummyBuySellFragment extends Fragment {
-    public DummyBuySellFragment() {
-    }
-
-    @SuppressLint("SetJavaScriptEnabled")
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-        Bundle savedInstanceState) {
-      
-      WebView view = new WebView(getActivity());
-      
-      view.getSettings().setJavaScriptEnabled(true);
-      
-      final Map<String, String> additionalHttpHeaders = new HashMap<String, String>();
-      String accessToken = LoginManager.getInstance().getAccessToken(getActivity());
-      additionalHttpHeaders.put("Authorization", String.format("Bearer %s", accessToken));
-      
-      view.setWebViewClient(new WebViewClient() {
-        
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-          
-          view.loadUrl(url, additionalHttpHeaders);
-          return true;
-       }
-      });
-      
-      view.loadUrl("https://coinbase.com/buys", additionalHttpHeaders);
-      
-      return view;
     }
   }
 }

@@ -37,5 +37,7 @@
     <string name="transfer_buy_button">Visit the Coinbase website</string>
     <string name="menu_accounts">Accounts</string>
     <string name="menu_barcode">Scan barcode</string>
+    <string name="buysell_buy_price">Buy price:</string>
+    <string name="buysell_sell_price">Sell price:</string>
 
 </resources>

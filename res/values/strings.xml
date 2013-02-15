@@ -37,7 +37,24 @@
     <string name="transfer_buy_button">Visit the Coinbase website</string>
     <string name="menu_accounts">Accounts</string>
     <string name="menu_barcode">Scan barcode</string>
-    <string name="buysell_buy_price">Buy price:</string>
-    <string name="buysell_sell_price">Sell price:</string>
-
+    <string name="buysell_type_buy">Buy Bitcoin</string>
+    <string name="buysell_type_sell">Sell Bitcoin</string>
+    <string name="buysell_type_buy_text">Buy</string>
+    <string name="buysell_type_sell_text">Sell</string>
+    <string name="btc">BTC</string>
+    <string name="buysell_amount_hint">10</string>
+    <string name="buysell_total_label">Total:</string>
+    <string name="buysell_submit_buy">Buy Bitcoins</string>
+    <string name="buysell_submit_sell">Sell Bitcoins</string>
+    <string name="buysell_total_error">Could not get price</string>
+    <string name="buysell_total">$%1$s %2$s</string>
+    <string name="buysell_confirm_message_buy">Are you sure you would like to buy %1$s BTC for $%2$s %3$s? Your primary bank account will be charged.</string>
+    <string name="buysell_confirm_message_sell">Are you sure you would like to sell %1$s BTC for $%2$s %3$s? Your primary bank account will be credited.</string>
+    <string name="buysell_error_exception">The request could not be completed.</string>
+    <string name="buysell_error_api">The request could not be completed.\n\n%1$s</string>
+    <string name="buysell_progress">Sending&#8230;</string>
+    <string name="buysell_success_buy">Purchased %1$s BTC.</string>
+    <string name="buysell_success_sell">Sold %1$s BTC.</string>
+    <string name="accounts_title">Choose an account</string>
+    
 </resources>

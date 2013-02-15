@@ -52,6 +52,20 @@ public class LoginManager {
 
     return prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1) > -1;
   }
+  
+  public String[] getAccounts(Context context) {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    int numAccounts = prefs.getInt(Constants.KEY_MAX_ACCOUNT, -1) + 1;
+    
+    String[] accounts = new String[numAccounts];
+    for(int i = 0; i < numAccounts; i++) {
+      
+      accounts[i] = prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, i), null);
+    }
+    
+    return accounts;
+  }
 
   public String getAccessToken(Context context) {
 
@@ -126,7 +140,7 @@ public class LoginManager {
 
       e.putString(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, accountId), tokens[0]);
       e.putString(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, accountId), tokens[1]);
-      e.putString(String.format(Constants.KEY_ACCOUNT_NAME, accountId), "Default");
+      e.putString(String.format(Constants.KEY_ACCOUNT_NAME, accountId), username);
 
       e.commit();
 

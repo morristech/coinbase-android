@@ -10,6 +10,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
@@ -44,6 +45,11 @@ public class RpcManager {
 
     return call(context, method, false, null, true);
   }
+
+  public JSONObject callGet(Context context, String method, Collection<BasicNameValuePair> params) throws IOException, JSONException {
+
+    return call(context, method, false, params, true);
+  }
   
   public JSONObject callPost(Context context, String method, Collection<BasicNameValuePair> params) throws IOException, JSONException {
     
@@ -65,6 +71,11 @@ public class RpcManager {
       ((HttpPost) request).setEntity(new UrlEncodedFormEntity(parametersBody, HTTP.UTF_8));
     } else {
       
+      if(params != null) {
+        List<BasicNameValuePair> paramsList = (params instanceof List<?>) ? (List<BasicNameValuePair>)params : new ArrayList<BasicNameValuePair>(params);
+        url = url + "?" + URLEncodedUtils.format(paramsList, "UTF-8");
+      }
+      
       request = new HttpGet(url);
     }
     
@@ -83,7 +94,7 @@ public class RpcManager {
       return call(context, method, isPost, params, false);
     } else if(code != 200) {
 
-      throw new IOException("HTTP response " + code);
+      throw new IOException("HTTP response " + code + " to request " + method);
     }
 
     JSONObject content = new JSONObject(new JSONTokener(EntityUtils.toString(response.getEntity())));

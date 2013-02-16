@@ -85,6 +85,15 @@ public class TransactionsFragment extends ListFragment {
   }
 
   @Override
+  public void onSaveInstanceState(Bundle outState) {
+    
+    super.onSaveInstanceState(outState);
+    
+    outState.putString("balance_text", mBalanceText.getText().toString());
+    outState.putString("balance_currency", mBalanceCurrency.getText().toString());
+  }
+
+  @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
 
@@ -102,6 +111,14 @@ public class TransactionsFragment extends ListFragment {
     mAccount = (TextView) headerView.findViewById(R.id.wallet_account);
 
     mAccount.setText(LoginManager.getInstance().getSelectedAccountName(getActivity()));
+    
+    if(savedInstanceState != null) {
+      
+      if(savedInstanceState.containsKey("balance_text")) {
+        mBalanceText.setText(savedInstanceState.getString("balance_text"));
+        mBalanceCurrency.setText(savedInstanceState.getString("balance_currency"));
+      }
+    }
     
     return view;
   }

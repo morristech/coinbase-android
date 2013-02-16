@@ -16,7 +16,7 @@ public class LoginActivity extends CoinbaseActivity {
 
   TextView mLoginProgress;
   Button mLoginButton;
-  EditText mLoginUsername, mLoginPassword;
+  EditText mLoginUsername, mLoginPassword, mLoginTwoFactor;
 
   private class LoginTask extends AsyncTask<String, Void, String> {
 
@@ -39,7 +39,7 @@ public class LoginActivity extends CoinbaseActivity {
     @Override
     protected String doInBackground(String... params) {
       
-      return LoginManager.getInstance().addAccount(LoginActivity.this, params[0], params[1]);
+      return LoginManager.getInstance().addAccount(LoginActivity.this, params[0], params[1], params[2]);
     }
   }
 
@@ -54,6 +54,7 @@ public class LoginActivity extends CoinbaseActivity {
     mLoginProgress = (TextView) findViewById(R.id.login_progress_text);
     mLoginUsername = (EditText) findViewById(R.id.login_username);
     mLoginPassword = (EditText) findViewById(R.id.login_password);
+    mLoginTwoFactor = (EditText) findViewById(R.id.login_twofactor);
 
     mLoginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -78,6 +79,7 @@ public class LoginActivity extends CoinbaseActivity {
     mLoginButton.setEnabled(!loading);
     mLoginUsername.setEnabled(!loading);
     mLoginPassword.setEnabled(!loading);
+    mLoginTwoFactor.setEnabled(!loading);
     setProgressBarIndeterminateVisibility(loading);
   }
 
@@ -112,7 +114,12 @@ public class LoginActivity extends CoinbaseActivity {
     
     String username = mLoginUsername.getText().toString();
     String password = mLoginPassword.getText().toString();
+    String twoFactorToken = mLoginTwoFactor.getText().toString();
     
-    new LoginTask().execute(username, password);
+    if(twoFactorToken.isEmpty()) {
+      twoFactorToken = null;
+    }
+    
+    new LoginTask().execute(username, password, twoFactorToken);
   }
 }

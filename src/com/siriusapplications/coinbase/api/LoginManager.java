@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import com.siriusapplications.coinbase.Constants;
@@ -52,19 +53,44 @@ public class LoginManager {
 
     return prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1) > -1;
   }
-  
+
   public String[] getAccounts(Context context) {
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
     int numAccounts = prefs.getInt(Constants.KEY_MAX_ACCOUNT, -1) + 1;
-    
-    String[] accounts = new String[numAccounts];
+
+    List<String> accounts = new ArrayList<String>();
     for(int i = 0; i < numAccounts; i++) {
-      
-      accounts[i] = prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, i), null);
+
+      String account = prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, i), null);
+      if(account != null) {
+        accounts.add(account);
+      }
     }
-    
-    return accounts;
+
+    return accounts.toArray(new String[0]);
+  }
+
+  public int getSelectedAccountIndex(Context context) {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    int numAccounts = prefs.getInt(Constants.KEY_MAX_ACCOUNT, -1) + 1;
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+
+    int id = 0;
+    for(int i = 0; i < numAccounts; i++) {
+
+      if(i == activeAccount) {
+        return id;
+      }
+
+      String account = prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, i), null);
+      if(account != null) {
+        id++;
+      }
+    }
+
+    return -1;
   }
 
   public String getAccessToken(Context context) {
@@ -92,7 +118,7 @@ public class LoginManager {
     parametersBody.add(new BasicNameValuePair("refresh_token", refreshToken));
 
     String[] newTokens;
-    
+
     try {
       newTokens = doTokenRequest(context, parametersBody);
     } catch(Exception e) {
@@ -117,11 +143,11 @@ public class LoginManager {
     e.commit();
   }
 
-  public String addAccount(Context context, String username, String password) {
+  public String addAccount(Context context, String username, String password, String twoFactorToken) {
 
     List<BasicNameValuePair> parametersBody = new ArrayList<BasicNameValuePair>();
     parametersBody.add(new BasicNameValuePair("grant_type", "password"));
-    parametersBody.add(new BasicNameValuePair("username", username));
+    parametersBody.add(new BasicNameValuePair("username", username + (twoFactorToken == null ? "" : "," + twoFactorToken)));
     parametersBody.add(new BasicNameValuePair("password", password));
 
     try {
@@ -192,5 +218,25 @@ public class LoginManager {
     String refreshToken = content.getString("refresh_token");
 
     return new String[] { accessToken, refreshToken };
+  }
+
+  public String getSelectedAccountName(Context context) {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    return prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, getSelectedAccountIndex(context)), null);
+  }
+
+  public void deleteCurrentAccount(Context context) {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    Editor e = prefs.edit();
+
+    int accountId = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    e.putInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    e.remove(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, accountId));
+    e.remove(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, accountId));
+    e.remove(String.format(Constants.KEY_ACCOUNT_NAME, accountId));
+
+    e.commit();
   }
 }

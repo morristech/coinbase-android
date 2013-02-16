@@ -12,8 +12,8 @@
     <string name="menu_sign_out">Sign out</string>
     <string name="login_hint_username">Username</string>
     <string name="login_hint_password">Password</string>
-    <string name="login_button">Sign in</string>
-    <string name="login_progress">Signing in#8230;</string>
+    <string name="login_button_login">Sign in</string>
+    <string name="login_progress">Signing in&#8230;</string>
     <string name="login_error_username_empty">Username cannot be empty.</string>
     <string name="login_error_password_empty">Password cannot be empty.</string>
     <string name="login_error_io">Could not login.</string>
@@ -22,9 +22,9 @@
     <string name="transfer_send_money_button">Send</string>
     <string name="transfer_amt">Amount (BTC)</string>
     <string name="transfer_notes">Notes</string>
-    <string name="wallet_balance">%1$f</string>
+    <string name="wallet_balance">%1$s</string>
     <string name="wallet_balance_currency">%1$s</string>
-    <string name="wallet_balance_def">-.---</string>
+    <string name="wallet_balance_def">-.----</string>
     <string name="wallet_balance_currency_def">BTC</string>
     <string name="wallet_balance_top">Current balance:</string>
     <string name="transfer_button_email">Email</string>
@@ -56,5 +56,16 @@
     <string name="buysell_success_buy">Purchased %1$s BTC.</string>
     <string name="buysell_success_sell">Sold %1$s BTC.</string>
     <string name="accounts_title">Choose an account</string>
+    <string name="wallet_balance_error">Could not load account balance.</string>
+    <string name="login_hint_twofactor">Two-factor code (optional)</string>
+    <string name="login_change_login">Don\'t have an account?</string>
+    <string name="login_change_signup">Already have an account?</string>
+    <string name="login_change_login_desc">Coinbase is the simplest way to buy, use, and accept Bitcoin. Sign up now:</string>
+    <string name="login_change_signup_desc">Sign in with your existing Coinbase account.</string>
+    <string name="login_title_login">Log in to your Coinbase account</string>
+    <string name="login_title_signup">Sign up for a Coinbase account</string>
+    <string name="login_button_signup">Sign up</string>
+    <string name="accounts_new">Add account</string>
+    <string name="sign_out_confirm">Are you sure you want to sign out?</string>
     
 </resources>

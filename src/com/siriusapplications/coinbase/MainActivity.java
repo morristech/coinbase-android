@@ -1,28 +1,52 @@
 package com.siriusapplications.coinbase;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.siriusapplications.coinbase.CoinbaseActivity.RequiresAuthentication;
 import com.siriusapplications.coinbase.api.LoginManager;
 
 @RequiresAuthentication
 public class MainActivity extends CoinbaseActivity implements ActionBar.TabListener {
+  
+  public class SignOutFragment extends DialogFragment {
+
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      builder.setMessage(R.string.sign_out_confirm);
+
+      builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int id) {
+          // Sign out
+          changeAccount(-1);
+        }
+      });
+
+      builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int id) {
+          // Dismiss
+        }
+      });
+
+      return builder.create();
+    }
+  }
+
 
   SectionsPagerAdapter mSectionsPagerAdapter;
   ViewPager mViewPager;
@@ -73,6 +97,20 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
   }
 
 
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    
+    switch(item.getItemId()) {
+    case R.id.menu_accounts:
+      new AccountsFragment().show(getSupportFragmentManager(), "accounts");
+      return true;
+    case R.id.menu_sign_out:
+      new SignOutFragment().show(getSupportFragmentManager(), "signOut");
+      return true;
+    }
+    
+    return super.onOptionsItemSelected(item);
+  }
 
   @Override
   public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
@@ -121,6 +159,17 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       case 2: return getString(R.string.title_section3).toUpperCase();
       }
       return null;
+    }
+  }
+  
+  public void changeAccount(int account) {
+    
+    if(account == -1) {
+      
+      // Delete current account
+      LoginManager.getInstance().deleteCurrentAccount(this);
+      finish();
+      startActivity(new Intent(this, LoginActivity.class));
     }
   }
 }

@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import com.siriusapplications.coinbase.api.LoginManager;
 import com.siriusapplications.coinbase.api.RpcManager;
+import com.siriusapplications.coinbase.db.TransactionsDatabase;
 
 public class TransactionsFragment extends ListFragment {
 
@@ -74,6 +76,23 @@ public class TransactionsFragment extends ListFragment {
       }
     }
 
+  }
+  
+  private class LoadTransactionsTask extends AsyncTask<Void, Void, Cursor> {
+
+    @Override
+    protected Cursor doInBackground(Void... params) {
+      
+      TransactionsDatabase database = new TransactionsDatabase();
+      return database.getReadableDatabase().query(TransactionsDatabase.TransactionEntry.TABLE_NAME,
+          null, null, null, null, null, null);
+    }
+
+    @Override
+    protected void onPostExecute(Cursor result) {
+      // TODO Auto-generated method stub
+      super.onPostExecute(result);
+    }
   }
   ListView mListView;
   TextView mBalanceText, mBalanceCurrency, mAccount;
@@ -82,6 +101,9 @@ public class TransactionsFragment extends ListFragment {
   public void onCreate(Bundle savedInstanceState) {
 
     super.onCreate(savedInstanceState);
+    
+    // Load transaction list
+    new LoadTransactionsTask().execute();
   }
 
   @Override

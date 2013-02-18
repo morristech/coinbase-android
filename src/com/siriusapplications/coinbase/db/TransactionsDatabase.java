@@ -16,15 +16,15 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
     public static final String COLUMN_NAME_JSON = "json";
   }
 
-  private static final String TEXT_TYPE = " TEXT";
-  private static final String COMMA_SEP = ",";
-  private static final String SQL_CREATE_ENTRIES =
+  public static final String TEXT_TYPE = " TEXT";
+  public static final String COMMA_SEP = ",";
+  public static final String SQL_CREATE_ENTRIES =
       "CREATE TABLE " + TransactionEntry.TABLE_NAME + " (" +
           TransactionEntry._ID + " INTEGER PRIMARY KEY," +
           TransactionEntry.COLUMN_NAME_JSON + TEXT_TYPE + COMMA_SEP +
           " )";
 
-  private static final String SQL_DELETE_ENTRIES =
+  public static final String SQL_DELETE_ENTRIES =
       "DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME;
 
   public static final int DATABASE_VERSION = 1;

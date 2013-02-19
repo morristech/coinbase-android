@@ -107,6 +107,9 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     case R.id.menu_sign_out:
       new SignOutFragment().show(getSupportFragmentManager(), "signOut");
       return true;
+    case R.id.menu_about:
+      startActivity(new Intent(this, AboutActivity.class));
+      return true;
     }
     
     return super.onOptionsItemSelected(item);

@@ -4,23 +4,24 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.Calendar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,7 +47,24 @@ public class TransactionsFragment extends ListFragment {
 
         JSONObject balance = RpcManager.getInstance().callGet(getActivity(), "account/balance");
 
-        return new String[] { balance.getString("amount"), balance.getString("currency") };
+        BigDecimal balanceNumber = new BigDecimal(balance.getString("amount"));
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(4);
+        df.setMinimumFractionDigits(4);
+        df.setGroupingUsed(false);
+        String balanceString = df.format(balanceNumber);
+
+        String[] result = new String[] { balanceString, balance.getString("currency") };
+
+        // Save balance in preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+        Editor editor = prefs.edit();
+        editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE, activeAccount), result[0]);
+        editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE_CURRENCY, activeAccount), result[1]);
+        editor.commit();
+
+        return result;
 
       } catch (IOException e) {
 
@@ -75,15 +93,8 @@ public class TransactionsFragment extends ListFragment {
         Toast.makeText(getActivity(), R.string.wallet_balance_error, Toast.LENGTH_SHORT).show();
       } else {
 
-        BigDecimal balance = new BigDecimal(result[0]);
-        DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(4);
-        df.setMinimumFractionDigits(4);
-        df.setGroupingUsed(false);
-        String balanceString = df.format(balance);
-
         mBalanceText.setTextColor(getResources().getColor(R.color.wallet_balance_color));
-        mBalanceText.setText(String.format(getActivity().getString(R.string.wallet_balance), balanceString));
+        mBalanceText.setText(String.format(getActivity().getString(R.string.wallet_balance), result[0]));
         mBalanceCurrency.setText(String.format(getActivity().getString(R.string.wallet_balance_currency), result[1]));
 
       }
@@ -95,13 +106,13 @@ public class TransactionsFragment extends ListFragment {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-      
+
       JSONObject response;
-      
+
       try {
 
         response = RpcManager.getInstance().callGet(getActivity(), "transactions");
-        
+
       } catch (IOException e) {
         Log.e("Coinbase", "I/O error refreshing transactions.");
         e.printStackTrace();
@@ -113,21 +124,21 @@ public class TransactionsFragment extends ListFragment {
         e.printStackTrace();
 
         return false;
-      } 
+      }
 
       TransactionsDatabase dbHelper = new TransactionsDatabase(getActivity());
       SQLiteDatabase db = dbHelper.getWritableDatabase();
 
       db.beginTransaction();
-      
+
       // Make API call to download list of transactions
       try {
-        
+
         JSONArray transactionsArray = response.getJSONArray("transactions");
 
         // Remove all old transactions
         db.delete(TransactionEntry.TABLE_NAME, null, null);
-        
+
         // Update user ID
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
@@ -139,7 +150,7 @@ public class TransactionsFragment extends ListFragment {
 
           JSONObject transaction = transactionsArray.getJSONObject(i).getJSONObject("transaction");
           ContentValues values = new ContentValues();
-          
+
           String createdAtStr = transaction.optString("created_at", null);
           long createdAt;
           try {
@@ -160,7 +171,7 @@ public class TransactionsFragment extends ListFragment {
 
           db.insert(TransactionEntry.TABLE_NAME, null, values);
         }
-        
+
         db.setTransactionSuccessful();
 
         // Update list
@@ -175,7 +186,7 @@ public class TransactionsFragment extends ListFragment {
 
         return false;
       } finally {
-        
+
         db.endTransaction();
         db.close();
       }
@@ -202,18 +213,18 @@ public class TransactionsFragment extends ListFragment {
 
       JSONObject r = t.optJSONObject("recipient");
       String recipientName = null;
-      
+
       if(r == null) { 
         recipientName = getString(R.string.transaction_user_external);
       } else { 
-        
+
         if("transfers@coinbase.com".equals(r.optString("email"))) {
           // This was a bitcoin sell
           return getString(R.string.transaction_summary_sell);
         }
-        
+
         recipientName = r.optString("name", 
-          r.optString("email", getString(R.string.transaction_user_external)));
+            r.optString("email", getString(R.string.transaction_user_external)));
       }
 
       if(t.getBoolean("request")) {
@@ -225,18 +236,18 @@ public class TransactionsFragment extends ListFragment {
 
       JSONObject r = t.optJSONObject("sender");
       String senderName = null;
-      
+
       if(r == null) { 
         senderName = getString(R.string.transaction_user_external);
       } else { 
-        
+
         if("transfers@coinbase.com".equals(r.optString("email"))) {
           // This was a bitcoin buy
           return getString(R.string.transaction_summary_buy);
         }
-        
+
         senderName = r.optString("name", 
-          r.optString("email", getString(R.string.transaction_user_external)));
+            r.optString("email", getString(R.string.transaction_user_external)));
       }
 
       if(t.getBoolean("request")) {
@@ -270,7 +281,7 @@ public class TransactionsFragment extends ListFragment {
           df.setMinimumFractionDigits(4);
           df.setGroupingUsed(false);
           String balanceString = df.format(balance);
-          
+
           int sign = balance.compareTo(BigDecimal.ZERO);
           int color = sign == -1 ? R.color.transaction_negative : (sign == 0 ? R.color.transaction_neutral : R.color.transaction_positive);
 
@@ -378,20 +389,32 @@ public class TransactionsFragment extends ListFragment {
 
     mAccount.setText(LoginManager.getInstance().getSelectedAccountName(getActivity()));
 
-    if(savedInstanceState != null) {
+    // Load old balance
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    String oldBalance = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE, activeAccount), null);
+    String oldCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE_CURRENCY, activeAccount), null);
 
-      if(savedInstanceState.containsKey("balance_text")) {
-        mBalanceText.setText(savedInstanceState.getString("balance_text"));
-        mBalanceCurrency.setText(savedInstanceState.getString("balance_currency"));
-      }
+    if(oldBalance != null) {
+      mBalanceText.setText(oldBalance);
+      mBalanceCurrency.setText(oldCurrency);
     }
 
     // Load transaction list
-    new LoadTransactionsTask().execute();
+    loadTransactionsList();
 
     return view;
   }
 
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  private void loadTransactionsList() {
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+      new LoadTransactionsTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    } else {
+      new LoadTransactionsTask().execute();
+    }
+  }
+  
   @Override
   public void onResume() {
 

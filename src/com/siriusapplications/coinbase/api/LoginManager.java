@@ -223,7 +223,8 @@ public class LoginManager {
   public String getSelectedAccountName(Context context) {
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-    return prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, getSelectedAccountIndex(context)), null);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    return prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, activeAccount), null);
   }
 
   public void deleteCurrentAccount(Context context) {

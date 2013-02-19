@@ -9,5 +9,8 @@
     <style name="wallet_balance_invalid">
         <item name="android:textColor">@color/wallet_balance_color_invalid</item>
     </style>
+    <color name="transaction_positive">#005500</color>
+    <color name="transaction_negative">#550000</color>
+    <color name="transaction_neutral">#000000</color>
 
 </resources>

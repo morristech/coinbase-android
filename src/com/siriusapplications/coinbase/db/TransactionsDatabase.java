@@ -12,22 +12,25 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
 
   public static class TransactionEntry implements BaseColumns {
 
-    public static final String TABLE_NAME = "transaction";
+    public static final String TABLE_NAME = "coinbaseTransactions";
     public static final String COLUMN_NAME_JSON = "json";
+    public static final String COLUMN_NAME_TIME = "timestamp";
   }
 
   public static final String TEXT_TYPE = " TEXT";
+  public static final String INTEGER_TYPE = " INTEGER";
   public static final String COMMA_SEP = ",";
   public static final String SQL_CREATE_ENTRIES =
       "CREATE TABLE " + TransactionEntry.TABLE_NAME + " (" +
-          TransactionEntry._ID + " INTEGER PRIMARY KEY," +
+          TransactionEntry._ID + " TEXT PRIMARY KEY," +
           TransactionEntry.COLUMN_NAME_JSON + TEXT_TYPE + COMMA_SEP +
-          " )";
+          TransactionEntry.COLUMN_NAME_TIME + INTEGER_TYPE +
+          ")";
 
   public static final String SQL_DELETE_ENTRIES =
       "DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME;
 
-  public static final int DATABASE_VERSION = 1;
+  public static final int DATABASE_VERSION = 3;
   public static final String DATABASE_NAME = "transactions";
 
   public TransactionsDatabase(Context context) {

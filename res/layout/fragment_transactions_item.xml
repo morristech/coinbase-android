@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:padding="10dp" >
+
+    <TextView
+        android:id="@+id/transaction_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:text="You sent bitcoins to an external account"
+        android:maxLines="2"
+        android:layout_toLeftOf="@+id/transaction_amount"
+        android:textSize="7pt"
+        android:layout_marginRight="10dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/transaction_amount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/transaction_currency"
+        android:layout_alignParentTop="true"
+        android:text="1.1186"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/transaction_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/transaction_amount"
+        android:background="@drawable/transaction_pending"
+        android:paddingBottom="2dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:paddingTop="2dp"
+        android:text="@string/transaction_status_pending"
+        android:textColor="#FFFFFF"
+        android:textSize="13dp" />
+
+    <TextView
+        android:id="@+id/transaction_currency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/transaction_amount"
+        android:layout_alignParentRight="true"
+        android:text="@string/btc"
+        android:textColor="#222222"
+        android:layout_marginLeft="3dp" />
+
+</RelativeLayout>

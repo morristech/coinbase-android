@@ -67,5 +67,15 @@
     <string name="login_button_signup">Sign up</string>
     <string name="accounts_new">Add account</string>
     <string name="sign_out_confirm">Are you sure you want to sign out?</string>
+    <string name="transaction_status_pending">Pending</string>
+    <string name="transaction_status_complete">Complete</string>
+    <string name="transaction_summary_request_me">%1$s requested money from you</string>
+    <string name="transaction_summary_request_them">You requested money from %1$s</string>
+    <string name="transaction_summary_send_me">You sent bitcoins to %1$s</string>
+    <string name="transaction_summary_send_them">You received bitcoins from %1$s</string>
+    <string name="transaction_status_error">Unknown</string>
+    <string name="transaction_user_external">an external account</string>
+    <string name="transaction_summary_sell">You sold bitcoins</string>
+    <string name="transaction_summary_buy">You purchased bitcoins</string>
     
 </resources>

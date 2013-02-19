@@ -2,7 +2,6 @@ package com.siriusapplications.coinbase;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 
 import org.json.JSONArray;
@@ -10,9 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
@@ -22,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,12 +47,7 @@ public class TransactionsFragment extends ListFragment {
 
         JSONObject balance = RpcManager.getInstance().callGet(getActivity(), "account/balance");
 
-        BigDecimal balanceNumber = new BigDecimal(balance.getString("amount"));
-        DecimalFormat df = new DecimalFormat();
-        df.setMaximumFractionDigits(4);
-        df.setMinimumFractionDigits(4);
-        df.setGroupingUsed(false);
-        String balanceString = df.format(balanceNumber);
+        String balanceString = Utils.formatCurrencyAmount(balance.getString("amount"));
 
         String[] result = new String[] { balanceString, balance.getString("currency") };
 
@@ -175,7 +170,9 @@ public class TransactionsFragment extends ListFragment {
         db.setTransactionSuccessful();
 
         // Update list
-        //((CursorAdapter) mListView.getAdapter()).runQueryOnBackgroundThread(null);
+        if(mListView.getAdapter() != null) {
+          ((CursorAdapter) mListView.getAdapter()).runQueryOnBackgroundThread(null);
+        }
 
         return true;
 
@@ -275,14 +272,10 @@ public class TransactionsFragment extends ListFragment {
 
         case R.id.transaction_amount: 
 
-          BigDecimal balance = new BigDecimal(item.getJSONObject("amount").getString("amount"));
-          DecimalFormat df = new DecimalFormat();
-          df.setMaximumFractionDigits(4);
-          df.setMinimumFractionDigits(4);
-          df.setGroupingUsed(false);
-          String balanceString = df.format(balance);
+          String amount = item.getJSONObject("amount").getString("amount");
+          String balanceString = Utils.formatCurrencyAmount(amount);
 
-          int sign = balance.compareTo(BigDecimal.ZERO);
+          int sign = new BigDecimal(amount).compareTo(BigDecimal.ZERO);
           int color = sign == -1 ? R.color.transaction_negative : (sign == 0 ? R.color.transaction_neutral : R.color.transaction_positive);
 
           ((TextView) arg0).setText(balanceString);
@@ -414,7 +407,7 @@ public class TransactionsFragment extends ListFragment {
       new LoadTransactionsTask().execute();
     }
   }
-  
+
   @Override
   public void onResume() {
 
@@ -422,6 +415,18 @@ public class TransactionsFragment extends ListFragment {
 
     // Reload balance
     new LoadBalanceTask().execute();
+  }
+
+  @Override
+  public void onListItemClick(ListView l, View v, int position, long id) {
+    
+    Cursor c = ((CursorAdapter) l.getAdapter()).getCursor();
+    c.moveToPosition(position);
+    
+    String transactionId = c.getString(c.getColumnIndex(TransactionEntry._ID));
+    Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class);
+    intent.putExtra(TransactionDetailsFragment.EXTRA_ID, transactionId);
+    getActivity().startActivity(intent);
   }
 
 }

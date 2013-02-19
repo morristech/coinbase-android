@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content">
+	
+	    <TextView
+	        android:id="@+id/transactiondetails_label_amount"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_marginTop="15dp"
+	        android:layout_marginLeft="15dp"
+	        android:text="@string/transactiondetails_amountsent"
+          style="@style/TransactionDetailsLabel" />
+	
+	    <TextView
+	        android:id="@+id/transactiondetails_label_from"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+          android:layout_alignRight="@+id/transactiondetails_label_amount"
+	        android:layout_alignBaseline="@+id/transactiondetails_from"
+	        android:text="@string/transactiondetails_from"
+          style="@style/TransactionDetailsLabel" />
+	
+	    <TextView
+	        android:id="@+id/transactiondetails_label_to"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignRight="@+id/transactiondetails_label_from"
+          android:layout_alignBaseline="@+id/transactiondetails_to"
+	        android:text="@string/transactiondetails_to"
+          style="@style/TransactionDetailsLabel" />
+	
+	    <TextView
+	        android:id="@+id/transactiondetails_label_date"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignRight="@+id/transactiondetails_label_to"
+          android:layout_alignBaseline="@+id/transactiondetails_date"
+	        android:text="@string/transactiondetails_date"
+          style="@style/TransactionDetailsLabel" />
+	
+	    <TextView
+	        android:id="@+id/transactiondetails_label_status"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignRight="@+id/transactiondetails_label_date"
+          android:layout_alignBaseline="@+id/transactiondetails_status"
+	        android:text="@string/transactiondetails_status"
+          style="@style/TransactionDetailsLabel" />
+	
+	    <TextView
+	        android:id="@+id/transactiondetails_label_notes"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignRight="@+id/transactiondetails_label_status"
+          android:layout_alignBaseline="@+id/transactiondetails_notes"
+	        android:text="@string/transactiondetails_notes"
+	        style="@style/TransactionDetailsLabel" />
+
+	    <TextView
+	        android:id="@+id/transactiondetails_amount"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentRight="true"
+          android:layout_alignParentTop="true"
+	        android:layout_marginLeft="20dp"
+          android:layout_marginTop="15dp"
+          android:layout_marginRight="15dp"
+	        android:layout_toRightOf="@+id/transactiondetails_label_amount"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+      <TextView
+          android:id="@+id/transactiondetails_from"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/transactiondetails_amount"
+          android:layout_alignParentRight="true"
+          android:layout_marginLeft="20dp"
+          android:layout_marginTop="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_toRightOf="@+id/transactiondetails_label_from"
+          android:textAppearance="?android:attr/textAppearanceMedium" />
+
+      <TextView
+          android:id="@+id/transactiondetails_to"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/transactiondetails_from"
+          android:layout_alignParentRight="true"
+          android:layout_marginLeft="20dp"
+          android:layout_marginTop="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_toRightOf="@+id/transactiondetails_label_to"
+          android:textAppearance="?android:attr/textAppearanceMedium" />
+
+      <TextView
+          android:id="@+id/transactiondetails_date"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/transactiondetails_to"
+          android:layout_alignParentRight="true"
+          android:layout_marginLeft="20dp"
+          android:layout_marginTop="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_toRightOf="@+id/transactiondetails_label_date"
+          android:textAppearance="?android:attr/textAppearanceMedium" />
+
+      <TextView
+          android:id="@+id/transactiondetails_status"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/transactiondetails_date"
+          android:layout_marginLeft="20dp"
+          android:layout_marginTop="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_toRightOf="@+id/transactiondetails_label_status"
+          style="@style/TransactionStatus"/>
+
+      <TextView
+          android:id="@+id/transactiondetails_notes"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/transactiondetails_status"
+          android:layout_alignParentRight="true"
+          android:layout_marginLeft="20dp"
+          android:layout_marginTop="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_toRightOf="@+id/transactiondetails_label_notes"
+          android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	</RelativeLayout>
+</ScrollView>

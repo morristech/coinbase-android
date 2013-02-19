@@ -33,13 +33,8 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/transaction_amount"
         android:background="@drawable/transaction_pending"
-        android:paddingBottom="2dp"
-        android:paddingLeft="4dp"
-        android:paddingRight="4dp"
-        android:paddingTop="2dp"
         android:text="@string/transaction_status_pending"
-        android:textColor="#FFFFFF"
-        android:textSize="13dp" />
+        style="@style/TransactionStatus" />
 
     <TextView
         android:id="@+id/transaction_currency"

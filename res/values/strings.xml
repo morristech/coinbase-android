@@ -77,5 +77,14 @@
     <string name="transaction_user_external">an external account</string>
     <string name="transaction_summary_sell">You sold bitcoins</string>
     <string name="transaction_summary_buy">You purchased bitcoins</string>
+    <string name="transactiondetails_amountreceived">Amount received</string>
+    <string name="transactiondetails_from">From</string>
+    <string name="transactiondetails_to">To</string>
+    <string name="transactiondetails_date">Date</string>
+    <string name="transactiondetails_status">Status</string>
+    <string name="transactiondetails_amountsent">Amount sent</string>
+    <string name="transactiondetails_notes">Notes</string>
+    <string name="transactiondetails_error">Could not load transaction details.</string>
+    <string name="transaction_user_you">You</string>
     
 </resources>

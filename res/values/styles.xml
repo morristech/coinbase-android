@@ -12,5 +12,17 @@
     <color name="transaction_positive">#005500</color>
     <color name="transaction_negative">#550000</color>
     <color name="transaction_neutral">#000000</color>
+    <color name="transactiondetails_label">#444444</color>
+    <style name="TransactionDetailsLabel" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">@color/transactiondetails_label</item>
+    </style>
+    <style name="TransactionStatus">
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">13dp</item>
+    </style>
 
 </resources>

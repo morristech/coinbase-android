@@ -27,6 +27,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -171,7 +173,8 @@ public class TransactionsFragment extends ListFragment {
 
         // Update list
         if(mListView.getAdapter() != null) {
-          ((CursorAdapter) mListView.getAdapter()).runQueryOnBackgroundThread(null);
+          // TODO Currently not working
+          // ((CursorAdapter) mListView.getAdapter()).runQueryOnBackgroundThread(null);
         }
 
         return true;
@@ -332,6 +335,7 @@ public class TransactionsFragment extends ListFragment {
     @Override
     protected void onPostExecute(Cursor result) {
 
+      setHeaderPinned(!result.moveToFirst());
       String[] from = { TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON,
           TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON };
       int[] to = { R.id.transaction_title, R.id.transaction_amount,
@@ -342,7 +346,9 @@ public class TransactionsFragment extends ListFragment {
       mListView.setAdapter(adapter);
     }
   }
+  FrameLayout mListHeaderContainer;
   ListView mListView;
+  ViewGroup mListHeader, mMainView;
   TextView mBalanceText, mBalanceCurrency, mAccount;
 
   @Override
@@ -369,16 +375,19 @@ public class TransactionsFragment extends ListFragment {
 
     // Inflate base layout
     ViewGroup view = (ViewGroup) inflater.inflate(R.layout.fragment_transactions, container, false);
+    mMainView = view;
 
     mListView = (ListView) view.findViewById(android.R.id.list);
 
     // Inflate header (which contains account balance)
-    View headerView = inflater.inflate(R.layout.fragment_transactions_header, null, false);
-    view.addView(headerView, 0);
+    mListHeader = (ViewGroup) inflater.inflate(R.layout.fragment_transactions_header, null, false);
+    mListHeaderContainer = new FrameLayout(getActivity());
+    setHeaderPinned(true);
+    mListView.addHeaderView(mListHeaderContainer);
 
-    mBalanceText = (TextView) headerView.findViewById(R.id.wallet_balance);
-    mBalanceCurrency = (TextView) headerView.findViewById(R.id.wallet_balance_currency);
-    mAccount = (TextView) headerView.findViewById(R.id.wallet_account);
+    mBalanceText = (TextView) mListHeader.findViewById(R.id.wallet_balance);
+    mBalanceCurrency = (TextView) mListHeader.findViewById(R.id.wallet_balance_currency);
+    mAccount = (TextView) mListHeader.findViewById(R.id.wallet_account);
 
     mAccount.setText(LoginManager.getInstance().getSelectedAccountName(getActivity()));
 
@@ -397,6 +406,18 @@ public class TransactionsFragment extends ListFragment {
     loadTransactionsList();
 
     return view;
+  }
+  
+  private void setHeaderPinned(boolean pinned) {
+    
+    mMainView.removeView(mListHeader);
+    mListHeaderContainer.removeAllViews();
+
+    if(pinned) {
+      mMainView.addView(mListHeader, 0);
+    } else {
+      mListHeaderContainer.addView(mListHeader);
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -420,7 +441,13 @@ public class TransactionsFragment extends ListFragment {
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
     
-    Cursor c = ((CursorAdapter) l.getAdapter()).getCursor();
+    if(position == 0) {
+      return; // Header view
+    }
+    
+    position--;
+    
+    Cursor c = ((CursorAdapter) ((HeaderViewListAdapter) l.getAdapter()).getWrappedAdapter()).getCursor();
     c.moveToPosition(position);
     
     String transactionId = c.getString(c.getColumnIndex(TransactionEntry._ID));

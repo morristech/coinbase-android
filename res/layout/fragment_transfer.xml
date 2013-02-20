@@ -36,7 +36,6 @@
                 android:inputType="numberDecimal" />
     
     
-    
             <EditText
                 android:id="@+id/transfer_money_notes"
                 android:layout_width="wrap_content"
@@ -49,42 +48,57 @@
                 android:hint="@string/transfer_notes"
                 android:inputType="textMultiLine" >
     
-                <requestFocus />
             </EditText>
-    
-    
-    
-            <LinearLayout
+            
+            <EditText
+                android:id="@+id/transfer_money_recipient"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/transfer_money_notes"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/transfer_money_notes"
+                android:layout_marginTop="10dp"
+                android:ems="10"
+                android:hint="@string/transfer_recipient"
+                android:inputType="textEmailAddress" >
+    
+            </EditText>
+    
+            <Button
+                android:id="@+id/transfer_money_button_send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/transfer_money_recipient"
+                android:layout_below="@+id/transfer_money_recipient"
+                android:layout_marginTop="10dp"
+                android:text="@string/transfer_button_send" />
+    
+            <Button
+                android:id="@+id/transfer_money_button_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_alignRight="@+id/transfer_money_notes"
                 android:layout_below="@+id/transfer_money_notes"
-                android:layout_marginTop="10dp" >
+                android:layout_marginTop="10dp"
+                android:text="@string/transfer_button_email" />
     
-                <Button
-                    android:id="@+id/transfer_money_button_email"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/transfer_button_email" />
+            <Button
+                android:id="@+id/transfer_money_button_qrcode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/transfer_money_button_email"
+                android:layout_below="@+id/transfer_money_button_email"
+                android:layout_marginTop="5dp"
+                android:text="@string/transfer_button_qrcode" />
     
-    
-                <Button
-                    android:id="@+id/transfer_money_button_address"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/transfer_button_address" />
-    
-                <Button
-                    android:id="@+id/transfer_money_button_nfc"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/transfer_button_nfc" />
-    
-            </LinearLayout>
+            <Button
+                android:id="@+id/transfer_money_button_nfc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/transfer_money_button_qrcode"
+                android:layout_below="@+id/transfer_money_button_qrcode"
+                android:layout_marginTop="5dp"
+                android:text="@string/transfer_button_nfc" />
             
         </RelativeLayout>
 

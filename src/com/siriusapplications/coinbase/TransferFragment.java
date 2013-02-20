@@ -272,13 +272,17 @@ public class TransferFragment extends Fragment {
       
       @Override
       public void onClick(View v) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+        String receiveAddress = prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null);
+        String requestUri = String.format("bitcoin:%s", receiveAddress);
         
-        String mReceiveAddress = "test";
-        String requestUri = String.format("bitcoin:%s", mReceiveAddress);
         boolean hasAmount = false;
         
         if(mAmount != null && !"".equals(mAmount)) {
           requestUri += "?amount=" + mAmount;
+          hasAmount = true;
         }
         
         if(mNotes != null && !"".equals(mNotes)) {

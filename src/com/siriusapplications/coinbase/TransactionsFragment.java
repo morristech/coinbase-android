@@ -172,10 +172,7 @@ public class TransactionsFragment extends ListFragment {
         db.setTransactionSuccessful();
 
         // Update list
-        if(mListView.getAdapter() != null) {
-          // TODO Currently not working
-          // ((CursorAdapter) mListView.getAdapter()).runQueryOnBackgroundThread(null);
-        }
+        loadTransactionsList();
 
         return true;
 

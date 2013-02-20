@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -203,6 +204,42 @@ public class TransferFragment extends Fragment {
       public void onClick(View v) {
         
         startTransferTask(TransferType.SEND, mAmount, mNotes, mRecipient);
+      }
+    });
+    
+    mSubmitQr.setOnClickListener(new View.OnClickListener() {
+      
+      @Override
+      public void onClick(View v) {
+        
+        String mReceiveAddress = "test";
+        String requestUri = String.format("bitcoin:%s", mReceiveAddress);
+        boolean hasAmount = false;
+        
+        if(mAmount != null && !"".equals(mAmount)) {
+          requestUri += "?amount=" + mAmount;
+        }
+        
+        if(mNotes != null && !"".equals(mNotes)) {
+          if(hasAmount) {
+            requestUri += "&";
+          } else {
+            requestUri += "?";
+          }
+          
+          requestUri += "message=" + mNotes;
+        }
+        
+        Intent intent = new Intent("com.google.zxing.client.android.ENCODE");
+        intent.putExtra("ENCODE_TYPE", "TEXT");
+        intent.putExtra("ENCODE_DATA", requestUri);
+        startActivity(intent);
+        
+        DisplayQrCodeFragment f = new DisplayQrCodeFragment();
+        Bundle args = new Bundle();
+        args.putString("data", requestUri);
+        f.setArguments(args);
+        //f.show(getFragmentManager(), "qrrequest");
       }
     });
 

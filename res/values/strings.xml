@@ -103,5 +103,7 @@
     <string name="about_licence">An open source project\nhttps://github.com/isaacwaller/coinbase-android\nSource code licenced under Apache License 2.0</string>
     <string name="about_contributors">Contributors:\n\n%1$s</string>
     <string name="about_title">About %1$s</string>
+    <string name="transfer_address_title">Your receive address</string>
+    <string name="transfer_address_generate">Generate new</string>
     
 </resources>

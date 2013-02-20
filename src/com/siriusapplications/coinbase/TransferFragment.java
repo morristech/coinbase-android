@@ -13,10 +13,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.ProgressDialog;
-import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,10 +31,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
 import com.siriusapplications.coinbase.api.RpcManager;
 
 public class TransferFragment extends Fragment {
@@ -95,9 +101,60 @@ public class TransferFragment extends Fragment {
     }
   }
 
+  private class LoadReceiveAddressTask extends AsyncTask<Void, Void, String> {
+
+    @Override
+    protected String doInBackground(Void... params) {
+
+      try {
+
+        JSONObject response = RpcManager.getInstance().callGet(getActivity(), "account/receive_address");
+
+        String address = response.optString("address");
+        
+        if(address != null) {
+          // Save balance in preferences
+          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+          int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+          Editor editor = prefs.edit();
+          editor.putString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), address);
+          editor.commit();
+        }
+        
+        return address;
+
+      } catch (IOException e) {
+
+        e.printStackTrace();
+      } catch (JSONException e) {
+
+        e.printStackTrace();
+      }
+
+      return null;
+    }
+
+    @Override
+    protected void onPreExecute() {
+
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+      setReceiveAddress(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null));
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+
+      setReceiveAddress(result);
+    }
+
+  }
+
   private Spinner mTransferTypeView;
-  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc;
+  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mGenerateAddress;
   private EditText mAmountView, mNotesView, mRecipientView;
+  private TextView mReceiveAddress;
+  private ImageView mReceiveAddressBarcode;
 
   private int mTransferType;
   private String mAmount, mNotes, mRecipient;
@@ -141,6 +198,10 @@ public class TransferFragment extends Fragment {
     mAmountView = (EditText) view.findViewById(R.id.transfer_money_amt);
     mNotesView = (EditText) view.findViewById(R.id.transfer_money_notes);
     mRecipientView = (EditText) view.findViewById(R.id.transfer_money_recipient);
+    
+    mReceiveAddress = (TextView) view.findViewById(R.id.transfer_address);
+    mGenerateAddress = (Button) view.findViewById(R.id.transfer_address_generate);
+    mReceiveAddressBarcode = (ImageView) view.findViewById(R.id.transfer_address_barcode);
 
     mAmountView.addTextChangedListener(new TextWatcher() {
 
@@ -237,10 +298,34 @@ public class TransferFragment extends Fragment {
         f.show(getFragmentManager(), "qrrequest");
       }
     });
+    
+    new LoadReceiveAddressTask().execute();
 
     return view;
   }
 
+  private void setReceiveAddress(String address) {
+    
+    if(address == null) {
+      mReceiveAddress.setText(null);
+      mReceiveAddressBarcode.setImageDrawable(null);
+      return;
+    }
+    
+    mReceiveAddress.setText(address);
+    
+    try {
+      int size = (int)(getResources().getDisplayMetrics().density * 128);
+      Bitmap barcode = Utils.createBarcode("bitcoin:" + address, BarcodeFormat.QR_CODE,
+          size, size);
+      mReceiveAddressBarcode.setImageBitmap(barcode);
+      
+    } catch (WriterException e) {
+      // Could not generate barcode
+      e.printStackTrace();
+    }
+  }
+  
   private void initializeTypeSpinner() {
 
     ArrayAdapter<TransferType> arrayAdapter = new ArrayAdapter<TransferType>(

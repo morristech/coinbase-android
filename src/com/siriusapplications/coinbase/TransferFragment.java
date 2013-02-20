@@ -230,16 +230,11 @@ public class TransferFragment extends Fragment {
           requestUri += "message=" + mNotes;
         }
         
-        Intent intent = new Intent("com.google.zxing.client.android.ENCODE");
-        intent.putExtra("ENCODE_TYPE", "TEXT");
-        intent.putExtra("ENCODE_DATA", requestUri);
-        startActivity(intent);
-        
         DisplayQrCodeFragment f = new DisplayQrCodeFragment();
         Bundle args = new Bundle();
         args.putString("data", requestUri);
         f.setArguments(args);
-        //f.show(getFragmentManager(), "qrrequest");
+        f.show(getFragmentManager(), "qrrequest");
       }
     });
 

@@ -1,25 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+      android:paddingTop="50dp"
+      android:paddingBottom="50dp" >
+	
+	    <ImageView
+	        android:id="@+id/about_icon"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentTop="true"
+	        android:layout_centerHorizontal="true"
+	        android:src="@drawable/ic_launcher" />
+	
+	    <TextView
+	        android:id="@+id/about_name"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/about_icon"
+	        android:layout_centerHorizontal="true"
+	        android:text="@string/app_name"
+	        android:layout_marginTop="5dp"
+	        android:textAppearance="?android:attr/textAppearanceLarge" />
+	
+	    <TextView
+	        android:id="@+id/about_version"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/about_name"
+	        android:layout_centerHorizontal="true"
+	        android:text="@string/version_name"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	
+	    <TextView
+	        android:id="@+id/about_licence"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/about_version"
+	        android:layout_centerHorizontal="true"
+	        android:autoLink="web"
+	        android:gravity="center"
+	        android:padding="10dp"
+	        android:text="@string/about_licence"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
 
-    <ImageView
-        android:id="@+id/about_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:src="@drawable/ic_launcher" />
-
-    <TextView
-        android:id="@+id/about_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/about_icon"
-        android:layout_centerHorizontal="true"
-        android:text="@string/app_name"
-        android:layout_marginTop="5dp"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-</RelativeLayout>
+	    <TextView
+	        android:id="@+id/about_contributors"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/about_licence"
+	        android:layout_centerHorizontal="true"
+	        android:autoLink="web|email"
+	        android:gravity="center"
+	        android:padding="10dp"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+	
+	</RelativeLayout>
+</ScrollView>

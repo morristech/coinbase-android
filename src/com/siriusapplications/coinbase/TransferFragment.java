@@ -1,10 +1,20 @@
 package com.siriusapplications.coinbase;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.ProgressDialog;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -19,23 +29,68 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.siriusapplications.coinbase.api.RpcManager;
 
 public class TransferFragment extends Fragment {
 
   private enum TransferType {
-    SEND(R.string.transfer_send_money),
-    REQUEST(R.string.transfer_request_money);
+    SEND(R.string.transfer_send_money, "send"),
+    REQUEST(R.string.transfer_request_money, "request");
 
     private int mFriendlyName;
+    private String mRequestName;
 
-    private TransferType(int friendlyName) {
+    private TransferType(int friendlyName, String requestName) {
 
       mFriendlyName = friendlyName;
+      mRequestName = requestName;
     }
 
     public int getName() {
 
       return mFriendlyName;
+    }
+    
+    public String getRequestName() {
+      
+      return mRequestName;
+    }
+  }
+  
+  private class DoTransferTask extends AsyncTask<Object, Void, Object[]> {
+
+    private ProgressDialog mDialog;
+    
+    @Override
+    protected void onPreExecute() {
+
+      super.onPreExecute();
+      mDialog = ProgressDialog.show(getActivity(), null, getString(R.string.transfer_progress));
+    }
+
+    protected Object[] doInBackground(Object... params) {
+
+      return doTransfer((TransferType) params[0], (String) params[1], (String) params[2], (String) params[3]);
+    }
+
+    protected void onPostExecute(Object[] result) {
+
+      mDialog.dismiss();
+      
+      boolean success = (Boolean) result[0];
+      if(success) {
+        
+        TransferType type = (TransferType) result[2];
+        
+        int messageId = type == TransferType.SEND ? R.string.transfer_success_send : R.string.transfer_success_request;
+        String text = String.format(getString(messageId), (String) result[1], (String) result[3]);
+        Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+      } else {
+        
+        Utils.showMessageDialog(getFragmentManager(), (String) result[1]);
+      }
     }
   }
 
@@ -141,6 +196,15 @@ public class TransferFragment extends Fragment {
     mAmountView.setText(mAmount);
     mNotesView.setText(mNotes);
     mRecipientView.setText(mRecipient);
+    
+    mSubmitSend.setOnClickListener(new View.OnClickListener() {
+      
+      @Override
+      public void onClick(View v) {
+        
+        startTransferTask(TransferType.SEND, mAmount, mNotes, mRecipient);
+      }
+    });
 
     return view;
   }
@@ -181,6 +245,52 @@ public class TransferFragment extends Fragment {
     mSubmitQr.setVisibility(isSend ? View.GONE : View.VISIBLE);
     mSubmitNfc.setVisibility(isSend ? View.GONE : View.VISIBLE);
     mRecipientView.setVisibility(isSend ? View.VISIBLE : View.GONE);
+  }
+  
+  private void startTransferTask(TransferType type, String amount, String notes, String toFrom) {
+    
+    new DoTransferTask().execute(type, amount, notes, toFrom);
+  }
+  
+  private Object[] doTransfer(TransferType type, String amount, String notes, String toFrom) {
+    
+    List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+    params.add(new BasicNameValuePair("transaction[amount]", amount));
+    
+    if(notes != null && !"".equals(notes)) {
+      params.add(new BasicNameValuePair("transaction[notes]", notes));
+    }
+    
+    params.add(new BasicNameValuePair(
+        String.format("transaction[%s]", type == TransferType.SEND ? "to" : "from"), toFrom));
+    
+    try {
+      JSONObject response = RpcManager.getInstance().callPost(getActivity(), 
+          String.format("transactions/%s_money", type.getRequestName()), params);
+      
+      boolean success = response.getBoolean("success");
+      
+      if(success) {
+        
+        return new Object[] { true, amount, type, toFrom };
+      } else {
+        
+        JSONArray errors = response.getJSONArray("errors");
+        String errorMessage = "";
+        
+        for(int i = 0; i < errors.length(); i++) {
+          errorMessage += (errorMessage.equals("") ? "" : "\n") + errors.getString(i);
+        }
+        return new Object[] { false, String.format(getString(R.string.transfer_error_api), errorMessage) };
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+    
+    // There was an exception
+    return new Object[] { false, getString(R.string.transfer_error_exception) };
   }
 
   public void fillFormForBitcoinUri(Uri uri) {

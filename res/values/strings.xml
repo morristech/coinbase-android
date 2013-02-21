@@ -108,7 +108,7 @@
     <string name="menu_refresh">Refresh</string>
     <string name="transfer_nfc_ready">NFC is enabled.\n\nHold the back of your device against the back of the other device and touch the screen.</string>
     <string name="transfer_nfc_failure">Could not start NFC transfer.</string>
-    <string name="transfer_email_prompt_text">Sending %1$s BTC to:</string>
+    <string name="transfer_email_prompt_text">Requesting %1$s BTC from:</string>
     <string name="transfer_email_prompt_hint">Enter email address</string>
     <string name="transactiondetails_request_resend">Re-Send Request</string>
     <string name="transactiondetails_request_cancel">Cancel Request</string>

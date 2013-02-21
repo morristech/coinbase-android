@@ -105,5 +105,6 @@
     <string name="about_title">About %1$s</string>
     <string name="transfer_address_title">Your receive address</string>
     <string name="transfer_address_generate">Generate new</string>
+    <string name="menu_refresh">Refresh</string>
     
 </resources>

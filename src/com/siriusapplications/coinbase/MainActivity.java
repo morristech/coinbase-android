@@ -56,6 +56,7 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
   TransactionsFragment mTransactionsFragment;
   BuySellFragment mBuySellFragment;
   TransferFragment mTransferFragment;
+  MenuItem mRefreshItem;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +66,10 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     mTransactionsFragment = new TransactionsFragment();
     mBuySellFragment = new BuySellFragment();
     mTransferFragment = new TransferFragment();
+    
+    mTransactionsFragment.setParent(this);
+    mBuySellFragment.setParent(this);
+    mTransferFragment.setParent(this);
 
     // Create the adapter that will return a fragment for each of the three primary sections
     // of the app.
@@ -118,6 +123,7 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getSupportMenuInflater().inflate(R.menu.activity_main, menu);
+    mRefreshItem = menu.findItem(R.id.menu_refresh);
     return true;
   }
 
@@ -137,6 +143,11 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       return true;
     case R.id.menu_barcode:
       startBarcodeScan();
+      return true;
+    case R.id.menu_refresh:
+      mTransactionsFragment.refresh();
+      mBuySellFragment.refresh();
+      mTransferFragment.refresh();
       return true;
     }
 
@@ -240,6 +251,25 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       } else if (resultCode == RESULT_CANCELED) {
         // Barcode scan was cancelled
       }
+    }
+  }
+
+  public BuySellFragment getBuySellFragment() {
+    return mBuySellFragment;
+  }
+
+  public void setRefreshButtonAnimated(boolean animated) {
+
+    if(mRefreshItem == null) {
+      return;
+    }
+    
+    if(animated) {
+      mRefreshItem.setEnabled(false);
+      mRefreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+    } else {
+      mRefreshItem.setEnabled(true);
+      mRefreshItem.setActionView(null);
     }
   }
 }

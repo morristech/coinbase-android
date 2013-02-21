@@ -59,22 +59,22 @@ public class TransferFragment extends Fragment {
 
       return mFriendlyName;
     }
-    
+
     public String getRequestName() {
-      
+
       return mRequestName;
     }
   }
-  
+
   private class DoTransferTask extends AsyncTask<Object, Void, Object[]> {
 
     private ProgressDialog mDialog;
-    
+
     @Override
     protected void onPreExecute() {
 
       super.onPreExecute();
-      mDialog = ProgressDialog.show(getActivity(), null, getString(R.string.transfer_progress));
+      mDialog = ProgressDialog.show(mParent, null, getString(R.string.transfer_progress));
     }
 
     protected Object[] doInBackground(Object... params) {
@@ -85,17 +85,17 @@ public class TransferFragment extends Fragment {
     protected void onPostExecute(Object[] result) {
 
       mDialog.dismiss();
-      
+
       boolean success = (Boolean) result[0];
       if(success) {
-        
+
         TransferType type = (TransferType) result[2];
-        
+
         int messageId = type == TransferType.SEND ? R.string.transfer_success_send : R.string.transfer_success_request;
         String text = String.format(getString(messageId), (String) result[1], (String) result[3]);
-        Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mParent, text, Toast.LENGTH_SHORT).show();
       } else {
-        
+
         Utils.showMessageDialog(getFragmentManager(), (String) result[1]);
       }
     }
@@ -108,19 +108,19 @@ public class TransferFragment extends Fragment {
 
       try {
 
-        JSONObject response = RpcManager.getInstance().callGet(getActivity(), "account/receive_address");
+        JSONObject response = RpcManager.getInstance().callGet(mParent, "account/receive_address");
 
         String address = response.optString("address");
-        
+
         if(address != null) {
           // Save balance in preferences
-          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
           int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
           Editor editor = prefs.edit();
           editor.putString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), address);
           editor.commit();
         }
-        
+
         return address;
 
       } catch (IOException e) {
@@ -137,7 +137,7 @@ public class TransferFragment extends Fragment {
     @Override
     protected void onPreExecute() {
 
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
       int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
       setReceiveAddress(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null));
     }
@@ -149,6 +149,8 @@ public class TransferFragment extends Fragment {
     }
 
   }
+
+  private MainActivity mParent;
 
   private Spinner mTransferTypeView;
   private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mGenerateAddress;
@@ -163,6 +165,10 @@ public class TransferFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
 
     super.onCreate(savedInstanceState);
+  }
+
+  public void setParent(MainActivity parent) {
+    mParent = parent;
   }
 
   @Override
@@ -198,7 +204,7 @@ public class TransferFragment extends Fragment {
     mAmountView = (EditText) view.findViewById(R.id.transfer_money_amt);
     mNotesView = (EditText) view.findViewById(R.id.transfer_money_notes);
     mRecipientView = (EditText) view.findViewById(R.id.transfer_money_recipient);
-    
+
     mReceiveAddress = (TextView) view.findViewById(R.id.transfer_address);
     mGenerateAddress = (Button) view.findViewById(R.id.transfer_address_generate);
     mReceiveAddressBarcode = (ImageView) view.findViewById(R.id.transfer_address_barcode);
@@ -258,43 +264,43 @@ public class TransferFragment extends Fragment {
     mAmountView.setText(mAmount);
     mNotesView.setText(mNotes);
     mRecipientView.setText(mRecipient);
-    
+
     mSubmitSend.setOnClickListener(new View.OnClickListener() {
-      
-      @Override
-      public void onClick(View v) {
-        
-        startTransferTask(TransferType.SEND, mAmount, mNotes, mRecipient);
-      }
-    });
-    
-    mSubmitQr.setOnClickListener(new View.OnClickListener() {
-      
+
       @Override
       public void onClick(View v) {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        startTransferTask(TransferType.SEND, mAmount, mNotes, mRecipient);
+      }
+    });
+
+    mSubmitQr.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
         int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
         String receiveAddress = prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null);
         String requestUri = String.format("bitcoin:%s", receiveAddress);
-        
+
         boolean hasAmount = false;
-        
+
         if(mAmount != null && !"".equals(mAmount)) {
           requestUri += "?amount=" + mAmount;
           hasAmount = true;
         }
-        
+
         if(mNotes != null && !"".equals(mNotes)) {
           if(hasAmount) {
             requestUri += "&";
           } else {
             requestUri += "?";
           }
-          
+
           requestUri += "message=" + mNotes;
         }
-        
+
         DisplayQrCodeFragment f = new DisplayQrCodeFragment();
         Bundle args = new Bundle();
         args.putString("data", requestUri);
@@ -302,44 +308,48 @@ public class TransferFragment extends Fragment {
         f.show(getFragmentManager(), "qrrequest");
       }
     });
-    
+
     new LoadReceiveAddressTask().execute();
 
     return view;
   }
 
   private void setReceiveAddress(String address) {
-    
+
     if(address == null) {
       mReceiveAddress.setText(null);
       mReceiveAddressBarcode.setImageDrawable(null);
       return;
     }
-    
-    mReceiveAddress.setText(address);
-    
-    try {
-      int size = (int)(getResources().getDisplayMetrics().density * 128);
-      Bitmap barcode = Utils.createBarcode("bitcoin:" + address, BarcodeFormat.QR_CODE,
-          size, size);
-      mReceiveAddressBarcode.setImageBitmap(barcode);
-      
-    } catch (WriterException e) {
-      // Could not generate barcode
-      e.printStackTrace();
+
+    if(mReceiveAddress != null) {
+      mReceiveAddress.setText(address);
+    }
+
+    if(mReceiveAddressBarcode != null) {
+      try {
+        int size = (int)(getResources().getDisplayMetrics().density * 128);
+        Bitmap barcode = Utils.createBarcode("bitcoin:" + address, BarcodeFormat.QR_CODE,
+            size, size);
+        mReceiveAddressBarcode.setImageBitmap(barcode);
+
+      } catch (WriterException e) {
+        // Could not generate barcode
+        e.printStackTrace();
+      }
     }
   }
-  
+
   private void initializeTypeSpinner() {
 
     ArrayAdapter<TransferType> arrayAdapter = new ArrayAdapter<TransferType>(
-        getActivity(), R.layout.fragment_transfer_type, Arrays.asList(TransferType.values())) {
+        mParent, R.layout.fragment_transfer_type, Arrays.asList(TransferType.values())) {
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
 
         TextView view = (TextView) super.getView(position, convertView, parent);
-        view.setText(getActivity().getString(TransferType.values()[position].getName()));
+        view.setText(mParent.getString(TransferType.values()[position].getName()));
         return view;
       }
 
@@ -347,7 +357,7 @@ public class TransferFragment extends Fragment {
       public View getDropDownView(int position, View convertView, ViewGroup parent) {
 
         TextView view = (TextView) super.getDropDownView(position, convertView, parent);
-        view.setText(getActivity().getString(TransferType.values()[position].getName()));
+        view.setText(mParent.getString(TransferType.values()[position].getName()));
         return view;
       }
     };
@@ -367,38 +377,38 @@ public class TransferFragment extends Fragment {
     mSubmitNfc.setVisibility(isSend ? View.GONE : View.VISIBLE);
     mRecipientView.setVisibility(isSend ? View.VISIBLE : View.GONE);
   }
-  
+
   private void startTransferTask(TransferType type, String amount, String notes, String toFrom) {
-    
+
     new DoTransferTask().execute(type, amount, notes, toFrom);
   }
-  
+
   private Object[] doTransfer(TransferType type, String amount, String notes, String toFrom) {
-    
+
     List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
     params.add(new BasicNameValuePair("transaction[amount]", amount));
-    
+
     if(notes != null && !"".equals(notes)) {
       params.add(new BasicNameValuePair("transaction[notes]", notes));
     }
-    
+
     params.add(new BasicNameValuePair(
         String.format("transaction[%s]", type == TransferType.SEND ? "to" : "from"), toFrom));
-    
+
     try {
-      JSONObject response = RpcManager.getInstance().callPost(getActivity(), 
+      JSONObject response = RpcManager.getInstance().callPost(mParent, 
           String.format("transactions/%s_money", type.getRequestName()), params);
-      
+
       boolean success = response.getBoolean("success");
-      
+
       if(success) {
-        
+
         return new Object[] { true, amount, type, toFrom };
       } else {
-        
+
         JSONArray errors = response.getJSONArray("errors");
         String errorMessage = "";
-        
+
         for(int i = 0; i < errors.length(); i++) {
           errorMessage += (errorMessage.equals("") ? "" : "\n") + errors.getString(i);
         }
@@ -409,7 +419,7 @@ public class TransferFragment extends Fragment {
     } catch (JSONException e) {
       e.printStackTrace();
     }
-    
+
     // There was an exception
     return new Object[] { false, getString(R.string.transfer_error_exception) };
   }
@@ -451,7 +461,7 @@ public class TransferFragment extends Fragment {
       Log.e("Coinbase", "bitcoin: URI had no address (" + uri + ")");
       return;
     }
-    
+
     mAmount = amount;
     mNotes = message;
     mRecipient = address;
@@ -463,5 +473,11 @@ public class TransferFragment extends Fragment {
       mNotesView.setText(message);
       mRecipientView.setText(address);
     }
+  }
+
+  public void refresh() {
+
+    // Reload receive address
+    new LoadReceiveAddressTask().execute();
   }
 }

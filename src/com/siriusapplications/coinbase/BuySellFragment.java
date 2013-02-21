@@ -10,6 +10,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -59,7 +60,7 @@ public class BuySellFragment extends Fragment {
     }
   }
 
-  public class ConfirmBuySellDialogFragment extends DialogFragment {
+  public static class ConfirmBuySellDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -68,17 +69,21 @@ public class BuySellFragment extends Fragment {
       final String amount1 = getArguments().getString("amount1"),
           amount2 = getArguments().getString("amount2"),
           amount2currency = getArguments().getString("amount2currency");
-      
+
       int messageResource = type == BuySellType.BUY ? R.string.buysell_confirm_message_buy : R.string.buysell_confirm_message_sell;
       String message = String.format(getString(messageResource), amount1, amount2, amount2currency);
-      
+
       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
       builder.setMessage(message)
       .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
         public void onClick(DialogInterface dialog, int id) {
-          
+
           // Buy / sell!
-          startBuySellTask(type, amount1);
+          BuySellFragment parent = getActivity() == null ? null : ((MainActivity) getActivity()).getBuySellFragment();
+
+          if(parent != null) {
+            parent.startBuySellTask(type, amount1);
+          }
         }
       })
       .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -86,20 +91,20 @@ public class BuySellFragment extends Fragment {
           // User cancelled the dialog
         }
       });
-      
+
       return builder.create();
     }
   }
-  
+
   private class DoBuySellTask extends AsyncTask<Object, Void, Object[]> {
 
     private ProgressDialog mDialog;
-    
+
     @Override
     protected void onPreExecute() {
 
       super.onPreExecute();
-      mDialog = ProgressDialog.show(getActivity(), null, getString(R.string.buysell_progress));
+      mDialog = ProgressDialog.show(mParent, null, getString(R.string.buysell_progress));
     }
 
     protected Object[] doInBackground(Object... params) {
@@ -110,17 +115,17 @@ public class BuySellFragment extends Fragment {
     protected void onPostExecute(Object[] result) {
 
       mDialog.dismiss();
-      
+
       boolean success = (Boolean) result[0];
       if(success) {
-        
+
         BuySellType type = (BuySellType) result[2];
-        
+
         int messageId = type == BuySellType.BUY ? R.string.buysell_success_buy : R.string.buysell_success_sell;
         String text = String.format(getString(messageId), (String) result[1]);
-        Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mParent, text, Toast.LENGTH_SHORT).show();
       } else {
-        
+
         Utils.showMessageDialog(getFragmentManager(), (String) result[1]);
       }
     }
@@ -149,7 +154,7 @@ public class BuySellFragment extends Fragment {
         Collection<BasicNameValuePair> requestParams = new ArrayList<BasicNameValuePair>();
         requestParams.add(new BasicNameValuePair("qty", amount));
 
-        JSONObject result = RpcManager.getInstance().callGet(getActivity(), "prices/" + type, requestParams);
+        JSONObject result = RpcManager.getInstance().callGet(mParent, "prices/" + type, requestParams);
         return new String[] { result.getString("amount"), result.getString("currency") };
 
       } catch (IOException e) {
@@ -175,7 +180,7 @@ public class BuySellFragment extends Fragment {
           if(result[0] == null) {
             mTotal.setText(null);
           } else {
-            
+
             mCurrentPrice = result[0];
             mCurrentPriceCurrency = result[1];
             mSubmitButton.setEnabled(true);
@@ -184,12 +189,14 @@ public class BuySellFragment extends Fragment {
           }
         }
       }
-      
+
       mCurrentPrice = null;
       mSubmitButton.setEnabled(false);
     }
   }
 
+  private MainActivity mParent;
+  
   private UpdatePriceTask mUpdatePriceTask;
   private String mCurrentPrice, mCurrentPriceCurrency;
 
@@ -202,6 +209,10 @@ public class BuySellFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
 
     super.onCreate(savedInstanceState);
+  }
+  
+  public void setParent(MainActivity parent) {
+    mParent = parent;
   }
 
   @Override
@@ -231,26 +242,26 @@ public class BuySellFragment extends Fragment {
 
     mTypeText = (TextView) view.findViewById(R.id.buysell_type_text);
     mTotal = (TextView) view.findViewById(R.id.buysell_total);
-    
+
     mSubmitButton = (Button) view.findViewById(R.id.buysell_submit);
     mSubmitButton.setOnClickListener(new View.OnClickListener() {
-      
+
       @Override
       public void onClick(View v) {
-        
+
         ConfirmBuySellDialogFragment dialog = new ConfirmBuySellDialogFragment();
-        
+
         Bundle b = new Bundle();
-        
+
         BuySellType type = BuySellType.values()[mBuySellSpinner.getSelectedItemPosition()];
         b.putSerializable("type", type);
-        
+
         b.putString("amount1", mAmount.getText().toString());
         b.putString("amount2", mCurrentPrice);
         b.putString("amount2currency", mCurrentPriceCurrency);
-        
+
         dialog.setArguments(b);
-        
+
         dialog.show(getFragmentManager(), "confirm");
       }
     });
@@ -306,13 +317,13 @@ public class BuySellFragment extends Fragment {
   private void initializeTypeSpinner() {
 
     ArrayAdapter<BuySellType> arrayAdapter = new ArrayAdapter<BuySellType>(
-        getActivity(), R.layout.fragment_transfer_type, Arrays.asList(BuySellType.values())) {
+        mParent, R.layout.fragment_transfer_type, Arrays.asList(BuySellType.values())) {
 
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
 
         TextView view = (TextView) super.getView(position, convertView, parent);
-        view.setText(getActivity().getString(BuySellType.values()[position].getName()));
+        view.setText(mParent.getString(BuySellType.values()[position].getName()));
         return view;
       }
 
@@ -320,34 +331,34 @@ public class BuySellFragment extends Fragment {
       public View getDropDownView(int position, View convertView, ViewGroup parent) {
 
         TextView view = (TextView) super.getDropDownView(position, convertView, parent);
-        view.setText(getActivity().getString(BuySellType.values()[position].getName()));
+        view.setText(mParent.getString(BuySellType.values()[position].getName()));
         return view;
       }
     };
     arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     mBuySellSpinner.setAdapter(arrayAdapter);
   }
-  
-  private void startBuySellTask(BuySellType type, String amount) {
-    
+
+  protected void startBuySellTask(BuySellType type, String amount) {
+
     new DoBuySellTask().execute(type, amount);
   }
-  
+
   private Object[] doBuySell(BuySellType type, String amount) {
-    
+
     List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
     params.add(new BasicNameValuePair("qty", amount));
-    
+
     try {
-      JSONObject response = RpcManager.getInstance().callPost(getActivity(), type.getRequestType() + "s", params);
-      
+      JSONObject response = RpcManager.getInstance().callPost(mParent, type.getRequestType() + "s", params);
+
       boolean success = response.getBoolean("success");
-      
+
       if(success) {
-        
+
         return new Object[] { true, amount, type };
       } else {
-        
+
         String errorMessage = response.getJSONArray("errors").optString(0);
         return new Object[] { false, String.format(getString(R.string.buysell_error_api), errorMessage) };
       }
@@ -356,8 +367,12 @@ public class BuySellFragment extends Fragment {
     } catch (JSONException e) {
       e.printStackTrace();
     }
-    
+
     // There was an exception
     return new Object[] { false, getString(R.string.buysell_error_exception) };
+  }
+
+  public void refresh() {
+    // Nothing to refresh in this fragment
   }
 }

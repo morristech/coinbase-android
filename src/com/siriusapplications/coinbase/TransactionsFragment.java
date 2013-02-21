@@ -47,14 +47,14 @@ public class TransactionsFragment extends ListFragment {
 
       try {
 
-        JSONObject balance = RpcManager.getInstance().callGet(getActivity(), "account/balance");
+        JSONObject balance = RpcManager.getInstance().callGet(mParent, "account/balance");
 
         String balanceString = Utils.formatCurrencyAmount(balance.getString("amount"));
 
         String[] result = new String[] { balanceString, balance.getString("currency") };
 
         // Save balance in preferences
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
         int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
         Editor editor = prefs.edit();
         editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE, activeAccount), result[0]);
@@ -87,12 +87,12 @@ public class TransactionsFragment extends ListFragment {
         mBalanceText.setText(null);
         mBalanceText.setTextColor(getResources().getColor(R.color.wallet_balance_color_invalid));
 
-        Toast.makeText(getActivity(), R.string.wallet_balance_error, Toast.LENGTH_SHORT).show();
+        Toast.makeText(mParent, R.string.wallet_balance_error, Toast.LENGTH_SHORT).show();
       } else {
 
         mBalanceText.setTextColor(getResources().getColor(R.color.wallet_balance_color));
-        mBalanceText.setText(String.format(getActivity().getString(R.string.wallet_balance), result[0]));
-        mBalanceCurrency.setText(String.format(getActivity().getString(R.string.wallet_balance_currency), result[1]));
+        mBalanceText.setText(String.format(mParent.getString(R.string.wallet_balance), result[0]));
+        mBalanceCurrency.setText(String.format(mParent.getString(R.string.wallet_balance_currency), result[1]));
 
       }
     }
@@ -108,7 +108,7 @@ public class TransactionsFragment extends ListFragment {
 
       try {
 
-        response = RpcManager.getInstance().callGet(getActivity(), "transactions");
+        response = RpcManager.getInstance().callGet(mParent, "transactions");
 
       } catch (IOException e) {
         Log.e("Coinbase", "I/O error refreshing transactions.");
@@ -123,7 +123,7 @@ public class TransactionsFragment extends ListFragment {
         return false;
       }
 
-      TransactionsDatabase dbHelper = new TransactionsDatabase(getActivity());
+      TransactionsDatabase dbHelper = new TransactionsDatabase(mParent);
       SQLiteDatabase db = dbHelper.getWritableDatabase();
 
       db.beginTransaction();
@@ -137,7 +137,7 @@ public class TransactionsFragment extends ListFragment {
         db.delete(TransactionEntry.TABLE_NAME, null, null);
 
         // Update user ID
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
         int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
         Editor editor = prefs.edit();
         editor.putString(String.format(Constants.KEY_ACCOUNT_ID, activeAccount), response.getJSONObject("current_user").getString("id"));
@@ -190,7 +190,15 @@ public class TransactionsFragment extends ListFragment {
     }
 
     @Override
+    protected void onPreExecute() {
+      
+      ((MainActivity) mParent).setRefreshButtonAnimated(true);
+    }
+
+    @Override
     protected void onPostExecute(Boolean result) {
+      
+      ((MainActivity) mParent).setRefreshButtonAnimated(false);
 
       // TODO Handle false value (meaning an error occurred).
     }
@@ -199,7 +207,7 @@ public class TransactionsFragment extends ListFragment {
 
   private String generateTransactionSummary(JSONObject t) throws JSONException {
 
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
     int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
     String currentUserId = prefs.getString(String.format(Constants.KEY_ACCOUNT_ID, activeAccount), null);
@@ -322,7 +330,7 @@ public class TransactionsFragment extends ListFragment {
     @Override
     protected Cursor doInBackground(Void... params) {
 
-      TransactionsDatabase database = new TransactionsDatabase(getActivity());
+      TransactionsDatabase database = new TransactionsDatabase(mParent);
       SQLiteDatabase readableDb = database.getReadableDatabase();
       Cursor c = readableDb.query(TransactionsDatabase.TransactionEntry.TABLE_NAME,
           null, null, null, null, null, null);
@@ -337,12 +345,14 @@ public class TransactionsFragment extends ListFragment {
           TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON };
       int[] to = { R.id.transaction_title, R.id.transaction_amount,
           R.id.transaction_status, R.id.transaction_currency };
-      SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.fragment_transactions_item, result,
+      SimpleCursorAdapter adapter = new SimpleCursorAdapter(mParent, R.layout.fragment_transactions_item, result,
           from, to, 0);
       adapter.setViewBinder(new TransactionViewBinder());
       mListView.setAdapter(adapter);
     }
-  }
+  }
+  
+  MainActivity mParent;
   FrameLayout mListHeaderContainer;
   ListView mListView;
   ViewGroup mListHeader, mMainView;
@@ -355,6 +365,10 @@ public class TransactionsFragment extends ListFragment {
 
     // Refresh transactions when app started
     new SyncTransactionsTask().execute();
+  }
+  
+  public void setParent(MainActivity parent) {
+    mParent = parent;
   }
 
   @Override
@@ -378,7 +392,7 @@ public class TransactionsFragment extends ListFragment {
 
     // Inflate header (which contains account balance)
     mListHeader = (ViewGroup) inflater.inflate(R.layout.fragment_transactions_header, null, false);
-    mListHeaderContainer = new FrameLayout(getActivity());
+    mListHeaderContainer = new FrameLayout(mParent);
     setHeaderPinned(true);
     mListView.addHeaderView(mListHeaderContainer);
 
@@ -386,10 +400,10 @@ public class TransactionsFragment extends ListFragment {
     mBalanceCurrency = (TextView) mListHeader.findViewById(R.id.wallet_balance_currency);
     mAccount = (TextView) mListHeader.findViewById(R.id.wallet_account);
 
-    mAccount.setText(LoginManager.getInstance().getSelectedAccountName(getActivity()));
+    mAccount.setText(LoginManager.getInstance().getSelectedAccountName(mParent));
 
     // Load old balance
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
     int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
     String oldBalance = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE, activeAccount), null);
     String oldCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE_CURRENCY, activeAccount), null);
@@ -403,6 +417,15 @@ public class TransactionsFragment extends ListFragment {
     loadTransactionsList();
 
     return view;
+  }
+  
+  public void refresh() {
+
+    // Reload transactions
+    new SyncTransactionsTask().execute();
+    
+    // Reload balance
+    new LoadBalanceTask().execute();
   }
   
   private void setHeaderPinned(boolean pinned) {
@@ -448,9 +471,9 @@ public class TransactionsFragment extends ListFragment {
     c.moveToPosition(position);
     
     String transactionId = c.getString(c.getColumnIndex(TransactionEntry._ID));
-    Intent intent = new Intent(getActivity(), TransactionDetailsActivity.class);
+    Intent intent = new Intent(mParent, TransactionDetailsActivity.class);
     intent.putExtra(TransactionDetailsFragment.EXTRA_ID, transactionId);
-    getActivity().startActivity(intent);
+    mParent.startActivity(intent);
   }
 
 }

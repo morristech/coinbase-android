@@ -594,6 +594,6 @@ public class TransferFragment extends Fragment {
   public void refresh() {
 
     // Reload receive address
-    new LoadReceiveAddressTask().execute();
+    new LoadReceiveAddressTask().execute(false);
   }
 }

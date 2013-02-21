@@ -67,7 +67,11 @@ public class RpcManager {
     if(isPost) {
       request = new HttpPost(url);
       List<BasicNameValuePair> parametersBody = new ArrayList<BasicNameValuePair>();
-      parametersBody.addAll(params);
+      
+      if(params != null) {
+        parametersBody.addAll(params);
+      }
+      
       ((HttpPost) request).setEntity(new UrlEncodedFormEntity(parametersBody, HTTP.UTF_8));
     } else {
       

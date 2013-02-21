@@ -282,27 +282,7 @@ public class TransferFragment extends Fragment {
       @Override
       public void onClick(View v) {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-        String receiveAddress = prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null);
-        String requestUri = String.format("bitcoin:%s", receiveAddress);
-
-        boolean hasAmount = false;
-
-        if(mAmount != null && !"".equals(mAmount)) {
-          requestUri += "?amount=" + mAmount;
-          hasAmount = true;
-        }
-
-        if(mNotes != null && !"".equals(mNotes)) {
-          if(hasAmount) {
-            requestUri += "&";
-          } else {
-            requestUri += "?";
-          }
-
-          requestUri += "message=" + mNotes;
-        }
+        String requestUri = generateRequestUri();
 
         DisplayQrCodeFragment f = new DisplayQrCodeFragment();
         Bundle args = new Bundle();
@@ -312,9 +292,51 @@ public class TransferFragment extends Fragment {
       }
     });
 
+    mSubmitNfc.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+
+        String requestUri = generateRequestUri();
+
+        SendNfcFragment f = new SendNfcFragment();
+        Bundle args = new Bundle();
+        args.putString("data", requestUri);
+        f.setArguments(args);
+        f.show(getFragmentManager(), "nfcrequest");
+      }
+    });
+
     new LoadReceiveAddressTask().execute();
 
     return view;
+  }
+  
+  private String generateRequestUri() {
+    
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    String receiveAddress = prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null);
+    String requestUri = String.format("bitcoin:%s", receiveAddress);
+
+    boolean hasAmount = false;
+
+    if(mAmount != null && !"".equals(mAmount)) {
+      requestUri += "?amount=" + mAmount;
+      hasAmount = true;
+    }
+
+    if(mNotes != null && !"".equals(mNotes)) {
+      if(hasAmount) {
+        requestUri += "&";
+      } else {
+        requestUri += "?";
+      }
+
+      requestUri += "message=" + mNotes;
+    }
+    
+    return requestUri;
   }
 
   private void setReceiveAddress(String address) {

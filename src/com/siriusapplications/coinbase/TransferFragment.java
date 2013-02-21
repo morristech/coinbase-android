@@ -450,11 +450,12 @@ public class TransferFragment extends Fragment {
     return requestUri;
   }
 
-  private void setReceiveAddress(String address) {
+  private void setReceiveAddress(final String address) {
 
     if(address == null) {
       mReceiveAddress.setText(null);
       mReceiveAddressBarcode.setImageDrawable(null);
+      mReceiveAddressBarcode.setOnClickListener(null);
       return;
     }
 
@@ -473,6 +474,19 @@ public class TransferFragment extends Fragment {
         // Could not generate barcode
         e.printStackTrace();
       }
+      
+      mReceiveAddressBarcode.setOnClickListener(new View.OnClickListener() {
+        
+        @Override
+        public void onClick(View v) {
+
+          DisplayQrCodeFragment f = new DisplayQrCodeFragment();
+          Bundle args = new Bundle();
+          args.putString("data", "bitcoin:" + address);
+          f.setArguments(args);
+          f.show(getFragmentManager(), "qrreceive");
+        }
+      });
     }
   }
 

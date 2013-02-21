@@ -208,9 +208,19 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
 
       // Delete current account
       LoginManager.getInstance().deleteCurrentAccount(this);
-      finish();
-      startActivity(new Intent(this, LoginActivity.class));
+    } else {
+      
+      // Change active account
+      LoginManager.getInstance().switchActiveAccount(this, account);
     }
+    
+    finish();
+    startActivity(new Intent(this, MainActivity.class));
+  }
+  
+  public void addAccount() {
+
+    startActivity(new Intent(this, LoginActivity.class));
   }
 
   public void startBarcodeScan() {

@@ -85,12 +85,12 @@ public class TransactionsFragment extends ListFragment {
 
       if(result == null) {
         mBalanceText.setText(null);
-        mBalanceText.setTextColor(getResources().getColor(R.color.wallet_balance_color_invalid));
+        mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
 
         Toast.makeText(mParent, R.string.wallet_balance_error, Toast.LENGTH_SHORT).show();
       } else {
 
-        mBalanceText.setTextColor(getResources().getColor(R.color.wallet_balance_color));
+        mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color));
         mBalanceText.setText(String.format(mParent.getString(R.string.wallet_balance), result[0]));
         mBalanceCurrency.setText(String.format(mParent.getString(R.string.wallet_balance_currency), result[1]));
 
@@ -165,6 +165,7 @@ public class TransactionsFragment extends ListFragment {
           values.put(TransactionEntry._ID, transaction.getString("id"));
           values.put(TransactionEntry.COLUMN_NAME_JSON, transaction.toString());
           values.put(TransactionEntry.COLUMN_NAME_TIME, createdAt);
+          values.put(TransactionEntry.COLUMN_NAME_ACCOUNT, activeAccount);
 
           db.insert(TransactionEntry.TABLE_NAME, null, values);
         }
@@ -332,8 +333,12 @@ public class TransactionsFragment extends ListFragment {
 
       TransactionsDatabase database = new TransactionsDatabase(mParent);
       SQLiteDatabase readableDb = database.getReadableDatabase();
+      
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+      
       Cursor c = readableDb.query(TransactionsDatabase.TransactionEntry.TABLE_NAME,
-          null, null, null, null, null, null);
+          null, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) }, null, null, null);
       return c;
     }
 

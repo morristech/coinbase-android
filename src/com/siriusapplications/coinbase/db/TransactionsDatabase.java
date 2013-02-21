@@ -14,6 +14,7 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
 
     public static final String TABLE_NAME = "coinbaseTransactions";
     public static final String COLUMN_NAME_JSON = "json";
+    public static final String COLUMN_NAME_ACCOUNT = "account";
     public static final String COLUMN_NAME_TIME = "timestamp";
   }
 
@@ -24,13 +25,14 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
       "CREATE TABLE " + TransactionEntry.TABLE_NAME + " (" +
           TransactionEntry._ID + " TEXT PRIMARY KEY," +
           TransactionEntry.COLUMN_NAME_JSON + TEXT_TYPE + COMMA_SEP +
+          TransactionEntry.COLUMN_NAME_ACCOUNT + INTEGER_TYPE + COMMA_SEP +
           TransactionEntry.COLUMN_NAME_TIME + INTEGER_TYPE +
           ")";
 
   public static final String SQL_DELETE_ENTRIES =
       "DROP TABLE IF EXISTS " + TransactionEntry.TABLE_NAME;
 
-  public static final int DATABASE_VERSION = 3;
+  public static final int DATABASE_VERSION = 4;
   public static final String DATABASE_NAME = "transactions";
 
   public TransactionsDatabase(Context context) {
@@ -41,7 +43,7 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
   }
   public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-    // No old versions yet
+    // Transactions will be re-synced; just wipe the database for now
     db.execSQL(SQL_DELETE_ENTRIES);
     onCreate(db);
   }

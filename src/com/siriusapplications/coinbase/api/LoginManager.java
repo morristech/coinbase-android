@@ -70,6 +70,41 @@ public class LoginManager {
     return accounts.toArray(new String[0]);
   }
 
+  public boolean switchActiveAccount(Context context, int index) {
+    return switchActiveAccount(context, index, null);
+  }
+
+  public boolean switchActiveAccount(Context context, int index, Editor e) {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    int numAccounts = prefs.getInt(Constants.KEY_MAX_ACCOUNT, -1) + 1;
+    
+    if(e == null) {
+      e = prefs.edit();
+    }
+    
+    int currentIndex = 0;
+    for(int i = 0; i < numAccounts; i++) {
+
+      String account = prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, i), null);
+      if(account != null) {
+
+        if(currentIndex == index) {
+
+          e.putInt(Constants.KEY_ACTIVE_ACCOUNT, i);
+          e.commit();
+          return true;
+        }
+
+        currentIndex++;
+      }
+    }
+    
+    e.commit();
+
+    return false;
+  }
+
   public int getSelectedAccountIndex(Context context) {
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -232,10 +267,17 @@ public class LoginManager {
     Editor e = prefs.edit();
 
     int accountId = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-    e.putInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
     e.remove(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, accountId));
     e.remove(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, accountId));
     e.remove(String.format(Constants.KEY_ACCOUNT_NAME, accountId));
+
+    // If there are any other accounts, switch to them
+    // Otherwise log out completely
+    boolean success = switchActiveAccount(context, 0, e);
+
+    if(!success) {
+      e.putInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    }
 
     e.commit();
   }

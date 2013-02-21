@@ -32,6 +32,8 @@ public class AccountsFragment extends DialogFragment {
         
         if(which == accounts.length) {
           // New account
+          MainActivity activity = (MainActivity) getActivity();
+          activity.addAccount();
           dialog.dismiss();
           return;
         }

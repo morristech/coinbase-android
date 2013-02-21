@@ -42,12 +42,11 @@ import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
-import com.siriusapplications.coinbase.BuySellFragment.ConfirmBuySellDialogFragment;
 import com.siriusapplications.coinbase.api.RpcManager;
 
 public class TransferFragment extends Fragment {
 
-  private enum TransferType {
+  protected enum TransferType {
     SEND(R.string.transfer_send_money, "send"),
     REQUEST(R.string.transfer_request_money, "request");
 
@@ -109,16 +108,28 @@ public class TransferFragment extends Fragment {
     }
   }
 
-  private class LoadReceiveAddressTask extends AsyncTask<Void, Void, String> {
+  private class LoadReceiveAddressTask extends AsyncTask<Boolean, Void, String> {
 
     @Override
-    protected String doInBackground(Void... params) {
+    protected String doInBackground(Boolean... params) {
 
       try {
 
-        JSONObject response = RpcManager.getInstance().callGet(mParent, "account/receive_address");
+        boolean shouldGenerateNew = params[0];
+        String address;
+        
+        if(shouldGenerateNew) {
+          
+          JSONObject response = RpcManager.getInstance().callPost(mParent, "account/generate_receive_address", null);
 
-        String address = response.optString("address");
+          address = response.optString("address");
+          
+        } else {
+          
+          JSONObject response = RpcManager.getInstance().callGet(mParent, "account/receive_address");
+
+          address = response.optString("address");
+        }
 
         if(address != null) {
           // Save balance in preferences
@@ -329,6 +340,25 @@ public class TransferFragment extends Fragment {
       }
     });
 
+    mSubmitEmail.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+
+        TransferEmailPromptFragment dialog = new TransferEmailPromptFragment();
+
+        Bundle b = new Bundle();
+
+        b.putSerializable("type", TransferType.values()[mTransferType]);
+        b.putString("amount", mAmount);
+        b.putString("notes", mNotes);
+
+        dialog.setArguments(b);
+
+        dialog.show(getFragmentManager(), "requestEmail");
+      }
+    });
+
     mSubmitQr.setOnClickListener(new View.OnClickListener() {
 
       @Override
@@ -359,7 +389,16 @@ public class TransferFragment extends Fragment {
       }
     });
 
-    new LoadReceiveAddressTask().execute();
+    mGenerateAddress.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+
+        new LoadReceiveAddressTask().execute(true);
+      }
+    });
+
+    new LoadReceiveAddressTask().execute(false);
 
     return view;
   }
@@ -455,7 +494,7 @@ public class TransferFragment extends Fragment {
     mRecipientView.setVisibility(isSend ? View.VISIBLE : View.GONE);
   }
 
-  private void startTransferTask(TransferType type, String amount, String notes, String toFrom) {
+  protected void startTransferTask(TransferType type, String amount, String notes, String toFrom) {
 
     new DoTransferTask().execute(type, amount, notes, toFrom);
   }

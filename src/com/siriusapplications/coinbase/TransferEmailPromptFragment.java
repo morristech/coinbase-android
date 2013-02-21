@@ -5,13 +5,17 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.siriusapplications.coinbase.TransferFragment.TransferType;
 
 public class TransferEmailPromptFragment extends DialogFragment {
+  
+  private SimpleCursorAdapter mAutocompleteAdapter;
 
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -25,8 +29,12 @@ public class TransferEmailPromptFragment extends DialogFragment {
 
     View view = View.inflate(getActivity(), R.layout.transfer_email_prompt, null);
     TextView messageView = (TextView) view.findViewById(R.id.transfer_email_prompt_text);
-    final EditText field = (EditText) view.findViewById(R.id.transfer_email_prompt_field);
+    final AutoCompleteTextView field = (AutoCompleteTextView) view.findViewById(R.id.transfer_email_prompt_field);
 
+    mAutocompleteAdapter = Utils.getEmailAutocompleteAdapter(getActivity());
+    field.setAdapter(mAutocompleteAdapter);
+    field.setThreshold(0);
+    
     messageView.setText(message);
 
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -49,6 +57,13 @@ public class TransferEmailPromptFragment extends DialogFragment {
     });
 
     return builder.create();
+  }
+
+  @Override
+  public void onStop() {
+    super.onStop();
+    
+    Utils.disposeOfEmailAutocompleteAdapter(mAutocompleteAdapter);
   }
 
 }

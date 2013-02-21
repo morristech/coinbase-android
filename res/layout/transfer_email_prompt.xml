@@ -13,7 +13,7 @@
         android:text="@string/transfer_email_prompt_text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <EditText
+    <AutoCompleteTextView
         android:id="@+id/transfer_email_prompt_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,6 +25,6 @@
         android:hint="@string/transfer_email_prompt_hint">
 
         <requestFocus />
-    </EditText>
+    </AutoCompleteTextView>
 
 </RelativeLayout>

@@ -134,6 +134,10 @@ public class TransactionDetailsFragment extends Fragment {
       Toast.makeText(getActivity(), R.string.transactiondetails_error, Toast.LENGTH_LONG).show();
       e.printStackTrace();
       getActivity().finish();
+    } finally {
+      
+      c.close();
+      db.close();
     }
 
     return view;

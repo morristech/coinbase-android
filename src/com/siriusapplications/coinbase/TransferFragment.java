@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -34,6 +35,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -210,9 +212,12 @@ public class TransferFragment extends Fragment {
 
   private Spinner mTransferTypeView;
   private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mGenerateAddress;
-  private EditText mAmountView, mNotesView, mRecipientView;
+  private EditText mAmountView, mNotesView;
+  private AutoCompleteTextView mRecipientView;
   private TextView mReceiveAddress;
   private ImageView mReceiveAddressBarcode;
+  
+  private SimpleCursorAdapter mAutocompleteAdapter;
 
   private int mTransferType;
   private String mAmount, mNotes, mRecipient;
@@ -228,6 +233,13 @@ public class TransferFragment extends Fragment {
     
     super.onAttach(activity);
     mParent = (MainActivity) activity;
+  }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    
+    Utils.disposeOfEmailAutocompleteAdapter(mAutocompleteAdapter);
   }
 
   @Override
@@ -262,7 +274,11 @@ public class TransferFragment extends Fragment {
 
     mAmountView = (EditText) view.findViewById(R.id.transfer_money_amt);
     mNotesView = (EditText) view.findViewById(R.id.transfer_money_notes);
-    mRecipientView = (EditText) view.findViewById(R.id.transfer_money_recipient);
+    mRecipientView = (AutoCompleteTextView) view.findViewById(R.id.transfer_money_recipient);
+
+    mAutocompleteAdapter = Utils.getEmailAutocompleteAdapter(mParent);
+    mRecipientView.setAdapter(mAutocompleteAdapter);
+    mRecipientView.setThreshold(0);
 
     mReceiveAddress = (TextView) view.findViewById(R.id.transfer_address);
     mGenerateAddress = (Button) view.findViewById(R.id.transfer_address_generate);

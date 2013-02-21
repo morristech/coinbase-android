@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -192,13 +193,13 @@ public class TransactionsFragment extends ListFragment {
 
     @Override
     protected void onPreExecute() {
-      
+
       ((MainActivity) mParent).setRefreshButtonAnimated(true);
     }
 
     @Override
     protected void onPostExecute(Boolean result) {
-      
+
       ((MainActivity) mParent).setRefreshButtonAnimated(false);
 
       // TODO Handle false value (meaning an error occurred).
@@ -333,10 +334,10 @@ public class TransactionsFragment extends ListFragment {
 
       TransactionsDatabase database = new TransactionsDatabase(mParent);
       SQLiteDatabase readableDb = database.getReadableDatabase();
-      
+
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
       int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-      
+
       Cursor c = readableDb.query(TransactionsDatabase.TransactionEntry.TABLE_NAME,
           null, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) }, null, null, null);
       return c;
@@ -345,26 +346,29 @@ public class TransactionsFragment extends ListFragment {
     @Override
     protected void onPostExecute(Cursor result) {
 
-      setHeaderPinned(!result.moveToFirst());
-      
-      if(mListView.getAdapter() != null) {
-        
-        // Just update existing adapter
-        getAdapter().changeCursor(result);
-        return;
+      if(mListView != null) {
+
+        setHeaderPinned(!result.moveToFirst());
+
+        if(mListView.getAdapter() != null) {
+
+          // Just update existing adapter
+          getAdapter().changeCursor(result);
+          return;
+        }
+
+        String[] from = { TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON,
+            TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON };
+        int[] to = { R.id.transaction_title, R.id.transaction_amount,
+            R.id.transaction_status, R.id.transaction_currency };
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(mParent, R.layout.fragment_transactions_item, result,
+            from, to, 0);
+        adapter.setViewBinder(new TransactionViewBinder());
+        mListView.setAdapter(adapter);
       }
-      
-      String[] from = { TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON,
-          TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON };
-      int[] to = { R.id.transaction_title, R.id.transaction_amount,
-          R.id.transaction_status, R.id.transaction_currency };
-      SimpleCursorAdapter adapter = new SimpleCursorAdapter(mParent, R.layout.fragment_transactions_item, result,
-          from, to, 0);
-      adapter.setViewBinder(new TransactionViewBinder());
-      mListView.setAdapter(adapter);
     }
   }
-  
+
   MainActivity mParent;
   FrameLayout mListHeaderContainer;
   ListView mListView;
@@ -379,9 +383,12 @@ public class TransactionsFragment extends ListFragment {
     // Refresh transactions when app started
     new SyncTransactionsTask().execute();
   }
-  
-  public void setParent(MainActivity parent) {
-    mParent = parent;
+
+  @Override
+  public void onAttach(Activity activity) {
+
+    super.onAttach(activity);
+    mParent = (MainActivity) activity;
   }
 
   @Override
@@ -431,18 +438,18 @@ public class TransactionsFragment extends ListFragment {
 
     return view;
   }
-  
+
   public void refresh() {
 
     // Reload transactions
     new SyncTransactionsTask().execute();
-    
+
     // Reload balance
     new LoadBalanceTask().execute();
   }
-  
+
   private void setHeaderPinned(boolean pinned) {
-    
+
     mMainView.removeView(mListHeader);
     mListHeaderContainer.removeAllViews();
 
@@ -470,23 +477,23 @@ public class TransactionsFragment extends ListFragment {
     // Reload balance
     new LoadBalanceTask().execute();
   }
-  
+
   private CursorAdapter getAdapter() {
     return ((CursorAdapter) ((HeaderViewListAdapter) mListView.getAdapter()).getWrappedAdapter());
   }
 
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
-    
+
     if(position == 0) {
       return; // Header view
     }
-    
+
     position--;
-    
+
     Cursor c = getAdapter().getCursor();
     c.moveToPosition(position);
-    
+
     String transactionId = c.getString(c.getColumnIndex(TransactionEntry._ID));
     Intent intent = new Intent(mParent, TransactionDetailsActivity.class);
     intent.putExtra(TransactionDetailsFragment.EXTRA_ID, transactionId);

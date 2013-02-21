@@ -66,10 +66,6 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     mTransactionsFragment = new TransactionsFragment();
     mBuySellFragment = new BuySellFragment();
     mTransferFragment = new TransferFragment();
-    
-    mTransactionsFragment.setParent(this);
-    mBuySellFragment.setParent(this);
-    mTransferFragment.setParent(this);
 
     // Create the adapter that will return a fragment for each of the three primary sections
     // of the app.

@@ -11,6 +11,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -214,8 +215,11 @@ public class BuySellFragment extends Fragment {
     super.onCreate(savedInstanceState);
   }
   
-  public void setParent(MainActivity parent) {
-    mParent = parent;
+  @Override
+  public void onAttach(Activity activity) {
+    
+    super.onAttach(activity);
+    mParent = (MainActivity) activity;
   }
 
   @Override

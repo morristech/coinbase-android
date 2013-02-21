@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.net.URLEncoder;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
@@ -22,9 +23,13 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.content.Intent;
+import android.net.Uri;
 
 import com.siriusapplications.coinbase.Constants;
 import com.siriusapplications.coinbase.R;
+import com.siriusapplications.coinbase.api.RpcManager;
+//import com.siriusapplications.coinbase.LoginActivity;
 
 public class LoginManager {
 
@@ -39,8 +44,18 @@ public class LoginManager {
     return INSTANCE;
   }
 
+  // production
   protected static final String CLIENT_ID = "34183b03a3e1f0b74ee6aa8a6150e90125de2d6c1ee4ff7880c2b7e6e98b11f5";
   protected static final String CLIENT_SECRET = "2c481f46f9dc046b4b9a67e630041b9906c023d139fbc77a47053328b9d3122d";
+  protected static final String CLIENT_BASEURL = "https://coinbase.com/";
+  protected static final String CLIENT_REDIRECT = CLIENT_BASEURL + "/callback?app_scheme=coinbase.android";
+
+  // development (adjust to your setup)
+  //protected static final String CLIENT_ID = "b93a59f74763e8fd109c6f895ae8a74b495828d797e48a3e8cd276c6a6dab028";
+  //protected static final String CLIENT_SECRET = "72a59bb02e2602232e0d217e4c537bcd4abba3be39ac67298f89bac01f91f2ec";
+  //protected static final String CLIENT_BASEURL = "http://192.168.105.20:3000";
+  //protected static final String CLIENT_REDIRECT = CLIENT_BASEURL + "/callback?app_scheme=coinbase.android";
+
 
   private LoginManager() {
 
@@ -177,12 +192,26 @@ public class LoginManager {
     e.commit();
   }
 
-  public String addAccount(Context context, String username, String password, String twoFactorToken) {
+  // start three legged oauth handshake
+  public String beginOAuthHandshake(Context context){
+    String baseUrl = CLIENT_BASEURL + "/oauth/authorize";
+    String redirectUrl = null;
+    try{
+      redirectUrl = URLEncoder.encode(CLIENT_REDIRECT, "utf-8");
+    } catch(Exception e) { }
+    String authorizeUrl = baseUrl + "?response_type=code&client_id=" + CLIENT_ID + "&redirect_uri=" + redirectUrl;
+    Uri authUrl = Uri.parse(authorizeUrl);
+    context.startActivity(new Intent(Intent.ACTION_VIEW, authUrl));
+    //((LoginActivity)(context)).finish();
+    return null;
+  }
 
+  // end three legged oauth handshake. (code to tokens)
+  public String finishOAuthHandsake(Context context, String code){
     List<BasicNameValuePair> parametersBody = new ArrayList<BasicNameValuePair>();
-    parametersBody.add(new BasicNameValuePair("grant_type", "password"));
-    parametersBody.add(new BasicNameValuePair("username", username + (twoFactorToken == null ? "" : "," + twoFactorToken)));
-    parametersBody.add(new BasicNameValuePair("password", password));
+    parametersBody.add(new BasicNameValuePair("grant_type", "authorization_code"));
+    parametersBody.add(new BasicNameValuePair("redirect_uri", CLIENT_REDIRECT));
+    parametersBody.add(new BasicNameValuePair("code", code));
 
     try {
       String[] tokens = doTokenRequest(context, parametersBody);
@@ -200,22 +229,21 @@ public class LoginManager {
 
       e.putString(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, accountId), tokens[0]);
       e.putString(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, accountId), tokens[1]);
-      e.putString(String.format(Constants.KEY_ACCOUNT_NAME, accountId), username);
 
+      e.commit();
+
+      e.putString(String.format(Constants.KEY_ACCOUNT_NAME, accountId), RpcManager.getInstance().getUsername(context));
       e.commit();
 
       return null;
 
     } catch (IOException e) {
-
       e.printStackTrace();
       return context.getString(R.string.login_error_io);
     } catch (ParseException e) {
-
       e.printStackTrace();
       return context.getString(R.string.login_error_io);
     } catch (JSONException e) {
-
       e.printStackTrace();
       return context.getString(R.string.login_error_io);
     }
@@ -225,7 +253,7 @@ public class LoginManager {
 
     DefaultHttpClient client = new DefaultHttpClient();
 
-    String baseUrl = "https://coinbase.com/oauth/token";
+    String baseUrl = CLIENT_BASEURL + "/oauth/token";
 
     HttpPost oauthPost = new HttpPost(baseUrl);
     List<BasicNameValuePair> parametersBody = new ArrayList<BasicNameValuePair>();

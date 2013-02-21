@@ -31,54 +31,17 @@
 	        android:paddingTop="10dp"
 	        android:text="@string/login_desc"
 	        tools:context=".LoginActivity" />
-	
-	    <EditText
-	        android:id="@+id/login_username"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentLeft="true"
-	        android:layout_alignParentRight="true"
-	        android:layout_below="@+id/textView1"
-	        android:layout_margin="15dp"
-	        android:ems="10"
-	        android:hint="@string/login_hint_username"
-	        android:inputType="textEmailAddress" >
-	
-	        <requestFocus />
-	    </EditText>
-	
-	    <EditText
-	        android:id="@+id/login_password"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignLeft="@+id/login_username"
-	        android:layout_alignRight="@+id/login_username"
-	        android:layout_below="@+id/login_username"
-	        android:ems="10"
-	        android:hint="@string/login_hint_password"
-	        android:inputType="textPassword" />
-	
-	    <EditText
-	        android:id="@+id/login_twofactor"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignLeft="@+id/login_username"
-	        android:layout_alignRight="@+id/login_username"
-	        android:layout_marginTop="15dp"
-	        android:layout_below="@+id/login_password"
-	        android:ems="10"
-	        android:hint="@string/login_hint_twofactor"
-	        android:inputType="number" />
-	
+
 	    <Button
 	        android:id="@+id/login_button"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignRight="@+id/login_password"
-	        android:layout_below="@+id/login_twofactor"
+	        android:layout_alignLeft="@+id/textView1"
+	        android:layout_below="@+id/textView1"
 	        android:layout_marginTop="10dp"
 	        android:paddingLeft="30dp"
 	        android:paddingRight="30dp"
+	        android:layout_marginLeft="15dp"
 	        android:text="@string/login_button_login" />
 	
 	    <TextView
@@ -87,7 +50,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_alignBaseline="@+id/login_button"
 	        android:layout_alignBottom="@+id/login_button"
-	        android:layout_alignLeft="@+id/login_password"
+	        android:layout_alignLeft="@+id/textView1"
 	        android:layout_marginRight="10dp"
 	        android:layout_toLeftOf="@+id/login_button"
 	        android:paddingLeft="10dp"
@@ -95,6 +58,7 @@
 	        android:textAppearance="?android:attr/textAppearanceMedium"
 	        android:visibility="invisible" />
 	
+<!--
 	    <TextView
 	        android:id="@+id/login_change_title"
 	        android:layout_width="wrap_content"
@@ -109,8 +73,8 @@
 	        android:id="@+id/login_change_desc"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignLeft="@+id/login_twofactor"
-	        android:layout_alignRight="@+id/login_twofactor"
+	        android:layout_alignLeft="@+id/textView1"
+	        android:layout_alignRight="@+id/textView1"
 	        android:layout_below="@+id/login_change_title"
 	        android:text="@string/login_change_login_desc"
 	        android:layout_marginTop="10dp"
@@ -120,12 +84,13 @@
 	        android:id="@+id/login_change_button"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignRight="@+id/login_password"
+	        android:layout_alignRight="@+id/textView1"
 	        android:layout_below="@+id/login_change_desc"
 	        android:layout_marginTop="10dp"
 	        android:paddingLeft="30dp"
 	        android:paddingRight="30dp"
 	        android:text="@string/login_button_signup" />
+-->
 	
 	</RelativeLayout>
 </ScrollView>

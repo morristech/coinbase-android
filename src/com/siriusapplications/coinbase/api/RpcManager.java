@@ -19,7 +19,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import android.util.Log;
 import android.content.Context;
+import com.siriusapplications.coinbase.api.LoginManager;
 
 
 public class RpcManager {
@@ -39,7 +41,7 @@ public class RpcManager {
 
   }
   
-  private static final String BASE_URL = "https://coinbase.com/api/v1/";
+  private static final String BASE_URL = LoginManager.CLIENT_BASEURL + "/api/v1/";
 
   public JSONObject callGet(Context context, String method) throws IOException, JSONException {
 
@@ -103,5 +105,22 @@ public class RpcManager {
 
     JSONObject content = new JSONObject(new JSONTokener(EntityUtils.toString(response.getEntity())));
     return content;
+  }
+
+  public String getUsername(Context context){
+    JSONObject response;
+    try {
+      response = callGet(context, "transactions");
+      return response.getJSONObject("current_user").getString("email");
+    } catch (IOException e) {
+      Log.e("Coinbase", "I/O error refreshing transactions.");
+      e.printStackTrace();
+      return null;
+    } catch (JSONException e) {
+      // Malformed response from Coinbase.
+      Log.e("Coinbase", "Could not parse JSON response from Coinbase, aborting refresh of transactions.");
+      e.printStackTrace();
+      return null;
+    }
   }
 }

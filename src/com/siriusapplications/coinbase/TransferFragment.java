@@ -12,7 +12,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
@@ -20,6 +23,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -38,6 +42,7 @@ import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
+import com.siriusapplications.coinbase.BuySellFragment.ConfirmBuySellDialogFragment;
 import com.siriusapplications.coinbase.api.RpcManager;
 
 public class TransferFragment extends Fragment {
@@ -151,6 +156,42 @@ public class TransferFragment extends Fragment {
       setReceiveAddress(result);
     }
 
+  }
+
+  public static class ConfirmTransferFragment extends DialogFragment {
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+      final TransferType type = (TransferType) getArguments().getSerializable("type");
+      final String amount = getArguments().getString("amount"),
+          toFrom = getArguments().getString("toFrom"),
+          notes = getArguments().getString("notes");
+
+      int messageResource = type == TransferType.REQUEST ? R.string.transfer_confirm_message_request : R.string.transfer_confirm_message_send;
+      String message = String.format(getString(messageResource), amount, toFrom);
+
+      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      builder.setMessage(message)
+      .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int id) {
+
+          // Complete transfer
+          TransferFragment parent = getActivity() == null ? null : ((MainActivity) getActivity()).getTransferFragment();
+
+          if(parent != null) {
+            parent.startTransferTask(type, amount, notes, toFrom);
+          }
+        }
+      })
+      .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        public void onClick(DialogInterface dialog, int id) {
+          // User cancelled the dialog
+        }
+      });
+
+      return builder.create();
+    }
   }
 
   private MainActivity mParent;
@@ -273,7 +314,18 @@ public class TransferFragment extends Fragment {
       @Override
       public void onClick(View v) {
 
-        startTransferTask(TransferType.SEND, mAmount, mNotes, mRecipient);
+        ConfirmTransferFragment dialog = new ConfirmTransferFragment();
+
+        Bundle b = new Bundle();
+
+        b.putSerializable("type", TransferType.values()[mTransferType]);
+        b.putString("amount", mAmount);
+        b.putString("notes", mNotes);
+        b.putString("toFrom", mRecipient);
+
+        dialog.setArguments(b);
+
+        dialog.show(getFragmentManager(), "confirm");
       }
     });
 

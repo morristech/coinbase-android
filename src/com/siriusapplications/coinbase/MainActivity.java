@@ -265,6 +265,10 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
   public BuySellFragment getBuySellFragment() {
     return mBuySellFragment;
   }
+  
+  public TransferFragment getTransferFragment() {
+    return mTransferFragment;
+  }
 
   public void setRefreshButtonAnimated(boolean animated) {
 

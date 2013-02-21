@@ -93,8 +93,8 @@
     <string name="menu_about">About</string>
     
     <string name="transfer_recipient">Email or bitcoin address</string>
-    <string name="transfer_confirm_message_send">Are you sure you would like to send %1$s BTC to $%2$s?</string>
-    <string name="transfer_confirm_message_request">Are you sure you would like to request %1$s BTC from $%2$s?</string>
+    <string name="transfer_confirm_message_send">Are you sure you would like to send %1$s BTC to %2$s?</string>
+    <string name="transfer_confirm_message_request">Are you sure you would like to request %1$s BTC from %2$s?</string>
     <string name="transfer_error_exception">The request could not be completed.</string>
     <string name="transfer_error_api">The request could not be completed.\n\n%1$s</string>
     <string name="transfer_progress">Sending&#8230;</string>

@@ -341,6 +341,14 @@ public class TransactionsFragment extends ListFragment {
     protected void onPostExecute(Cursor result) {
 
       setHeaderPinned(!result.moveToFirst());
+      
+      if(mListView.getAdapter() != null) {
+        
+        // Just update existing adapter
+        getAdapter().changeCursor(result);
+        return;
+      }
+      
       String[] from = { TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON,
           TransactionEntry.COLUMN_NAME_JSON, TransactionEntry.COLUMN_NAME_JSON };
       int[] to = { R.id.transaction_title, R.id.transaction_amount,
@@ -457,6 +465,10 @@ public class TransactionsFragment extends ListFragment {
     // Reload balance
     new LoadBalanceTask().execute();
   }
+  
+  private CursorAdapter getAdapter() {
+    return ((CursorAdapter) ((HeaderViewListAdapter) mListView.getAdapter()).getWrappedAdapter());
+  }
 
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
@@ -467,7 +479,7 @@ public class TransactionsFragment extends ListFragment {
     
     position--;
     
-    Cursor c = ((CursorAdapter) ((HeaderViewListAdapter) l.getAdapter()).getWrappedAdapter()).getCursor();
+    Cursor c = getAdapter().getCursor();
     c.moveToPosition(position);
     
     String transactionId = c.getString(c.getColumnIndex(TransactionEntry._ID));

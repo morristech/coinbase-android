@@ -110,5 +110,9 @@
     <string name="transfer_nfc_failure">Could not start NFC transfer.</string>
     <string name="transfer_email_prompt_text">Sending %1$s BTC to:</string>
     <string name="transfer_email_prompt_hint">Enter email address</string>
+    <string name="transactiondetails_request_resend">Re-Send Request</string>
+    <string name="transactiondetails_request_cancel">Cancel Request</string>
+    <string name="transactiondetails_request_send">Send %1$s to %2$s</string>
+    <string name="transactiondetails_request_decline">Decline Payment</string>
     
 </resources>

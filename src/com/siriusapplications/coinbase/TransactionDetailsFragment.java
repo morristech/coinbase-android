@@ -16,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,18 +61,24 @@ public class TransactionDetailsFragment extends Fragment {
           date = (TextView) view.findViewById(R.id.transactiondetails_date),
           status = (TextView) view.findViewById(R.id.transactiondetails_status),
           notes = (TextView) view.findViewById(R.id.transactiondetails_notes);
+      Button resend = (Button) view.findViewById(R.id.transactiondetails_request_resend),
+          cancel = (Button) view.findViewById(R.id.transactiondetails_request_cancel),
+          send = (Button) view.findViewById(R.id.transactiondetails_request_send),
+          decline = (Button) view.findViewById(R.id.transactiondetails_request_decline);
 
       boolean sentToMe = data.optJSONObject("sender") == null || !currentUserId.equals(data.getJSONObject("sender").optString("id"));
 
       // Amount
-      amount.setText(Utils.formatCurrencyAmount(data.getJSONObject("amount").getString("amount"), true) + " " +
-          data.getJSONObject("amount").getString("currency"));
+      String amountText = Utils.formatCurrencyAmount(data.getJSONObject("amount").getString("amount"), true) + " " +
+          data.getJSONObject("amount").getString("currency");
+      amount.setText(amountText);
       amountLabel.setText(sentToMe ? R.string.transactiondetails_amountreceived : R.string.transactiondetails_amountsent);
 
       // To / From
+      String recipient = getName(data.optJSONObject("recipient"), data.optString("recipient_address"), currentUserId);
       from.setText(getName(data.optJSONObject("sender"), null, currentUserId));
-      to.setText(getName(data.optJSONObject("recipient"), data.optString("recipient_address"), currentUserId));
-      
+      to.setText(recipient);
+
       // Date
       SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy, 'at' hh:mma zzz");
       try {
@@ -79,7 +86,7 @@ public class TransactionDetailsFragment extends Fragment {
       } catch (ParseException e) {
         date.setText(null);
       }
-      
+
       // Status
       String transactionStatus = data.optString("status", getString(R.string.transaction_status_error));
       String readable = transactionStatus;
@@ -93,10 +100,35 @@ public class TransactionDetailsFragment extends Fragment {
       }
       status.setText(readable);
       status.setBackgroundResource(background);
-      
+
       // Notes
       String notesText = data.optString("notes");
       notes.setText("null".equals(notesText) ? null : notesText);
+
+      // Buttons
+      boolean isBuy = data.optJSONObject("sender") != null && "transfers@coinbase.com".equals(data.optJSONObject("sender").optString("email"));
+      boolean isSell = data.optJSONObject("recipient") != null && "transfers@coinbase.com".equals(data.optJSONObject("recipient").optString("email"));
+      boolean senderOrRecipientIsExternal = data.optJSONObject("sender") == null || data.optJSONObject("recipient") == null;
+      if(isBuy || isSell || senderOrRecipientIsExternal || !"pending".equals(transactionStatus)) {
+        cancel.setVisibility(View.GONE);
+        resend.setVisibility(View.GONE);
+        send.setVisibility(View.GONE);
+        decline.setVisibility(View.GONE);
+      } else if(sentToMe) {
+
+        cancel.setVisibility(View.VISIBLE);
+        resend.setVisibility(View.VISIBLE);
+        send.setVisibility(View.GONE);
+        decline.setVisibility(View.GONE);
+      } else {
+
+        cancel.setVisibility(View.GONE);
+        resend.setVisibility(View.GONE);
+        send.setVisibility(View.VISIBLE);
+        decline.setVisibility(View.VISIBLE);
+        
+        send.setText(String.format(getString(R.string.transactiondetails_request_send), amountText, recipient));
+      }
 
     } catch (JSONException e) {
       Toast.makeText(getActivity(), R.string.transactiondetails_error, Toast.LENGTH_LONG).show();
@@ -117,13 +149,13 @@ public class TransactionDetailsFragment extends Fragment {
     }
 
     if(name != null) {
-      
+
       String addition = "";
-      
+
       if(!name.equals(email)) {
         addition = (email == null ? "" : String.format(" (%s)", email));
       }
-      
+
       return name + addition;
     } else if(email != null) {
       return email;

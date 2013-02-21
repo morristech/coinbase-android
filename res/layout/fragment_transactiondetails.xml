@@ -131,6 +131,52 @@
           android:layout_marginRight="15dp"
           android:layout_toRightOf="@+id/transactiondetails_label_notes"
           android:textAppearance="?android:attr/textAppearanceMedium" />
+
+      <Button
+          android:id="@+id/transactiondetails_request_resend"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_marginTop="15dp"
+          android:layout_marginLeft="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_below="@+id/transactiondetails_notes"
+          android:text="@string/transactiondetails_request_resend" />
+
+      <Button
+          android:id="@+id/transactiondetails_request_cancel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_marginTop="10dp"
+          android:layout_marginLeft="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_marginBottom="15dp"
+          android:layout_below="@+id/transactiondetails_request_resend"
+          android:text="@string/transactiondetails_request_cancel" />
+
+      <Button
+          android:id="@+id/transactiondetails_request_send"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_marginTop="15dp"
+          android:layout_marginLeft="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_below="@+id/transactiondetails_request_cancel"
+          android:text="@string/transactiondetails_request_send" />
+
+      <Button
+          android:id="@+id/transactiondetails_request_decline"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_alignParentLeft="true"
+          android:layout_marginTop="10dp"
+          android:layout_marginLeft="15dp"
+          android:layout_marginRight="15dp"
+          android:layout_marginBottom="15dp"
+          android:layout_below="@+id/transactiondetails_request_send"
+          android:text="@string/transactiondetails_request_decline" />
 	
 	</RelativeLayout>
 </ScrollView>

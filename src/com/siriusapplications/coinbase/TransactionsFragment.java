@@ -396,8 +396,10 @@ public class TransactionsFragment extends ListFragment {
 
     super.onSaveInstanceState(outState);
 
-    outState.putString("balance_text", mBalanceText.getText().toString());
-    outState.putString("balance_currency", mBalanceCurrency.getText().toString());
+    if(mBalanceText != null) {
+      outState.putString("balance_text", mBalanceText.getText().toString());
+      outState.putString("balance_currency", mBalanceCurrency.getText().toString());
+    }
   }
 
   @Override

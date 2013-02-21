@@ -405,6 +405,11 @@ public class TransactionsFragment extends ListFragment {
     super.onAttach(activity);
     mParent = (MainActivity) activity;
   }
+  
+  public void setParent(MainActivity activity) {
+
+    mParent = activity;
+  }
 
   @Override
   public void onSaveInstanceState(Bundle outState) {

@@ -221,6 +221,11 @@ public class BuySellFragment extends Fragment {
     super.onAttach(activity);
     mParent = (MainActivity) activity;
   }
+  
+  public void setParent(MainActivity activity) {
+
+    mParent = activity;
+  }
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,

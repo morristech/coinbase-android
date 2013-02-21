@@ -234,6 +234,11 @@ public class TransferFragment extends Fragment {
     super.onAttach(activity);
     mParent = (MainActivity) activity;
   }
+  
+  public void setParent(MainActivity activity) {
+
+    mParent = activity;
+  }
 
   @Override
   public void onDestroyView() {
@@ -465,7 +470,7 @@ public class TransferFragment extends Fragment {
 
     if(mReceiveAddressBarcode != null) {
       try {
-        int size = (int)(getResources().getDisplayMetrics().density * 128);
+        int size = (int)(mParent.getResources().getDisplayMetrics().density * 128);
         Bitmap barcode = Utils.createBarcode("bitcoin:" + address, BarcodeFormat.QR_CODE,
             size, size);
         mReceiveAddressBarcode.setImageBitmap(barcode);

@@ -94,6 +94,9 @@ public class TransferFragment extends Fragment {
         int messageId = type == TransferType.SEND ? R.string.transfer_success_send : R.string.transfer_success_request;
         String text = String.format(getString(messageId), (String) result[1], (String) result[3]);
         Toast.makeText(mParent, text, Toast.LENGTH_SHORT).show();
+        
+        // Sync transactions
+        mParent.refresh();
       } else {
 
         Utils.showMessageDialog(getFragmentManager(), (String) result[1]);

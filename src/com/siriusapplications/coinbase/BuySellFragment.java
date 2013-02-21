@@ -124,6 +124,9 @@ public class BuySellFragment extends Fragment {
         int messageId = type == BuySellType.BUY ? R.string.buysell_success_buy : R.string.buysell_success_sell;
         String text = String.format(getString(messageId), (String) result[1]);
         Toast.makeText(mParent, text, Toast.LENGTH_SHORT).show();
+        
+        // Sync transactions
+        mParent.refresh();
       } else {
 
         Utils.showMessageDialog(getFragmentManager(), (String) result[1]);

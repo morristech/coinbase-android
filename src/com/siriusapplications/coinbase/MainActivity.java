@@ -145,9 +145,7 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       startBarcodeScan();
       return true;
     case R.id.menu_refresh:
-      mTransactionsFragment.refresh();
-      mBuySellFragment.refresh();
-      mTransferFragment.refresh();
+      refresh();
       return true;
     }
 
@@ -271,5 +269,11 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       mRefreshItem.setEnabled(true);
       mRefreshItem.setActionView(null);
     }
+  }
+  
+  public void refresh() {
+    mTransactionsFragment.refresh();
+    mBuySellFragment.refresh();
+    mTransferFragment.refresh();
   }
 }

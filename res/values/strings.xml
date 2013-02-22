@@ -114,5 +114,7 @@
     <string name="transactiondetails_request_cancel">Cancel Request</string>
     <string name="transactiondetails_request_send">Send %1$s to %2$s</string>
     <string name="transactiondetails_request_decline">Decline Payment</string>
+    <string name="transfer_amt_empty">You must enter a transfer amount.</string>
+    <string name="transfer_recipient_empty">You must enter a recipient.</string>
     
 </resources>

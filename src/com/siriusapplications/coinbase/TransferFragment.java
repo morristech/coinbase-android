@@ -350,6 +350,18 @@ public class TransferFragment extends Fragment {
       @Override
       public void onClick(View v) {
 
+        if("".equals(mAmount)) {
+          
+          // No amount entered
+          Toast.makeText(mParent, R.string.transfer_amt_empty, Toast.LENGTH_SHORT).show();
+          return;
+        } else if("".equals(mRecipient)) {
+          
+          // No recipient entered
+          Toast.makeText(mParent, R.string.transfer_recipient_empty, Toast.LENGTH_SHORT).show();
+          return;
+        }
+
         ConfirmTransferFragment dialog = new ConfirmTransferFragment();
 
         Bundle b = new Bundle();
@@ -370,6 +382,13 @@ public class TransferFragment extends Fragment {
       @Override
       public void onClick(View v) {
 
+        if("".equals(mAmount)) {
+          
+          // No amount entered
+          Toast.makeText(mParent, R.string.transfer_amt_empty, Toast.LENGTH_SHORT).show();
+          return;
+        }
+        
         TransferEmailPromptFragment dialog = new TransferEmailPromptFragment();
 
         Bundle b = new Bundle();

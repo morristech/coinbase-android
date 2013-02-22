@@ -3,7 +3,10 @@ package com.siriusapplications.coinbase;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -106,11 +109,31 @@ public class TransactionsFragment extends ListFragment {
     @Override
     protected Boolean doInBackground(Void... params) {
 
-      JSONObject response;
+      List<JSONObject> transactions = new ArrayList<JSONObject>();
+      String currentUserId = null;
 
+      // Make API call to download list of transactions
       try {
+        
+        int numPages = 1; // Real value will be set after first list iteration
 
-        response = RpcManager.getInstance().callGet(mParent, "transactions");
+        // Loop is required to sync all pages of transaction history
+        for(int i = 1; i <= numPages; i++) {
+          
+          List<BasicNameValuePair> getParams = new ArrayList<BasicNameValuePair>();
+          getParams.add(new BasicNameValuePair("page", Integer.toString(i)));
+          JSONObject response = RpcManager.getInstance().callGet(mParent, "transactions", getParams);
+          
+          JSONArray transactionsArray = response.getJSONArray("transactions");
+          currentUserId = response.getJSONObject("current_user").getString("id");
+          numPages = response.getInt("num_pages");
+
+          for(int j = 0; j < transactionsArray.length(); j++) {
+
+            JSONObject transaction = transactionsArray.getJSONObject(j).getJSONObject("transaction");
+            transactions.add(transaction);
+          }
+        }
 
       } catch (IOException e) {
         Log.e("Coinbase", "I/O error refreshing transactions.");
@@ -129,11 +152,8 @@ public class TransactionsFragment extends ListFragment {
       SQLiteDatabase db = dbHelper.getWritableDatabase();
 
       db.beginTransaction();
-
-      // Make API call to download list of transactions
       try {
 
-        JSONArray transactionsArray = response.getJSONArray("transactions");
 
         // Remove all old transactions
         db.delete(TransactionEntry.TABLE_NAME, null, null);
@@ -142,12 +162,11 @@ public class TransactionsFragment extends ListFragment {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
         int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
         Editor editor = prefs.edit();
-        editor.putString(String.format(Constants.KEY_ACCOUNT_ID, activeAccount), response.getJSONObject("current_user").getString("id"));
+        editor.putString(String.format(Constants.KEY_ACCOUNT_ID, activeAccount), currentUserId);
         editor.commit();
 
-        for(int i = 0; i < transactionsArray.length(); i++) {
+        for(JSONObject transaction : transactions) {
 
-          JSONObject transaction = transactionsArray.getJSONObject(i).getJSONObject("transaction");
           ContentValues values = new ContentValues();
 
           String createdAtStr = transaction.optString("created_at", null);
@@ -405,7 +424,7 @@ public class TransactionsFragment extends ListFragment {
     super.onAttach(activity);
     mParent = (MainActivity) activity;
   }
-  
+
   public void setParent(MainActivity activity) {
 
     mParent = activity;

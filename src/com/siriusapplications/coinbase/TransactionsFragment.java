@@ -82,7 +82,7 @@ public class TransactionsFragment extends ListFragment {
     @Override
     protected void onPreExecute() {
 
-      mBalanceText.setTextColor(getResources().getColor(R.color.wallet_balance_color_invalid));
+      mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
     }
 
     @Override

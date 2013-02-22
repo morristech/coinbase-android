@@ -116,5 +116,7 @@
     <string name="transactiondetails_request_decline">Decline Payment</string>
     <string name="transfer_amt_empty">You must enter a transfer amount.</string>
     <string name="transfer_recipient_empty">You must enter a recipient.</string>
+    <string name="widget_balance_default">0.0000</string>
+    <string name="widget_balance_label">Coinbase Balance</string>
     
 </resources>

@@ -41,6 +41,14 @@
         </activity>
         <activity android:name="TransactionDetailsActivity"></activity>
         <activity android:name="AboutActivity"></activity>
+        <receiver android:name="BalanceAppWidgetProvider"
+            android:label="@string/widget_balance_label">
+				    <intent-filter>
+				        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+				    </intent-filter>
+				    <meta-data android:name="android.appwidget.provider"
+				               android:resource="@xml/balance_appwidget_provider" />
+				</receiver>
     </application>
 
 </manifest>

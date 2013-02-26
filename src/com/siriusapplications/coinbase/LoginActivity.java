@@ -16,21 +16,17 @@ public class LoginActivity extends CoinbaseActivity {
 
   TextView mLoginProgress;
   Button mLoginButton;
-  EditText mLoginUsername, mLoginPassword, mLoginTwoFactor;
 
-  private class LoginTask extends AsyncTask<String, Void, String> {
+  private class OAuthCodeTask extends AsyncTask<String, Void, String> {
 
     protected void onPostExecute(String result) {
-      
       setUiLoadingState(false);
       
       if(result == null) {
-        
         // Success!
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
         finish();
       } else {
-        
         // Failure.
         mLoginProgress.setText(result);
       }
@@ -38,8 +34,7 @@ public class LoginActivity extends CoinbaseActivity {
 
     @Override
     protected String doInBackground(String... params) {
-      
-      return LoginManager.getInstance().addAccount(LoginActivity.this, params[0], params[1], params[2]);
+      return LoginManager.getInstance().finishOAuthHandsake(LoginActivity.this, params[0]);
     }
   }
 
@@ -52,9 +47,6 @@ public class LoginActivity extends CoinbaseActivity {
 
     mLoginButton = (Button) findViewById(R.id.login_button);
     mLoginProgress = (TextView) findViewById(R.id.login_progress_text);
-    mLoginUsername = (EditText) findViewById(R.id.login_username);
-    mLoginPassword = (EditText) findViewById(R.id.login_password);
-    mLoginTwoFactor = (EditText) findViewById(R.id.login_twofactor);
 
     mLoginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -66,6 +58,20 @@ public class LoginActivity extends CoinbaseActivity {
     });
 
     setUiLoadingState(false);
+
+    onNewIntent(getIntent());
+  }
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+
+    super.onNewIntent(intent);
+    setIntent(intent);
+
+    if(intent.getData() != null && "x-com.coinbase.android".equals(intent.getData().getScheme())) {
+      String oauthCode = intent.getData().getQueryParameter("code");
+      new OAuthCodeTask().execute(oauthCode);
+    }
   }
 
   @Override
@@ -77,49 +83,16 @@ public class LoginActivity extends CoinbaseActivity {
   private void setUiLoadingState(boolean loading) {
 
     mLoginButton.setEnabled(!loading);
-    mLoginUsername.setEnabled(!loading);
-    mLoginPassword.setEnabled(!loading);
-    mLoginTwoFactor.setEnabled(!loading);
     setProgressBarIndeterminateVisibility(loading);
   }
 
-  private boolean verifyInput() {
-
-    boolean success = true;
-
-    if("".equals(mLoginUsername.getText().toString().trim())) {
-
-      mLoginUsername.setError(getString(R.string.login_error_username_empty));
-      success = false;
-    }
-
-    if("".equals(mLoginPassword.getText().toString().trim())) {
-
-      mLoginPassword.setError(getString(R.string.login_error_password_empty));
-      success = false;
-    }
-
-    return success;
-  }
-
   private void doLogin() {
-
-    if(!verifyInput()) {
-      return;
-    }
 
     setUiLoadingState(true);
     mLoginProgress.setVisibility(View.VISIBLE);
     mLoginProgress.setText(R.string.login_progress);
     
-    String username = mLoginUsername.getText().toString();
-    String password = mLoginPassword.getText().toString();
-    String twoFactorToken = mLoginTwoFactor.getText().toString();
-    
-    if(twoFactorToken.isEmpty()) {
-      twoFactorToken = null;
-    }
-    
-    new LoginTask().execute(username, password, twoFactorToken);
+    LoginManager.getInstance().beginOAuthHandshake(LoginActivity.this);
+    finish();
   }
 }

@@ -82,11 +82,17 @@ public class TransactionsFragment extends ListFragment {
     @Override
     protected void onPreExecute() {
 
-      mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
+      if(mBalanceText != null) {
+        mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
+      }
     }
 
     @Override
     protected void onPostExecute(String[] result) {
+      
+      if(mBalanceText == null) {
+        return;
+      }
 
       if(result == null) {
         mBalanceText.setText(null);
@@ -114,16 +120,16 @@ public class TransactionsFragment extends ListFragment {
 
       // Make API call to download list of transactions
       try {
-        
+
         int numPages = 1; // Real value will be set after first list iteration
 
         // Loop is required to sync all pages of transaction history
         for(int i = 1; i <= numPages; i++) {
-          
+
           List<BasicNameValuePair> getParams = new ArrayList<BasicNameValuePair>();
           getParams.add(new BasicNameValuePair("page", Integer.toString(i)));
           JSONObject response = RpcManager.getInstance().callGet(mParent, "transactions", getParams);
-          
+
           JSONArray transactionsArray = response.getJSONArray("transactions");
           currentUserId = response.getJSONObject("current_user").getString("id");
           numPages = response.getInt("num_pages");

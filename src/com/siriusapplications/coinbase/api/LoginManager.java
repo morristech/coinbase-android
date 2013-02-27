@@ -47,15 +47,12 @@ public class LoginManager {
   // production
   protected static final String CLIENT_ID = "34183b03a3e1f0b74ee6aa8a6150e90125de2d6c1ee4ff7880c2b7e6e98b11f5";
   protected static final String CLIENT_SECRET = "2c481f46f9dc046b4b9a67e630041b9906c023d139fbc77a47053328b9d3122d";
-  protected static final String CLIENT_BASEURL = "https://coinbase.com/";
-  protected static final String CLIENT_REDIRECT = CLIENT_BASEURL + "/callback?app_scheme=coinbase.android";
+  protected static final String CLIENT_BASEURL = "https://coinbase.com";
 
   // development (adjust to your setup)
   //protected static final String CLIENT_ID = "b93a59f74763e8fd109c6f895ae8a74b495828d797e48a3e8cd276c6a6dab028";
   //protected static final String CLIENT_SECRET = "72a59bb02e2602232e0d217e4c537bcd4abba3be39ac67298f89bac01f91f2ec";
   //protected static final String CLIENT_BASEURL = "http://192.168.105.20:3000";
-  //protected static final String CLIENT_REDIRECT = CLIENT_BASEURL + "/callback?app_scheme=coinbase.android";
-
 
   private LoginManager() {
 
@@ -193,24 +190,27 @@ public class LoginManager {
   }
 
   // start three legged oauth handshake
-  public String beginOAuthHandshake(Context context){
+  public String generateOAuthUrl(String redirectUrl){
+    
     String baseUrl = CLIENT_BASEURL + "/oauth/authorize";
-    String redirectUrl = null;
+    
     try{
-      redirectUrl = URLEncoder.encode(CLIENT_REDIRECT, "utf-8");
-    } catch(Exception e) { }
+      redirectUrl = URLEncoder.encode(redirectUrl, "utf-8");
+    } catch(Exception e) {
+      throw new RuntimeException(e);
+    }
+    
     String authorizeUrl = baseUrl + "?response_type=code&client_id=" + CLIENT_ID + "&redirect_uri=" + redirectUrl;
-    Uri authUrl = Uri.parse(authorizeUrl);
-    context.startActivity(new Intent(Intent.ACTION_VIEW, authUrl));
-    //((LoginActivity)(context)).finish();
-    return null;
+    return authorizeUrl;
   }
 
   // end three legged oauth handshake. (code to tokens)
-  public String finishOAuthHandsake(Context context, String code){
+  // Returns error as human-readable string, or null on success.
+  public String addAccountOAuth(Context context, String code, String originalRedirectUrl) {
+    
     List<BasicNameValuePair> parametersBody = new ArrayList<BasicNameValuePair>();
     parametersBody.add(new BasicNameValuePair("grant_type", "authorization_code"));
-    parametersBody.add(new BasicNameValuePair("redirect_uri", CLIENT_REDIRECT));
+    parametersBody.add(new BasicNameValuePair("redirect_uri", originalRedirectUrl));
     parametersBody.add(new BasicNameValuePair("code", code));
 
     try {

@@ -1,96 +1,47 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-	<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	    xmlns:tools="http://schemas.android.com/tools"
+	<RelativeLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:paddingBottom="15dp">
+	    android:layout_gravity="center"
+	    android:id="@+id/login_form"
+	    android:padding="@dimen/layout_padding">
 	
 	    <TextView
 	        android:id="@+id/login_title"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignParentLeft="true"
 	        android:layout_alignParentTop="true"
+	        android:layout_centerHorizontal="true"
 	        android:text="@string/login_title_login"
-	        android:paddingLeft="15dp"
-	        android:paddingRight="15dp"
-	        android:paddingTop="15dp"
 	        android:textAppearance="?android:attr/textAppearanceMedium" />
 	
 	    <TextView
-	        android:id="@+id/textView1"
+	        android:id="@+id/login_desc"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignParentLeft="true"
 	        android:layout_below="@+id/login_title"
-	        android:paddingLeft="15dp"
-	        android:paddingRight="15dp"
+          android:layout_centerHorizontal="true"
 	        android:paddingTop="10dp"
-	        android:text="@string/login_desc"
-	        tools:context=".LoginActivity" />
+	        android:gravity="center"
+	        android:text="@string/login_desc" />
 
 	    <Button
 	        android:id="@+id/login_button"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_alignLeft="@+id/textView1"
-	        android:layout_below="@+id/textView1"
+	        android:layout_below="@+id/login_desc"
 	        android:layout_marginTop="10dp"
-	        android:paddingLeft="30dp"
-	        android:paddingRight="30dp"
-	        android:layout_marginLeft="15dp"
+          android:layout_centerHorizontal="true"
 	        android:text="@string/login_button_login" />
 	
-	    <TextView
-	        android:id="@+id/login_progress_text"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignBaseline="@+id/login_button"
-	        android:layout_alignBottom="@+id/login_button"
-	        android:layout_alignLeft="@+id/textView1"
-	        android:layout_marginRight="10dp"
-	        android:layout_toLeftOf="@+id/login_button"
-	        android:paddingLeft="10dp"
-	        android:text="@string/login_progress"
-	        android:textAppearance="?android:attr/textAppearanceMedium"
-	        android:visibility="invisible" />
-	
-<!--
-	    <TextView
-	        android:id="@+id/login_change_title"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignLeft="@+id/login_progress_text"
-	        android:layout_below="@+id/login_button"
-	        android:layout_marginTop="25dp"
-	        android:text="@string/login_change_login"
-	        android:textAppearance="?android:attr/textAppearanceMedium" />
-	
-	    <TextView
-	        android:id="@+id/login_change_desc"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignLeft="@+id/textView1"
-	        android:layout_alignRight="@+id/textView1"
-	        android:layout_below="@+id/login_change_title"
-	        android:text="@string/login_change_login_desc"
-	        android:layout_marginTop="10dp"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-	
-	    <Button
-	        android:id="@+id/login_change_button"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignRight="@+id/textView1"
-	        android:layout_below="@+id/login_change_desc"
-	        android:layout_marginTop="10dp"
-	        android:paddingLeft="30dp"
-	        android:paddingRight="30dp"
-	        android:text="@string/login_button_signup" />
--->
-	
 	</RelativeLayout>
-</ScrollView>
+  <WebView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:id="@+id/login_webview"
+      android:visibility="gone">
+	</WebView>
+</FrameLayout>

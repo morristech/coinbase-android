@@ -1,13 +1,13 @@
 <resources>
 
-    <string name="app_name">Coinbase Wallet</string>
+    <string name="app_name">Coinbase</string>
     <string name="title_section3">TRANSFER</string>
     <string name="title_section2">BUY / SELL</string>
     <string name="title_section1">TRANSACTIONS</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">Coinbase Wallet</string>
-    <string name="title_activity_login">Coinbase Wallet</string>
+    <string name="title_activity_main">Coinbase</string>
+    <string name="title_activity_login">Coinbase</string>
     <string name="login_desc">Login using your Coinbase Account to continue.</string>
     <string name="menu_sign_out">Sign out</string>
     <string name="login_hint_username">Username</string>

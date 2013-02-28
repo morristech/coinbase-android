@@ -16,13 +16,14 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-import android.widget.TextView;
 
 import com.siriusapplications.coinbase.db.TransactionsDatabase;
 import com.siriusapplications.coinbase.db.TransactionsDatabase.TransactionEntry;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TransactionsRemoteViewsService extends RemoteViewsService {
+  
+  public static final String WIDGET_TRANSACTION_LIMIT = "10";
 
   public class TransactionsRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
@@ -45,7 +46,7 @@ public class TransactionsRemoteViewsService extends RemoteViewsService {
       int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
       mCursor = mDatabase.query(TransactionsDatabase.TransactionEntry.TABLE_NAME,
-          null, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) }, null, null, null);
+          null, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) }, null, null, null, WIDGET_TRANSACTION_LIMIT);
     }
 
     @Override

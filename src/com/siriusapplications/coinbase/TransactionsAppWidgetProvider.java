@@ -23,7 +23,8 @@ public class TransactionsAppWidgetProvider extends AppWidgetProvider {
       
       RemoteViews rv = new RemoteViews(context.getPackageName(), R.layout.widget_transactions);
       rv.setRemoteAdapter(appWidgetIds[i], R.id.widget_list, intent);
-      rv.setEmptyView(R.id.widget_list, R.id.widget_balance); // TODO
+      rv.setEmptyView(R.id.widget_list, R.id.widget_empty);
+      
 
       appWidgetManager.updateAppWidget(appWidgetIds[i], rv);   
     }

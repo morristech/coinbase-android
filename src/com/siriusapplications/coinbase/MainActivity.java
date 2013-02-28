@@ -89,6 +89,7 @@ public class MainActivity extends CoinbaseActivity {
     mTransactionsFragment.setParent(this);
     mBuySellFragment.setParent(this);
     mTransferFragment.setParent(this);
+    mSettingsFragment.setParent(this);
 
     mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -374,5 +375,6 @@ public class MainActivity extends CoinbaseActivity {
     mTransactionsFragment.refresh();
     mBuySellFragment.refresh();
     mTransferFragment.refresh();
+    mSettingsFragment.refresh();
   }
 }

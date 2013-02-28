@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -23,7 +22,6 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.content.Context;
-import android.util.Log;
 
 
 public class RpcManager {
@@ -137,22 +135,5 @@ public class RpcManager {
 
     JSONObject content = new JSONObject(new JSONTokener(EntityUtils.toString(response.getEntity())));
     return content;
-  }
-
-  public String getUsername(Context context){
-    JSONObject response;
-    try {
-      response = callGet(context, "transactions");
-      return response.getJSONObject("current_user").getString("email");
-    } catch (IOException e) {
-      Log.e("Coinbase", "I/O error refreshing transactions.");
-      e.printStackTrace();
-      return null;
-    } catch (JSONException e) {
-      // Malformed response from Coinbase.
-      Log.e("Coinbase", "Could not parse JSON response from Coinbase, aborting refresh of transactions.");
-      e.printStackTrace();
-      return null;
-    }
   }
 }

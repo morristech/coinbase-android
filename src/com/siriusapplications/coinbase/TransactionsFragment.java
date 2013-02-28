@@ -58,7 +58,8 @@ public class TransactionsFragment extends ListFragment {
         JSONObject balance = RpcManager.getInstance().callGet(mParent, "account/balance");
         JSONObject exchangeRates = RpcManager.getInstance().callGet(mParent, "currencies/exchange_rates");
         
-        String userHomeCurrency = "usd"; // TODO Sync this
+        String userHomeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
+            "usd").toLowerCase(Locale.CANADA);
         BigDecimal homeAmount = new BigDecimal(balance.getString("amount")).multiply(
             new BigDecimal(exchangeRates.getString("btc_to_" + userHomeCurrency)));
 

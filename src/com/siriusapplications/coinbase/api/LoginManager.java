@@ -228,7 +228,11 @@ public class LoginManager {
 
       e.commit();
 
-      e.putString(String.format(Constants.KEY_ACCOUNT_NAME, accountId), RpcManager.getInstance().getUsername(context));
+      JSONObject userInfo = RpcManager.getInstance().callGet(context, "users").getJSONArray("users").getJSONObject(0).getJSONObject("user");
+      e.putString(String.format(Constants.KEY_ACCOUNT_NAME, accountId), userInfo.getString("email"));
+      e.putString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, accountId), userInfo.getString("native_currency"));
+      e.putString(String.format(Constants.KEY_ACCOUNT_FULL_NAME, accountId), userInfo.getString("name"));
+      e.putString(String.format(Constants.KEY_ACCOUNT_TIME_ZONE, accountId), userInfo.getString("time_zone"));
       e.commit();
 
       return null;

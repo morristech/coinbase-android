@@ -121,5 +121,6 @@
     <string name="transactiondetails_title">Transaction details</string>
     <string name="transactiondetails_progress">Sending&#8230;</string>
     <string name="transactiondetails_action_error">Could not take action on transaction.</string>
+    <string name="barcode_scan_message">Place a Bitcoin barcode inside the viewfinder to scan it.</string>
     
 </resources>

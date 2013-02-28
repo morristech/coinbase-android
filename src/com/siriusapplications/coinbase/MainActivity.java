@@ -238,8 +238,7 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
 
   public void startBarcodeScan() {
 
-    Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-    intent.setPackage("com.google.zxing.client.android");
+    Intent intent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
     intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
 
     try {

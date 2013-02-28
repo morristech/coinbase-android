@@ -9,6 +9,8 @@
         
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.NFC"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -49,6 +51,10 @@
 				    <meta-data android:name="android.appwidget.provider"
 				               android:resource="@xml/balance_appwidget_provider" />
 				</receiver>
+        <activity android:name="com.google.zxing.client.android.CaptureActivity"
+              android:configChanges="orientation|keyboardHidden"
+              android:theme="@android:style/Theme.NoTitleBar"
+              android:windowSoftInputMode="stateAlwaysHidden"></activity>
     </application>
 
 </manifest>

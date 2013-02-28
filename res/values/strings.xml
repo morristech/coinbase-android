@@ -118,6 +118,7 @@
     <string name="transfer_recipient_empty">You must enter a recipient.</string>
     <string name="widget_balance_default">0.0000</string>
     <string name="widget_balance_label">Coinbase Balance</string>
+    <string name="widget_transactions_label">Coinbase Transactions</string>
     <string name="transactiondetails_title">Transaction details</string>
     <string name="transactiondetails_progress">Sending&#8230;</string>
     <string name="transactiondetails_action_error">Could not take action on transaction.</string>

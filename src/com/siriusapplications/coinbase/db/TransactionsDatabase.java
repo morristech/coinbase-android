@@ -17,6 +17,7 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
     public static final String COLUMN_NAME_JSON = "json";
     public static final String COLUMN_NAME_ACCOUNT = "account";
     public static final String COLUMN_NAME_TIME = "timestamp";
+    public static final String COLUMN_NAME_NUMERIC_ID = "numeric_id";
   }
 
   public static class EmailEntry {
@@ -32,7 +33,8 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
   
   public static final String SQL_CREATE_ENTRIES =
       "CREATE TABLE " + TransactionEntry.TABLE_NAME + " (" +
-          TransactionEntry._ID + " TEXT PRIMARY KEY," +
+          TransactionEntry.COLUMN_NAME_NUMERIC_ID + INTEGER_TYPE + " PRIMARY KEY AUTOINCREMENT NOT NULL" + COMMA_SEP +
+          TransactionEntry._ID + " TEXT," +
           TransactionEntry.COLUMN_NAME_JSON + TEXT_TYPE + COMMA_SEP +
           TransactionEntry.COLUMN_NAME_ACCOUNT + INTEGER_TYPE + COMMA_SEP +
           TransactionEntry.COLUMN_NAME_TIME + INTEGER_TYPE +
@@ -50,7 +52,7 @@ public class TransactionsDatabase extends SQLiteOpenHelper {
   public static final String SQL_DELETE_ENTRIES_EMAIL =
       "DROP TABLE IF EXISTS " + EmailEntry.TABLE_NAME;
 
-  public static final int DATABASE_VERSION = 6;
+  public static final int DATABASE_VERSION = 7;
   public static final String DATABASE_NAME = "transactions";
 
   public TransactionsDatabase(Context context) {

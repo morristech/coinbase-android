@@ -21,6 +21,8 @@ public class BalanceAppWidgetProvider extends AppWidgetProvider {
       if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
         setKeyguardPadding(context, appWidgetManager, appWidgetId, views);
       }
+      
+      
 
       appWidgetManager.updateAppWidget(appWidgetId, views);
     }

@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Hashtable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -140,6 +143,64 @@ public class Utils {
     
     if(autocompleteAdapter instanceof EmailAutocompleteAdapter) {
       ((EmailAutocompleteAdapter) autocompleteAdapter).mDb.close();
+    }
+  }
+  
+  public static String generateTransactionSummary(Context c, JSONObject t) throws JSONException {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+
+    String currentUserId = prefs.getString(String.format(Constants.KEY_ACCOUNT_ID, activeAccount), null);
+
+    if(currentUserId != null &&
+        t.optJSONObject("sender") != null &&
+        currentUserId.equals(t.getJSONObject("sender").optString("id"))) {
+
+      JSONObject r = t.optJSONObject("recipient");
+      String recipientName = null;
+
+      if(r == null) { 
+        recipientName = c.getString(R.string.transaction_user_external);
+      } else { 
+
+        if("transfers@coinbase.com".equals(r.optString("email"))) {
+          // This was a bitcoin sell
+          return c.getString(R.string.transaction_summary_sell);
+        }
+
+        recipientName = r.optString("name", 
+            r.optString("email", c.getString(R.string.transaction_user_external)));
+      }
+
+      if(t.getBoolean("request")) {
+        return String.format(c.getString(R.string.transaction_summary_request_me), recipientName);
+      } else {
+        return String.format(c.getString(R.string.transaction_summary_send_me), recipientName);
+      }
+    } else {
+
+      JSONObject r = t.optJSONObject("sender");
+      String senderName = null;
+
+      if(r == null) { 
+        senderName = c.getString(R.string.transaction_user_external);
+      } else { 
+
+        if("transfers@coinbase.com".equals(r.optString("email"))) {
+          // This was a bitcoin buy
+          return c.getString(R.string.transaction_summary_buy);
+        }
+
+        senderName = r.optString("name", 
+            r.optString("email", c.getString(R.string.transaction_user_external)));
+      }
+
+      if(t.getBoolean("request")) {
+        return String.format(c.getString(R.string.transaction_summary_request_them), senderName);
+      } else {
+        return String.format(c.getString(R.string.transaction_summary_send_them), senderName);
+      }
     }
   }
 }

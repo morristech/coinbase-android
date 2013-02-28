@@ -105,6 +105,10 @@ public class TransactionsRemoteViewsService extends RemoteViewsService {
 
         rv.setTextViewText(R.id.transaction_status, readable);
         rv.setInt(R.id.transaction_status, "setBackgroundResource", background);
+        
+        Intent intent = new Intent();
+        intent.putExtra(TransactionDetailsFragment.EXTRA_ID, item.getString("id"));
+        rv.setOnClickFillInIntent(R.id.transactions_item, intent);
 
         return rv;
       } catch(JSONException e) {

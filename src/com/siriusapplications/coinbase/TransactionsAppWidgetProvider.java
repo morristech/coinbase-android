@@ -1,6 +1,7 @@
 package com.siriusapplications.coinbase;
 
 import android.annotation.TargetApi;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
@@ -25,6 +26,9 @@ public class TransactionsAppWidgetProvider extends AppWidgetProvider {
       rv.setRemoteAdapter(appWidgetIds[i], R.id.widget_list, intent);
       rv.setEmptyView(R.id.widget_list, R.id.widget_empty);
       
+      Intent intentTemplate = new Intent(context, TransactionDetailsActivity.class);
+      PendingIntent pendingIntentTemplate = PendingIntent.getActivity(context, 0, intentTemplate, 0);
+      rv.setPendingIntentTemplate(R.id.widget_list, pendingIntentTemplate);
 
       appWidgetManager.updateAppWidget(appWidgetIds[i], rv);   
     }

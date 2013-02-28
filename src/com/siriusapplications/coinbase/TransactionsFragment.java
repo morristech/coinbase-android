@@ -52,6 +52,8 @@ public class TransactionsFragment extends ListFragment {
     protected String[] doInBackground(Void... params) {
 
       try {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
         JSONObject balance = RpcManager.getInstance().callGet(mParent, "account/balance");
         JSONObject exchangeRates = RpcManager.getInstance().callGet(mParent, "currencies/exchange_rates");
@@ -67,8 +69,6 @@ public class TransactionsFragment extends ListFragment {
             balanceHomeString, userHomeCurrency.toUpperCase(Locale.CANADA) };
 
         // Save balance in preferences
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
         Editor editor = prefs.edit();
         editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE, activeAccount), result[0]);
         editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE_CURRENCY, activeAccount), result[1]);
@@ -136,6 +136,8 @@ public class TransactionsFragment extends ListFragment {
 
       List<JSONObject> transactions = new ArrayList<JSONObject>();
       String currentUserId = null;
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
       // Make API call to download list of transactions
       try {
@@ -184,8 +186,6 @@ public class TransactionsFragment extends ListFragment {
         db.delete(TransactionEntry.TABLE_NAME, null, null);
 
         // Update user ID
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
         Editor editor = prefs.edit();
         editor.putString(String.format(Constants.KEY_ACCOUNT_ID, activeAccount), currentUserId);
         editor.commit();

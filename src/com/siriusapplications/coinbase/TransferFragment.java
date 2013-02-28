@@ -115,6 +115,9 @@ public class TransferFragment extends Fragment {
 
     @Override
     protected String doInBackground(Boolean... params) {
+      
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
       try {
 
@@ -136,8 +139,6 @@ public class TransferFragment extends Fragment {
 
         if(address != null) {
           // Save balance in preferences
-          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-          int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
           Editor editor = prefs.edit();
           editor.putString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), address);
           editor.commit();

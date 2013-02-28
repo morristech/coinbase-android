@@ -15,4 +15,4 @@ The official Android application for Coinbase (https://coinbase.com/).
 
 ## Building
 
-To build the Coinbase Android app the library ActionBarSherlock is required. The zxing-android project is also required.
+To build the Coinbase Android app the libraries ActionBarSherlock and SlidingMenu are required.

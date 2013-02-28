@@ -1,7 +1,7 @@
 coinbase-android
 ================
 
-An Android application for Coinbase (https://coinbase.com/). Not yet available on the Play Store.
+The official Android application for Coinbase (https://coinbase.com/).
 
 ## Features
 * View transactions and balance, view transaction details
@@ -11,4 +11,8 @@ An Android application for Coinbase (https://coinbase.com/). Not yet available o
 * Scan bitcoin QR codes and open bitcoin: links
 * Request money using email, QR code, or NFC
 
-![A screenshot](http://i.imgur.com/g6MBdPy.png?1)
+![A screenshot](https://dl.dropbox.com/u/1779882/Screenshot_2013-02-27-18-42-39.png)
+
+## Building
+
+To build the Coinbase Android app the library ActionBarSherlock is required. The zxing-android project is also required.

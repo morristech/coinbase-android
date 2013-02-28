@@ -65,6 +65,7 @@
               android:windowSoftInputMode="stateAlwaysHidden"></activity>
         <service android:name="TransactionsRemoteViewsService"
               android:permission="android.permission.BIND_REMOTEVIEWS"></service>
+        <service android:name="UpdateWidgetBalanceService"></service>
     </application>
 
 </manifest>

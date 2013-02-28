@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.siriusapplications.coinbase.UpdateWidgetBalanceService.WidgetUpdater;
@@ -33,7 +34,10 @@ public class TransactionsAppWidgetProvider extends AppWidgetProvider {
       rv.setPendingIntentTemplate(R.id.widget_list, pendingIntentTemplate);
       
       rv.setTextViewText(R.id.widget_balance, balance);
+      
+      WidgetCommon.bindButtons(context, rv, appWidgetId);
 
+      Log.i("Coinbase", "Updating widget " + appWidgetId + " with balance " + balance);
       manager.updateAppWidget(appWidgetId, rv); 
     }
     
@@ -43,7 +47,12 @@ public class TransactionsAppWidgetProvider extends AppWidgetProvider {
       int[] appWidgetIds) {
     
     for (int i = 0; i < appWidgetIds.length; ++i) {
-
+      
+      if(!appWidgetManager.getAppWidgetInfo(appWidgetIds[i]).provider.getClassName().equals(getClass().getName())) {
+        // Not for us
+        continue;
+      }
+      
       // First, update the widget immediately without balance
       new TransactionsWidgetUpdater().updateWidget(context, appWidgetManager, appWidgetIds[i], null);
       

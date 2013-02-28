@@ -7,7 +7,6 @@ import java.util.Hashtable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -17,7 +16,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.widget.Adapter;
 import android.widget.FilterQueryProvider;
 
 import com.google.zxing.BarcodeFormat;
@@ -27,7 +25,6 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.siriusapplications.coinbase.db.TransactionsDatabase;
 import com.siriusapplications.coinbase.db.TransactionsDatabase.EmailEntry;
-import com.siriusapplications.coinbase.db.TransactionsDatabase.TransactionEntry;
 
 public class Utils {
 

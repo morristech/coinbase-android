@@ -9,6 +9,13 @@
 	    android:background="@drawable/appwidget_dark_bg"
       android:layout_width="match_parent"
       android:layout_height="match_parent">
+	  <RelativeLayout
+	      android:id="@+id/widget_icon"
+	      android:layout_width="wrap_content"
+	      android:layout_height="match_parent"
+        android:background="@drawable/appwidget_button_center"
+        android:layout_alignParentLeft="true"
+        android:padding="15dp">
 	
 	    <TextView
 	        android:id="@+id/widget_balance"
@@ -18,7 +25,6 @@
 	        android:layout_alignParentLeft="true"
 	        android:text="@string/widget_balance_default"
 	        android:textColor="#FFFFFF"
-	        android:layout_marginLeft="15dp"
 	        android:textAppearance="?android:attr/textAppearanceLarge" />
 	
 	    <TextView
@@ -31,6 +37,7 @@
 	        android:textColor="#FFFFFF"
 	        android:layout_marginLeft="5dp"
 	        android:textAppearance="?android:attr/textAppearanceSmall" />
+	    </RelativeLayout>
 	
 	    <ImageButton
 	        android:id="@+id/widget_scan"

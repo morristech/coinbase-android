@@ -109,7 +109,6 @@ public class TransactionsFragment extends ListFragment {
       }
 
       if(result == null) {
-        mBalanceText.setText(null);
         mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
 
         Toast.makeText(mParent, R.string.wallet_balance_error, Toast.LENGTH_SHORT).show();

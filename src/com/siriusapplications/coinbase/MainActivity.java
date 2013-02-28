@@ -4,7 +4,6 @@ import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -29,6 +28,10 @@ import com.slidingmenu.lib.SlidingMenu;
 
 @RequiresAuthentication
 public class MainActivity extends CoinbaseActivity {
+  
+  public static final String ACTION_SCAN = "com.siriusapplications.coinbase.MainActivity.ACTION_SCAN";
+  public static final String ACTION_TRANSFER = "com.siriusapplications.coinbase.MainActivity.ACTION_TRANSFER";
+  public static final String ACTION_TRANSACTIONS = "com.siriusapplications.coinbase.MainActivity.ACTION_TRANSACTIONS";
 
   public static class SignOutFragment extends DialogFragment {
 
@@ -82,7 +85,7 @@ public class MainActivity extends CoinbaseActivity {
     mBuySellFragment = new BuySellFragment();
     mTransferFragment = new TransferFragment();
     mSettingsFragment = new AccountSettingsFragment();
-    
+
     mTransactionsFragment.setParent(this);
     mBuySellFragment.setParent(this);
     mTransferFragment.setParent(this);
@@ -95,7 +98,7 @@ public class MainActivity extends CoinbaseActivity {
     mViewPager.setPagingEnabled(false);
 
     onNewIntent(getIntent());
-    
+
     // configure the SlidingMenu
     mSlidingMenu = new SlidingMenu(this);
     mSlidingMenu.setMode(SlidingMenu.LEFT);
@@ -107,23 +110,23 @@ public class MainActivity extends CoinbaseActivity {
     mSlidingMenu.setBehindScrollScale(0);
     mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
     mSlidingMenu.setMenu(R.layout.activity_main_menu);
-    
+
     mSlidingMenu.setOnCloseListener(new SlidingMenu.OnCloseListener() {
-      
+
       @Override
       public void onClose() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
       }
     });
-    
+
     mSlidingMenu.setOnOpenListener(new SlidingMenu.OnOpenListener() {
-      
+
       @Override
       public void onOpen() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
       }
     });
-    
+
     // Set up Sliding Menu list
     ListView slidingList = (ListView) mSlidingMenu.findViewById(android.R.id.list);
     slidingList.setAdapter(new SectionsListAdapter());
@@ -132,12 +135,12 @@ public class MainActivity extends CoinbaseActivity {
       @Override
       public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
           long arg3) {
-        
+
         mViewPager.setCurrentItem(arg2, false);
         mSlidingMenu.showContent();
       }
     });
-    
+
     // Refresh everything on app launch
     new Thread(new Runnable() {
       public void run() {
@@ -148,14 +151,14 @@ public class MainActivity extends CoinbaseActivity {
         });
       }
     }).start();
-    
+
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
   }
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-    
+
     // Screen width may have changed so this needs to be set again
     mSlidingMenu.setBehindWidthRes(R.dimen.main_menu_width);
   }
@@ -170,6 +173,15 @@ public class MainActivity extends CoinbaseActivity {
       // Handle bitcoin: URI
       mViewPager.setCurrentItem(2); // Switch to transfer fragment
       mTransferFragment.fillFormForBitcoinUri(getIntent().getData());
+    } else if(ACTION_SCAN.equals(intent.getAction())) {
+      // Scan barcode
+      startBarcodeScan();
+    } else if(ACTION_TRANSFER.equals(intent.getAction())) {
+
+      mViewPager.setCurrentItem(2); // Switch to transfer fragment
+    } else if(ACTION_TRANSACTIONS.equals(intent.getAction())) {
+
+      mViewPager.setCurrentItem(0); // Switch to transactions fragment
     }
   }
 
@@ -240,7 +252,7 @@ public class MainActivity extends CoinbaseActivity {
       return getString(mFragmentTitles[position]).toUpperCase(Locale.CANADA);
     }
   }
-  
+
   public class SectionsListAdapter extends BaseAdapter {
 
     @Override
@@ -260,18 +272,18 @@ public class MainActivity extends CoinbaseActivity {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-      
+
       if(convertView == null) {
         convertView = View.inflate(MainActivity.this, R.layout.activity_main_menu_item, null);
       }
 
       String name = getString(mFragmentTitles[position]);
-      
+
       ((TextView) convertView.findViewById(R.id.main_menu_item_title)).setText(name);
-      
+
       return convertView;
     }
-    
+
   }
 
   public void changeAccount(int account) {
@@ -281,15 +293,15 @@ public class MainActivity extends CoinbaseActivity {
       // Delete current account
       LoginManager.getInstance().deleteCurrentAccount(this);
     } else {
-      
+
       // Change active account
       LoginManager.getInstance().switchActiveAccount(this, account);
     }
-    
+
     finish();
     startActivity(new Intent(this, MainActivity.class));
   }
-  
+
   public void addAccount() {
 
     startActivity(new Intent(this, LoginActivity.class));
@@ -299,15 +311,7 @@ public class MainActivity extends CoinbaseActivity {
 
     Intent intent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
     intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-
-    try {
-      startActivityForResult(intent, 0);
-    } catch(ActivityNotFoundException e) {
-      // Barcode Scanner is not installed.
-      intent = new Intent(Intent.ACTION_VIEW);
-      intent.setData(Uri.parse("http://play.google.com/store/apps/details?id=com.google.zxing.client.android"));
-      startActivity(intent);
-    }
+    startActivityForResult(intent, 0);
   }
 
   public void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -344,19 +348,19 @@ public class MainActivity extends CoinbaseActivity {
   public BuySellFragment getBuySellFragment() {
     return mBuySellFragment;
   }
-  
+
   public TransferFragment getTransferFragment() {
     return mTransferFragment;
   }
 
   public void setRefreshButtonAnimated(boolean animated) {
-    
+
     mRefreshItemState = animated;
 
     if(mRefreshItem == null) {
       return;
     }
-    
+
     if(animated) {
       mRefreshItem.setEnabled(false);
       mRefreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
@@ -365,7 +369,7 @@ public class MainActivity extends CoinbaseActivity {
       mRefreshItem.setActionView(null);
     }
   }
-  
+
   public void refresh() {
     mTransactionsFragment.refresh();
     mBuySellFragment.refresh();

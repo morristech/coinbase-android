@@ -4,13 +4,14 @@ import java.io.IOException;
 
 import org.json.JSONException;
 
-import com.siriusapplications.coinbase.api.RpcManager;
-
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
+
+import com.siriusapplications.coinbase.api.RpcManager;
 
 public class UpdateWidgetBalanceService extends Service {
   
@@ -35,6 +36,7 @@ public class UpdateWidgetBalanceService extends Service {
         try {
         
         // Step 1: Fetch balance
+        Log.i("Coinbase", "Service fetching balance...");
         String balance = RpcManager.getInstance().callGet(UpdateWidgetBalanceService.this, "account/balance").getString("amount");
         balance = Utils.formatCurrencyAmount(balance);
         

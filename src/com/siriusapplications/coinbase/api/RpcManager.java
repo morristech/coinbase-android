@@ -85,7 +85,7 @@ public class RpcManager {
 
     HttpUriRequest request = null;
 
-    if(verb == RequestVerb.POST || verb == RequestVerb.PUT || verb == RequestVerb.DELETE) {
+    if(verb == RequestVerb.POST || verb == RequestVerb.PUT) {
       
       // Post body is used.
       switch(verb) {
@@ -94,9 +94,6 @@ public class RpcManager {
         break;
       case PUT:
         request = new HttpPut(url);
-        break;
-      case DELETE:
-        request = new HttpDelete(url);
         break;
       default:
         throw new RuntimeException("RequestVerb not implemented: " + verb);
@@ -111,7 +108,7 @@ public class RpcManager {
       ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(parametersBody, HTTP.UTF_8));
     } else {
       
-      // URL parameters are used.
+      // URL parameters are used (GET and DELETE).
       if(params != null) {
         List<BasicNameValuePair> paramsList = (params instanceof List<?>) ? (List<BasicNameValuePair>)params : new ArrayList<BasicNameValuePair>(params);
         url = url + "?" + URLEncodedUtils.format(paramsList, "UTF-8");

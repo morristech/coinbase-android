@@ -272,6 +272,14 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       } else if (resultCode == RESULT_CANCELED) {
         // Barcode scan was cancelled
       }
+    } else if(requestCode == 1) {
+      /*
+       * Transaction details
+       */
+      if(resultCode == RESULT_OK) {
+        // Refresh needed
+        refresh();
+      }
     }
   }
 

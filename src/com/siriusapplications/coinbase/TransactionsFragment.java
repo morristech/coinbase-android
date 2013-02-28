@@ -555,7 +555,7 @@ public class TransactionsFragment extends ListFragment {
     String transactionId = c.getString(c.getColumnIndex(TransactionEntry._ID));
     Intent intent = new Intent(mParent, TransactionDetailsActivity.class);
     intent.putExtra(TransactionDetailsFragment.EXTRA_ID, transactionId);
-    mParent.startActivity(intent);
+    mParent.startActivityForResult(intent, 1);
   }
 
 }

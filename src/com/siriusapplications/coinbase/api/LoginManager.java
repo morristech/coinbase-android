@@ -1,13 +1,12 @@
 package com.siriusapplications.coinbase.api;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.net.URLEncoder;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -21,15 +20,12 @@ import org.json.JSONTokener;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.ParseException;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.content.Intent;
-import android.net.Uri;
 
 import com.siriusapplications.coinbase.Constants;
 import com.siriusapplications.coinbase.R;
-import com.siriusapplications.coinbase.api.RpcManager;
-//import com.siriusapplications.coinbase.LoginActivity;
 
 public class LoginManager {
 

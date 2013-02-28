@@ -158,10 +158,8 @@ public class TransferFragment extends Fragment {
 
     @Override
     protected void onPreExecute() {
-
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-      setReceiveAddress(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null));
+      
+      loadReceiveAddressFromPreferences();
     }
 
     @Override
@@ -441,10 +439,17 @@ public class TransferFragment extends Fragment {
         new LoadReceiveAddressTask().execute(true);
       }
     });
-
-    new LoadReceiveAddressTask().execute(false);
+    
+    loadReceiveAddressFromPreferences();
 
     return view;
+  }
+  
+  private void loadReceiveAddressFromPreferences() {
+    
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    setReceiveAddress(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null));
   }
   
   private String generateRequestUri() {
@@ -477,9 +482,8 @@ public class TransferFragment extends Fragment {
   private void setReceiveAddress(final String address) {
 
     if(address == null) {
-      mReceiveAddress.setText(null);
-      mReceiveAddressBarcode.setImageDrawable(null);
-      mReceiveAddressBarcode.setOnClickListener(null);
+      
+      loadReceiveAddressFromPreferences();
       return;
     }
 

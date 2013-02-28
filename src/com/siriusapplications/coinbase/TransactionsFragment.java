@@ -81,6 +81,8 @@ public class TransactionsFragment extends ListFragment {
 
     @Override
     protected void onPreExecute() {
+      
+      mBalanceLoading = true;
 
       if(mBalanceText != null) {
         mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
@@ -89,6 +91,8 @@ public class TransactionsFragment extends ListFragment {
 
     @Override
     protected void onPostExecute(String[] result) {
+      
+      mBalanceLoading = false;
       
       if(mBalanceText == null) {
         return;
@@ -106,6 +110,12 @@ public class TransactionsFragment extends ListFragment {
         mBalanceCurrency.setText(String.format(mParent.getString(R.string.wallet_balance_currency), result[1]));
 
       }
+    }
+
+    @Override
+    protected void onCancelled(String[] result) {
+      
+      mBalanceLoading = false;
     }
 
   }
@@ -410,6 +420,7 @@ public class TransactionsFragment extends ListFragment {
   }
 
   MainActivity mParent;
+  boolean mBalanceLoading;
   FrameLayout mListHeaderContainer;
   ListView mListView;
   ViewGroup mListHeader, mMainView;
@@ -419,9 +430,6 @@ public class TransactionsFragment extends ListFragment {
   public void onCreate(Bundle savedInstanceState) {
 
     super.onCreate(savedInstanceState);
-
-    // Refresh transactions when app started
-    new SyncTransactionsTask().execute();
   }
 
   @Override
@@ -478,6 +486,12 @@ public class TransactionsFragment extends ListFragment {
     if(oldBalance != null) {
       mBalanceText.setText(oldBalance);
       mBalanceCurrency.setText(oldCurrency);
+      mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color));
+    }
+    
+    if(mBalanceLoading) {
+
+      mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
     }
 
     // Load transaction list
@@ -488,11 +502,11 @@ public class TransactionsFragment extends ListFragment {
 
   public void refresh() {
 
-    // Reload transactions
-    new SyncTransactionsTask().execute();
-
     // Reload balance
     new LoadBalanceTask().execute();
+
+    // Reload transactions
+    new SyncTransactionsTask().execute();
   }
 
   private void setHeaderPinned(boolean pinned) {
@@ -520,9 +534,6 @@ public class TransactionsFragment extends ListFragment {
   public void onResume() {
 
     super.onResume();
-
-    // Reload balance
-    new LoadBalanceTask().execute();
   }
 
   private CursorAdapter getAdapter() {

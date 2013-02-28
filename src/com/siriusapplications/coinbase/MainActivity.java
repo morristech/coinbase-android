@@ -57,6 +57,7 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
   BuySellFragment mBuySellFragment;
   TransferFragment mTransferFragment;
   MenuItem mRefreshItem;
+  boolean mRefreshItemState = false;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +106,17 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     }
 
     onNewIntent(getIntent());
+    
+    // Refresh everything on app launch
+    new Thread(new Runnable() {
+      public void run() {
+        runOnUiThread(new Runnable() {
+          public void run() {
+            refresh();
+          }
+        });
+      }
+    }).start();
   }
 
   @Override
@@ -124,6 +136,7 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
   public boolean onCreateOptionsMenu(Menu menu) {
     getSupportMenuInflater().inflate(R.menu.activity_main, menu);
     mRefreshItem = menu.findItem(R.id.menu_refresh);
+    setRefreshButtonAnimated(mRefreshItemState);
     return true;
   }
 
@@ -271,6 +284,8 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
   }
 
   public void setRefreshButtonAnimated(boolean animated) {
+    
+    mRefreshItemState = animated;
 
     if(mRefreshItem == null) {
       return;

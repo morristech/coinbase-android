@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -53,10 +54,17 @@ public class TransactionsFragment extends ListFragment {
       try {
 
         JSONObject balance = RpcManager.getInstance().callGet(mParent, "account/balance");
+        JSONObject exchangeRates = RpcManager.getInstance().callGet(mParent, "currencies/exchange_rates");
+        
+        String userHomeCurrency = "usd"; // TODO Sync this
+        BigDecimal homeAmount = new BigDecimal(balance.getString("amount")).multiply(
+            new BigDecimal(exchangeRates.getString("btc_to_" + userHomeCurrency)));
 
         String balanceString = Utils.formatCurrencyAmount(balance.getString("amount"));
+        String balanceHomeString = Utils.formatCurrencyAmount(homeAmount, false, 2);
 
-        String[] result = new String[] { balanceString, balance.getString("currency") };
+        String[] result = new String[] { balanceString, balance.getString("currency"),
+            balanceHomeString, userHomeCurrency.toUpperCase(Locale.CANADA) };
 
         // Save balance in preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
@@ -64,6 +72,8 @@ public class TransactionsFragment extends ListFragment {
         Editor editor = prefs.edit();
         editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE, activeAccount), result[0]);
         editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE_CURRENCY, activeAccount), result[1]);
+        editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE_HOME, activeAccount), result[2]);
+        editor.putString(String.format(Constants.KEY_ACCOUNT_BALANCE_HOME_CURRENCY, activeAccount), result[3]);
         editor.commit();
 
         return result;
@@ -108,7 +118,7 @@ public class TransactionsFragment extends ListFragment {
         mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color));
         mBalanceText.setText(String.format(mParent.getString(R.string.wallet_balance), result[0]));
         mBalanceCurrency.setText(String.format(mParent.getString(R.string.wallet_balance_currency), result[1]));
-
+        mBalanceHome.setText(String.format(mParent.getString(R.string.wallet_balance_home), result[2], result[3]));
       }
     }
 
@@ -424,7 +434,7 @@ public class TransactionsFragment extends ListFragment {
   FrameLayout mListHeaderContainer;
   ListView mListView;
   ViewGroup mListHeader, mMainView;
-  TextView mBalanceText, mBalanceCurrency, mAccount;
+  TextView mBalanceText, mBalanceCurrency, mBalanceHome, mAccount;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -473,6 +483,7 @@ public class TransactionsFragment extends ListFragment {
 
     mBalanceText = (TextView) mListHeader.findViewById(R.id.wallet_balance);
     mBalanceCurrency = (TextView) mListHeader.findViewById(R.id.wallet_balance_currency);
+    mBalanceHome = (TextView) mListHeader.findViewById(R.id.wallet_balance_home);
     mAccount = (TextView) mListHeader.findViewById(R.id.wallet_account);
 
     mAccount.setText(LoginManager.getInstance().getSelectedAccountName(mParent));
@@ -482,11 +493,14 @@ public class TransactionsFragment extends ListFragment {
     int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
     String oldBalance = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE, activeAccount), null);
     String oldCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE_CURRENCY, activeAccount), null);
+    String oldHomeBalance = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE_HOME, activeAccount), null);
+    String oldHomeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_BALANCE_HOME_CURRENCY, activeAccount), null);
 
     if(oldBalance != null) {
       mBalanceText.setText(oldBalance);
       mBalanceCurrency.setText(oldCurrency);
       mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color));
+      mBalanceHome.setText(String.format(mParent.getString(R.string.wallet_balance_home), oldHomeBalance, oldHomeCurrency));
     }
     
     if(mBalanceLoading) {

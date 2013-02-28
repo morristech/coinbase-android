@@ -12,6 +12,8 @@ public class Constants {
   public static final String KEY_ACCOUNT_ID = "account_%d_id";
   public static final String KEY_ACCOUNT_BALANCE = "account_%d_balance_amt";
   public static final String KEY_ACCOUNT_BALANCE_CURRENCY = "account_%d_balance_amt_currency";
+  public static final String KEY_ACCOUNT_BALANCE_HOME = "account_%d_balance_home_amt";
+  public static final String KEY_ACCOUNT_BALANCE_HOME_CURRENCY = "account_%d_balance_home_currency";
   public static final String KEY_ACCOUNT_RECEIVE_ADDRESS = "account_%d_receive_address";
 
 }

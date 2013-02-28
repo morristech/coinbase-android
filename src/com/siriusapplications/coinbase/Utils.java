@@ -40,15 +40,22 @@ public class Utils {
   }
 
   public static final String formatCurrencyAmount(String amount) {
-    return formatCurrencyAmount(amount, false);
+    return formatCurrencyAmount(new BigDecimal(amount), false, 4);
+  }
+
+  public static final String formatCurrencyAmount(BigDecimal amount) {
+    return formatCurrencyAmount(amount, false, 4);
   }
 
   public static final String formatCurrencyAmount(String amount, boolean ignoreSign) {
+    return formatCurrencyAmount(new BigDecimal(amount), false, 4);
+  }
 
-    BigDecimal balanceNumber = new BigDecimal(amount);
+  public static final String formatCurrencyAmount(BigDecimal balanceNumber, boolean ignoreSign, int digits) {
+
     DecimalFormat df = new DecimalFormat();
-    df.setMaximumFractionDigits(4);
-    df.setMinimumFractionDigits(4);
+    df.setMaximumFractionDigits(digits);
+    df.setMinimumFractionDigits(digits);
     df.setGroupingUsed(false);
 
     if(ignoreSign && balanceNumber.compareTo(BigDecimal.ZERO) == -1) {

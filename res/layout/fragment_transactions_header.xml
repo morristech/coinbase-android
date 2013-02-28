@@ -6,23 +6,23 @@
     android:padding="15dp" >
 
     <TextView
-        android:id="@+id/wallet_balance_top"
+        android:id="@+id/wallet_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="@string/wallet_balance_top"
+        android:layout_alignParentLeft="true"
+        android:textColor="#666666"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
         android:id="@+id/wallet_balance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/wallet_balance_top"
-        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/wallet_account"
+        android:layout_alignParentLeft="true"
         android:layout_marginTop="5dp"
         android:text="@string/wallet_balance_def"
         style="@style/wallet_balance_invalid"
-        android:textSize="60sp" />
+        android:textSize="35sp" />
 
     <TextView
         android:id="@+id/wallet_balance_currency"
@@ -36,11 +36,28 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
-        android:id="@+id/wallet_account"
+        android:id="@+id/wallet_balance_home"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/wallet_balance"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
+        android:textColor="#666666"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <Button
+        android:id="@+id/wallet_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:text="@string/wallet_balance_send" />
+
+    <Button
+        android:id="@+id/wallet_request"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/wallet_send"
+        android:text="@string/wallet_balance_request" />
 
 </RelativeLayout>

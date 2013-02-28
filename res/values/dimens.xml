@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="layout_padding">15dp</dimen>
+    <dimen name="main_menu_shadow_width">5dp</dimen>
+    <dimen name="main_menu_width">250dp</dimen>
     
 </resources>

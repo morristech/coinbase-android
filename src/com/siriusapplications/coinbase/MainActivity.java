@@ -1,28 +1,34 @@
 package com.siriusapplications.coinbase;
 
+import java.util.Locale;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
-import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.siriusapplications.coinbase.CoinbaseActivity.RequiresAuthentication;
 import com.siriusapplications.coinbase.api.LoginManager;
+import com.slidingmenu.lib.SlidingMenu;
 
 @RequiresAuthentication
-public class MainActivity extends CoinbaseActivity implements ActionBar.TabListener {
+public class MainActivity extends CoinbaseActivity {
 
   public static class SignOutFragment extends DialogFragment {
 
@@ -50,12 +56,20 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     }
   }
 
+  private int[] mFragmentTitles = new int[] {
+      R.string.title_section1,
+      R.string.title_section2,
+      R.string.title_section3,
+      R.string.title_section4,
+  };
 
   SectionsPagerAdapter mSectionsPagerAdapter;
-  ViewPager mViewPager;
+  CustomViewPager mViewPager;
   TransactionsFragment mTransactionsFragment;
   BuySellFragment mBuySellFragment;
   TransferFragment mTransferFragment;
+  AccountSettingsFragment mSettingsFragment;
+  SlidingMenu mSlidingMenu;
   MenuItem mRefreshItem;
   boolean mRefreshItemState = false;
 
@@ -67,45 +81,62 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     mTransactionsFragment = new TransactionsFragment();
     mBuySellFragment = new BuySellFragment();
     mTransferFragment = new TransferFragment();
+    mSettingsFragment = new AccountSettingsFragment();
     
     mTransactionsFragment.setParent(this);
     mBuySellFragment.setParent(this);
     mTransferFragment.setParent(this);
 
-    // Create the adapter that will return a fragment for each of the three primary sections
-    // of the app.
     mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-    // Set up the action bar.
-    final ActionBar actionBar = getSupportActionBar();
-    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-    // Set up the ViewPager with the sections adapter.
-    mViewPager = (ViewPager) findViewById(R.id.pager);
+    // Set up the ViewPager
+    mViewPager = (CustomViewPager) findViewById(R.id.pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
-
-    // When swiping between different sections, select the corresponding tab.
-    // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-    // Tab.
-    mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-      @Override
-      public void onPageSelected(int position) {
-        actionBar.setSelectedNavigationItem(position);
-      }
-    });
-
-    // For each of the sections in the app, add a tab to the action bar.
-    for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-      // Create a tab with text corresponding to the page title defined by the adapter.
-      // Also specify this Activity object, which implements the TabListener interface, as the
-      // listener for when this tab is selected.
-      actionBar.addTab(
-          actionBar.newTab()
-          .setText(mSectionsPagerAdapter.getPageTitle(i))
-          .setTabListener(this));
-    }
+    mViewPager.setPagingEnabled(false);
 
     onNewIntent(getIntent());
+    
+    // configure the SlidingMenu
+    mSlidingMenu = new SlidingMenu(this);
+    mSlidingMenu.setMode(SlidingMenu.LEFT);
+    mSlidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+    mSlidingMenu.setShadowWidthRes(R.dimen.main_menu_shadow_width);
+    mSlidingMenu.setShadowDrawable(R.drawable.defaultshadow);
+    mSlidingMenu.setBehindWidthRes(R.dimen.main_menu_width);
+    mSlidingMenu.setFadeDegree(0f);
+    mSlidingMenu.setBehindScrollScale(0);
+    mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+    mSlidingMenu.setMenu(R.layout.activity_main_menu);
+    
+    mSlidingMenu.setOnCloseListener(new SlidingMenu.OnCloseListener() {
+      
+      @Override
+      public void onClose() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      }
+    });
+    
+    mSlidingMenu.setOnOpenListener(new SlidingMenu.OnOpenListener() {
+      
+      @Override
+      public void onOpen() {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+      }
+    });
+    
+    // Set up Sliding Menu list
+    ListView slidingList = (ListView) mSlidingMenu.findViewById(android.R.id.list);
+    slidingList.setAdapter(new SectionsListAdapter());
+    slidingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+      @Override
+      public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+          long arg3) {
+        
+        mViewPager.setCurrentItem(arg2, false);
+        mSlidingMenu.showContent();
+      }
+    });
     
     // Refresh everything on app launch
     new Thread(new Runnable() {
@@ -117,6 +148,16 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
         });
       }
     }).start();
+    
+    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    
+    // Screen width may have changed so this needs to be set again
+    mSlidingMenu.setBehindWidthRes(R.dimen.main_menu_width);
   }
 
   @Override
@@ -160,23 +201,12 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
     case R.id.menu_refresh:
       refresh();
       return true;
+    case android.R.id.home:
+      mSlidingMenu.showMenu();
+      return true;
     }
 
     return super.onOptionsItemSelected(item);
-  }
-
-  @Override
-  public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-  }
-
-  @Override
-  public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    // When the given tab is selected, switch to the corresponding page in the ViewPager.
-    mViewPager.setCurrentItem(tab.getPosition());
-  }
-
-  @Override
-  public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
   }
 
   /**
@@ -195,24 +225,53 @@ public class MainActivity extends CoinbaseActivity implements ActionBar.TabListe
       case 0: return mTransactionsFragment;
       case 1: return mBuySellFragment;
       case 2: return mTransferFragment;
+      case 3: return mSettingsFragment;
       }
       return null;
     }
 
     @Override
     public int getCount() {
-      return 3;
+      return 4;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-      switch (position) {
-      case 0: return getString(R.string.title_section1).toUpperCase();
-      case 1: return getString(R.string.title_section2).toUpperCase();
-      case 2: return getString(R.string.title_section3).toUpperCase();
-      }
-      return null;
+      return getString(mFragmentTitles[position]).toUpperCase(Locale.CANADA);
     }
+  }
+  
+  public class SectionsListAdapter extends BaseAdapter {
+
+    @Override
+    public int getCount() {
+      return 4;
+    }
+
+    @Override
+    public Object getItem(int position) {
+      return position;
+    }
+
+    @Override
+    public long getItemId(int position) {
+      return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+      
+      if(convertView == null) {
+        convertView = View.inflate(MainActivity.this, R.layout.activity_main_menu_item, null);
+      }
+
+      String name = getString(mFragmentTitles[position]);
+      
+      ((TextView) convertView.findViewById(R.id.main_menu_item_title)).setText(name);
+      
+      return convertView;
+    }
+    
   }
 
   public void changeAccount(int account) {

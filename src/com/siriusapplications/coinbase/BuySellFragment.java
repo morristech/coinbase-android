@@ -188,7 +188,7 @@ public class BuySellFragment extends Fragment {
             mCurrentPrice = result[0];
             mCurrentPriceCurrency = result[1];
             mSubmitButton.setEnabled(true);
-            mTotal.setText(String.format(getString(R.string.buysell_total), result[0], result[1]));
+            mTotal.setText(String.format(mParent.getString(R.string.buysell_total), result[0], result[1]));
             return;
           }
         }

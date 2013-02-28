@@ -16,6 +16,7 @@
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:background="@drawable/appwidget_button_center"
@@ -23,15 +24,65 @@
         </ImageView>
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/widget_icon"
+            android:text="234.7777"
+            android:id="@+id/widget_balance"
+            android:textColor="#666666"
+            android:textSize="20sp" >
+        </TextView>
+
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/widget_icon"
-            android:text="Transactions"
+            android:layout_alignBaseline="@+id/widget_balance"
+            android:layout_toRightOf="@+id/widget_balance"
+            android:text="@string/btc"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/widget_currency"
             android:textColor="#666666"
-            android:textSize="20dp" >
+            android:textSize="12sp" >
         </TextView>
+
+        <ImageView
+            android:id="@+id/widget_scan"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/widget_refresh"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:background="@drawable/appwidget_button_center"
+            android:src="@drawable/ic_action_barcode_light" >
+        </ImageView>
+        
+
+        <ImageView
+            android:id="@+id/widget_refresh"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/widget_transfer"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:background="@drawable/appwidget_button_center"
+            android:src="@drawable/ic_action_refresh_light" >
+        </ImageView>
+
+        <ImageView
+            android:id="@+id/widget_transfer"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:background="@drawable/appwidget_button_center"
+            android:src="@drawable/ic_action_transfer_light" >
+        </ImageView>
     </RelativeLayout>
 
     <ImageView

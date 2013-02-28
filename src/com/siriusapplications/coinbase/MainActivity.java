@@ -172,17 +172,17 @@ public class MainActivity extends CoinbaseActivity {
 
     if(intent.getData() != null && "bitcoin".equals(intent.getData().getScheme())) {
       // Handle bitcoin: URI
-      mViewPager.setCurrentItem(2); // Switch to transfer fragment
+      mViewPager.setCurrentItem(2, false); // Switch to transfer fragment
       mTransferFragment.fillFormForBitcoinUri(getIntent().getData());
     } else if(ACTION_SCAN.equals(intent.getAction())) {
       // Scan barcode
       startBarcodeScan();
     } else if(ACTION_TRANSFER.equals(intent.getAction())) {
 
-      mViewPager.setCurrentItem(2); // Switch to transfer fragment
+      mViewPager.setCurrentItem(2, false); // Switch to transfer fragment
     } else if(ACTION_TRANSACTIONS.equals(intent.getAction())) {
 
-      mViewPager.setCurrentItem(0); // Switch to transactions fragment
+      mViewPager.setCurrentItem(0, false); // Switch to transactions fragment
     }
   }
 
@@ -194,6 +194,11 @@ public class MainActivity extends CoinbaseActivity {
     return true;
   }
 
+  public void openTransferMenu(boolean isRequest) {
+
+    mViewPager.setCurrentItem(2, false);
+    mTransferFragment.switchType(isRequest);
+  }
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {

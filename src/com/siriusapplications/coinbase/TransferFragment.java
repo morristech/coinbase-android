@@ -653,6 +653,15 @@ public class TransferFragment extends Fragment {
       mRecipientView.setText(address);
     }
   }
+  
+  public void switchType(boolean isRequest) {
+
+    mTransferType = isRequest ? 1 : 0;
+    
+    if(mTransferTypeView != null) {
+      mTransferTypeView.setSelection(mTransferType);
+    }
+  }
 
   public void refresh() {
 

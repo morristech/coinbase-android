@@ -449,6 +449,24 @@ public class TransactionsFragment extends ListFragment {
 
       mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
     }
+    
+    view.findViewById(R.id.wallet_send).setOnClickListener(new View.OnClickListener() {
+      
+      @Override
+      public void onClick(View v) {
+        
+        mParent.openTransferMenu(false);
+      }
+    });
+    
+    view.findViewById(R.id.wallet_request).setOnClickListener(new View.OnClickListener() {
+      
+      @Override
+      public void onClick(View v) {
+        
+        mParent.openTransferMenu(true);
+      }
+    });
 
     // Load transaction list
     loadTransactionsList();

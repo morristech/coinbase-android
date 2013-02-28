@@ -117,6 +117,7 @@ public class MainActivity extends CoinbaseActivity {
       @Override
       public void onClose() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        updateTitle();
       }
     });
 
@@ -125,6 +126,7 @@ public class MainActivity extends CoinbaseActivity {
       @Override
       public void onOpen() {
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        updateTitle();
       }
     });
 
@@ -136,9 +138,8 @@ public class MainActivity extends CoinbaseActivity {
       @Override
       public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
           long arg3) {
-
-        mViewPager.setCurrentItem(arg2, false);
-        mSlidingMenu.showContent();
+        
+        switchTo(arg2);
       }
     });
 
@@ -154,6 +155,24 @@ public class MainActivity extends CoinbaseActivity {
     }).start();
 
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    switchTo(0);
+  }
+  
+  private void switchTo(int index) {
+
+
+    mViewPager.setCurrentItem(index, false);
+    updateTitle();
+    mSlidingMenu.showContent();
+  }
+  
+  private void updateTitle() {
+    
+    if(mSlidingMenu.isMenuShowing()) {
+      getSupportActionBar().setTitle(R.string.app_name);
+    } else {
+      getSupportActionBar().setTitle(mFragmentTitles[mViewPager.getCurrentItem()]);
+    }
   }
 
   @Override
@@ -172,17 +191,17 @@ public class MainActivity extends CoinbaseActivity {
 
     if(intent.getData() != null && "bitcoin".equals(intent.getData().getScheme())) {
       // Handle bitcoin: URI
-      mViewPager.setCurrentItem(2, false); // Switch to transfer fragment
+      switchTo(2);
       mTransferFragment.fillFormForBitcoinUri(getIntent().getData());
     } else if(ACTION_SCAN.equals(intent.getAction())) {
       // Scan barcode
       startBarcodeScan();
     } else if(ACTION_TRANSFER.equals(intent.getAction())) {
 
-      mViewPager.setCurrentItem(2, false); // Switch to transfer fragment
+      switchTo(2);
     } else if(ACTION_TRANSACTIONS.equals(intent.getAction())) {
 
-      mViewPager.setCurrentItem(0, false); // Switch to transactions fragment
+      switchTo(0);
     }
   }
 
@@ -196,7 +215,7 @@ public class MainActivity extends CoinbaseActivity {
 
   public void openTransferMenu(boolean isRequest) {
 
-    mViewPager.setCurrentItem(2, false);
+    switchTo(2);
     mTransferFragment.switchType(isRequest);
   }
 

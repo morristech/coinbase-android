@@ -7,8 +7,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -26,8 +24,10 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.zxing.client.android.Intents;
+import com.justinschultz.pusherclient.Pusher;
 import com.siriusapplications.coinbase.CoinbaseActivity.RequiresAuthentication;
 import com.siriusapplications.coinbase.api.LoginManager;
+import com.siriusapplications.coinbase.pusher.CoinbasePusherListener;
 import com.slidingmenu.lib.SlidingMenu;
 
 @RequiresAuthentication
@@ -83,6 +83,7 @@ public class MainActivity extends CoinbaseActivity {
   TransferFragment mTransferFragment;
   AccountSettingsFragment mSettingsFragment;
   SlidingMenu mSlidingMenu;
+  Pusher mPusher;
   MenuItem mRefreshItem;
   boolean mRefreshItemState = false;
 
@@ -221,6 +222,31 @@ public class MainActivity extends CoinbaseActivity {
     mRefreshItem = menu.findItem(R.id.menu_refresh);
     setRefreshButtonAnimated(mRefreshItemState);
     return true;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    
+    // Connect to pusher
+    new Thread(new Runnable() {
+      public void run() {
+
+        // mPusher = new Pusher(CoinbasePusherListener.API_KEY);
+        // mPusher.setPusherListener(new CoinbasePusherListener(mPusher, MainActivity.this));
+        // mPusher.connect();
+      }
+    }).start();
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    
+    if(mPusher != null) {
+      mPusher.disconnect();
+      mPusher = null;
+    }
   }
 
   public void openTransferMenu(boolean isRequest) {

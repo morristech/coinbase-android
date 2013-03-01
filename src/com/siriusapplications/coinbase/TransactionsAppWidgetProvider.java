@@ -37,7 +37,7 @@ public class TransactionsAppWidgetProvider extends AppWidgetProvider {
       
       WidgetCommon.bindButtons(context, rv, appWidgetId);
 
-      Log.i("Coinbase", "Updating widget " + appWidgetId + " with balance " + balance);
+      Log.i("Coinbase", "Updating transactions widget " + appWidgetId + " with balance " + balance);
       manager.updateAppWidget(appWidgetId, rv); 
     }
     
@@ -50,6 +50,7 @@ public class TransactionsAppWidgetProvider extends AppWidgetProvider {
       
       if(!appWidgetManager.getAppWidgetInfo(appWidgetIds[i]).provider.getClassName().equals(getClass().getName())) {
         // Not for us
+        Log.w("Coinbase", "Received app widget broadcast for other provider " + appWidgetIds[i]);
         continue;
       }
       

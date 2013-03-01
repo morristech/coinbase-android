@@ -54,7 +54,8 @@ public class BalanceAppWidgetProvider extends AppWidgetProvider {
 
     for (int i = 0; i < appWidgetIds.length; i++) {
       
-      if(!appWidgetManager.getAppWidgetInfo(appWidgetIds[i]).provider.getClassName().equals(getClass().getName())) {
+      if(appWidgetManager.getAppWidgetInfo(appWidgetIds[i]) != null &&
+          !appWidgetManager.getAppWidgetInfo(appWidgetIds[i]).provider.getClassName().equals(getClass().getName())) {
         // Not for us
         Log.w("Coinbase", "Received app widget broadcast for other provider " + appWidgetIds[i]);
         continue;

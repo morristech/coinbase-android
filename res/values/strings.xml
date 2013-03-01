@@ -2,7 +2,7 @@
 
     <string name="app_name">Coinbase</string>
     <string name="title_section4">Account Settings</string>
-    <string name="title_section3">Send / Request Bitcoin</string>
+    <string name="title_section3">Send / Request</string>
     <string name="title_section2">Buy / Sell Bitcoin</string>
     <string name="title_section1">Transactions</string>
     <string name="hello_world">Hello world!</string>

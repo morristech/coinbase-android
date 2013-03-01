@@ -6,12 +6,11 @@
 
     <ImageView
         android:id="@+id/main_menu_item_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:text="@string/title_section1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:src="@drawable/ic_action_transactions" />
 
     <TextView
         android:id="@+id/main_menu_item_title"
@@ -19,7 +18,8 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/main_menu_item_icon"
         android:layout_centerVertical="true"
-        android:textColor="#FFFFFF"
+        android:textColor="#d2d2d2"
+        android:layout_marginLeft="5dp"
         android:text="@string/title_section1"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 

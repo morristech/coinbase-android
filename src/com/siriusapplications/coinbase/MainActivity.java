@@ -7,6 +7,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -64,6 +67,12 @@ public class MainActivity extends CoinbaseActivity {
       R.string.title_section2,
       R.string.title_section3,
       R.string.title_section4,
+  };
+  private int[] mFragmentIcons = new int[] {
+      R.drawable.ic_action_transactions,
+      R.drawable.ic_action_buysell,
+      R.drawable.ic_action_transfer,
+      R.drawable.ic_action_account
   };
 
   SectionsPagerAdapter mSectionsPagerAdapter;
@@ -305,6 +314,9 @@ public class MainActivity extends CoinbaseActivity {
       String name = getString(mFragmentTitles[position]);
 
       ((TextView) convertView.findViewById(R.id.main_menu_item_title)).setText(name);
+      
+      ImageView icon = (ImageView) convertView.findViewById(R.id.main_menu_item_icon);
+      icon.setImageResource(mFragmentIcons[position]);
 
       return convertView;
     }

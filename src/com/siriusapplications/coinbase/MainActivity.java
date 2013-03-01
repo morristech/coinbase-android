@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.zxing.client.android.Intents;
 import com.siriusapplications.coinbase.CoinbaseActivity.RequiresAuthentication;
 import com.siriusapplications.coinbase.api.LoginManager;
 import com.slidingmenu.lib.SlidingMenu;
@@ -347,6 +348,7 @@ public class MainActivity extends CoinbaseActivity {
   public void startBarcodeScan() {
 
     Intent intent = new Intent(this, com.google.zxing.client.android.CaptureActivity.class);
+    intent.setAction(Intents.Scan.ACTION);
     intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
     startActivityForResult(intent, 0);
   }

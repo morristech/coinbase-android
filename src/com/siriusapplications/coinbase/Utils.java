@@ -134,7 +134,7 @@ public class Utils {
 
         Cursor c = adapter.mDb.query(EmailEntry.TABLE_NAME,
             null, EmailEntry.COLUMN_NAME_ACCOUNT + " = ? AND " + EmailEntry.COLUMN_NAME_EMAIL + " LIKE ?",
-            new String[] { Integer.toString(activeAccount), description + "%" }, null, null, null);
+            new String[] { Integer.toString(activeAccount), "%" + description + "%" }, null, null, null);
         
         return c;
       }

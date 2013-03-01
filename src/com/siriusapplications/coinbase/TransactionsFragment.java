@@ -209,20 +209,6 @@ public class TransactionsFragment extends ListFragment {
             createdAt = -1;
           }
 
-          // Extract email addresses and use them for auto-complete
-          String[] emails = new String[] {
-              transaction.optJSONObject("sender") != null ? transaction.optJSONObject("sender").optString("email") : null,
-                  transaction.optJSONObject("recipient") != null ? transaction.optJSONObject("recipient").optString("email") : null,
-          };
-          for(String email : emails) {
-            if(email != null) {
-              ContentValues emailValues = new ContentValues();
-              emailValues.put(EmailEntry.COLUMN_NAME_EMAIL, email);
-              emailValues.put(EmailEntry.COLUMN_NAME_ACCOUNT, activeAccount);
-              db.insertWithOnConflict(EmailEntry.TABLE_NAME, null, emailValues, SQLiteDatabase.CONFLICT_IGNORE);
-            }
-          }
-
           values.put(TransactionEntry._ID, transaction.getString("id"));
           values.put(TransactionEntry.COLUMN_NAME_JSON, transaction.toString());
           values.put(TransactionEntry.COLUMN_NAME_TIME, createdAt);

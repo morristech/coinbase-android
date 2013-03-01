@@ -133,7 +133,14 @@ public class RpcManager {
       throw new IOException("HTTP response " + code + " to request " + method);
     }
 
-    JSONObject content = new JSONObject(new JSONTokener(EntityUtils.toString(response.getEntity())));
+    String responseString = EntityUtils.toString(response.getEntity());
+    
+    if(responseString.startsWith("[")) {
+      // Is an array
+      responseString = "{response:" + responseString + "}";
+    }
+    
+    JSONObject content = new JSONObject(new JSONTokener(responseString));
     return content;
   }
 }

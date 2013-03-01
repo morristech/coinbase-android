@@ -16,9 +16,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -46,6 +48,8 @@ import android.widget.Toast;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.siriusapplications.coinbase.api.RpcManager;
+import com.siriusapplications.coinbase.db.TransactionsDatabase;
+import com.siriusapplications.coinbase.db.TransactionsDatabase.EmailEntry;
 
 public class TransferFragment extends Fragment {
 
@@ -101,7 +105,7 @@ public class TransferFragment extends Fragment {
         int messageId = type == TransferType.SEND ? R.string.transfer_success_send : R.string.transfer_success_request;
         String text = String.format(getString(messageId), (String) result[1], (String) result[3]);
         Toast.makeText(mParent, text, Toast.LENGTH_SHORT).show();
-        
+
         // Sync transactions
         mParent.refresh();
       } else {
@@ -115,7 +119,7 @@ public class TransferFragment extends Fragment {
 
     @Override
     protected String doInBackground(Boolean... params) {
-      
+
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
       int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
@@ -123,15 +127,15 @@ public class TransferFragment extends Fragment {
 
         boolean shouldGenerateNew = params[0];
         String address;
-        
+
         if(shouldGenerateNew) {
-          
+
           JSONObject response = RpcManager.getInstance().callPost(mParent, "account/generate_receive_address", null);
 
           address = response.optString("address");
-          
+
         } else {
-          
+
           JSONObject response = RpcManager.getInstance().callGet(mParent, "account/receive_address");
 
           address = response.optString("address");
@@ -159,13 +163,13 @@ public class TransferFragment extends Fragment {
 
     @Override
     protected void onPreExecute() {
-      
+
       loadReceiveAddressFromPreferences();
     }
 
     @Override
     protected void onPostExecute(String result) {
-      
+
       if(result == null) {
 
         loadReceiveAddressFromPreferences();
@@ -173,6 +177,63 @@ public class TransferFragment extends Fragment {
       }
 
       setReceiveAddress(result);
+    }
+
+  }
+
+  private class ReloadContactsDatabaseTask extends AsyncTask<Void, Void, Void> {
+
+    @Override
+    protected Void doInBackground(Void... params) {
+
+      JSONArray contacts;
+      
+      // Fetch emails
+      try {
+        contacts = RpcManager.getInstance().callGet(mParent, "contacts", null).getJSONArray("response");
+
+      } catch (IOException e) {
+        e.printStackTrace();
+        return null;
+      } catch (JSONException e) {
+        e.printStackTrace();
+        return null;
+      } 
+
+      TransactionsDatabase dbHelper = new TransactionsDatabase(mParent);
+      SQLiteDatabase db = dbHelper.getWritableDatabase();
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+
+      try {
+
+        db.beginTransaction();
+
+        // Remove all old emails
+        db.delete(EmailEntry.TABLE_NAME, null, null);
+
+
+        for(int i = 0; i < contacts.length(); i++) {
+
+          String email = contacts.getString(i);
+
+          ContentValues emailValues = new ContentValues();
+          emailValues.put(EmailEntry.COLUMN_NAME_EMAIL, email);
+          emailValues.put(EmailEntry.COLUMN_NAME_ACCOUNT, activeAccount);
+          db.insertWithOnConflict(EmailEntry.TABLE_NAME, null, emailValues, SQLiteDatabase.CONFLICT_IGNORE);
+        }
+
+        db.setTransactionSuccessful();
+
+      } catch (JSONException e) {
+        e.printStackTrace();
+      } finally {
+
+        db.endTransaction();
+        db.close();
+      }
+
+      return null;
     }
 
   }
@@ -221,7 +282,7 @@ public class TransferFragment extends Fragment {
   private AutoCompleteTextView mRecipientView;
   private TextView mReceiveAddress;
   private ImageView mReceiveAddressBarcode;
-  
+
   private SimpleCursorAdapter mAutocompleteAdapter;
 
   private int mTransferType;
@@ -232,14 +293,14 @@ public class TransferFragment extends Fragment {
 
     super.onCreate(savedInstanceState);
   }
-  
+
   @Override
   public void onAttach(Activity activity) {
-    
+
     super.onAttach(activity);
     mParent = (MainActivity) activity;
   }
-  
+
   public void setParent(MainActivity activity) {
 
     mParent = activity;
@@ -248,7 +309,7 @@ public class TransferFragment extends Fragment {
   @Override
   public void onDestroyView() {
     super.onDestroyView();
-    
+
     Utils.disposeOfEmailAutocompleteAdapter(mAutocompleteAdapter);
   }
 
@@ -356,12 +417,12 @@ public class TransferFragment extends Fragment {
       public void onClick(View v) {
 
         if("".equals(mAmount)) {
-          
+
           // No amount entered
           Toast.makeText(mParent, R.string.transfer_amt_empty, Toast.LENGTH_SHORT).show();
           return;
         } else if("".equals(mRecipient)) {
-          
+
           // No recipient entered
           Toast.makeText(mParent, R.string.transfer_recipient_empty, Toast.LENGTH_SHORT).show();
           return;
@@ -388,12 +449,12 @@ public class TransferFragment extends Fragment {
       public void onClick(View v) {
 
         if("".equals(mAmount)) {
-          
+
           // No amount entered
           Toast.makeText(mParent, R.string.transfer_amt_empty, Toast.LENGTH_SHORT).show();
           return;
         }
-        
+
         TransferEmailPromptFragment dialog = new TransferEmailPromptFragment();
 
         Bundle b = new Bundle();
@@ -446,21 +507,21 @@ public class TransferFragment extends Fragment {
         new LoadReceiveAddressTask().execute(true);
       }
     });
-    
+
     loadReceiveAddressFromPreferences();
 
     return view;
   }
-  
+
   private void loadReceiveAddressFromPreferences() {
-    
+
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
     int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
     setReceiveAddress(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null));
   }
-  
+
   private String generateRequestUri() {
-    
+
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
     int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
     String receiveAddress = prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null);
@@ -482,7 +543,7 @@ public class TransferFragment extends Fragment {
 
       requestUri += "message=" + mNotes;
     }
-    
+
     return requestUri;
   }
 
@@ -503,9 +564,9 @@ public class TransferFragment extends Fragment {
         // Could not generate barcode
         e.printStackTrace();
       }
-      
+
       mReceiveAddressBarcode.setOnClickListener(new View.OnClickListener() {
-        
+
         @Override
         public void onClick(View v) {
 
@@ -653,11 +714,11 @@ public class TransferFragment extends Fragment {
       mRecipientView.setText(address);
     }
   }
-  
+
   public void switchType(boolean isRequest) {
 
     mTransferType = isRequest ? 1 : 0;
-    
+
     if(mTransferTypeView != null) {
       mTransferTypeView.setSelection(mTransferType);
     }
@@ -667,5 +728,8 @@ public class TransferFragment extends Fragment {
 
     // Reload receive address
     new LoadReceiveAddressTask().execute(false);
+
+    // Reload contacts
+    new ReloadContactsDatabaseTask().execute();
   }
 }

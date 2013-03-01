@@ -3,6 +3,7 @@ package com.siriusapplications.coinbase;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -41,7 +42,7 @@ public class TransactionDetailsFragment extends Fragment {
     CANCEL;
   }
 
-  private class TakeActionTask extends AsyncTask<Object, Void, Boolean> {
+  private class TakeActionTask extends AsyncTask<Object, Void, String> {
 
     ProgressDialog mDialog;
 
@@ -53,7 +54,7 @@ public class TransactionDetailsFragment extends Fragment {
     }
 
     @Override
-    protected Boolean doInBackground(Object... params) {
+    protected String doInBackground(Object... params) {
 
       ActionType type = (ActionType) params[0];
       String transactionID = (String) params[1];
@@ -76,17 +77,22 @@ public class TransactionDetailsFragment extends Fragment {
           break;
         }
 
-        return result.getBoolean("success");
+        boolean success = result.getBoolean("success");
 
+        if(success) {
+          return null;
+        } else {
+          return result.optString("error");
+        }
       } catch(Exception e) {
         // An error
         e.printStackTrace();
-        return false;
+        return e.getMessage();
       }
     }
 
     @Override
-    protected void onPostExecute(Boolean result) {
+    protected void onPostExecute(String result) {
 
       mDialog.dismiss();
 
@@ -94,10 +100,11 @@ public class TransactionDetailsFragment extends Fragment {
         return;
       }
 
-      if(!result) {
+      if(result != null) {
 
         Log.i("Coinbase", "Transacation action not successful.");
-        Toast.makeText(getActivity(), R.string.transactiondetails_action_error, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(),
+            String.format(getActivity().getString(R.string.transactiondetails_action_error), result), Toast.LENGTH_SHORT).show();
       } else {
 
         // Return to main activity and refresh

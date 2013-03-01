@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Hashtable;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -206,5 +207,17 @@ public class Utils {
         return String.format(c.getString(R.string.transaction_summary_send_them), senderName);
       }
     }
+  }
+  
+  public static String getErrorStringFromJson(JSONObject response) throws JSONException {
+
+
+    JSONArray errors = response.getJSONArray("errors");
+    String errorMessage = "";
+
+    for(int i = 0; i < errors.length(); i++) {
+      errorMessage += (errorMessage.equals("") ? "" : "\n") + errors.getString(i);
+    }
+    return errorMessage;
   }
 }

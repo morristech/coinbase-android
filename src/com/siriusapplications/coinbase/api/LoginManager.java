@@ -101,6 +101,7 @@ public class LoginManager {
 
           e.putInt(Constants.KEY_ACTIVE_ACCOUNT, i);
           e.commit();
+          Log.i("Coinbase", "Switching to account " + i);
           return true;
         }
 
@@ -299,12 +300,15 @@ public class LoginManager {
     e.remove(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, accountId));
     e.remove(String.format(Constants.KEY_ACCOUNT_NAME, accountId));
 
+    e.commit();
+
     // If there are any other accounts, switch to them
     // Otherwise log out completely
     boolean success = switchActiveAccount(context, 0, e);
 
     if(!success) {
       e.putInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+      Log.i("Coinbase", "Logged out of all accounts; active account is -1");
     }
 
     e.commit();

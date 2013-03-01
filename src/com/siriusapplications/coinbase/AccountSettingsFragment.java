@@ -341,12 +341,12 @@ public class AccountSettingsFragment extends ListFragment {
       if(result) {
 
         Toast.makeText(mParent, R.string.account_save_success, Toast.LENGTH_SHORT).show();
+        
+        mParent.refresh();
       } else {
 
         Toast.makeText(mParent, R.string.account_save_error, Toast.LENGTH_SHORT).show();
       }
-
-      refresh();
     }
 
   }

@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
+import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -181,6 +182,9 @@ public class AccountSettingsFragment extends ListFragment {
       final FrameLayout layout = new FrameLayout(getActivity());
       final EditText text = new EditText(getActivity());
       text.setText(currentValue);
+      text.setInputType(
+          InputType.TYPE_CLASS_TEXT |
+          ("name".equals(key) ? InputType.TYPE_TEXT_VARIATION_PERSON_NAME : InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS));
       layout.addView(text);
       layout.setPadding(padding, padding, padding, padding);
       b.setView(layout);

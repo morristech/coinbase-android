@@ -32,7 +32,7 @@ import com.slidingmenu.lib.SlidingMenu;
 
 @RequiresAuthentication
 public class MainActivity extends CoinbaseActivity {
-  
+
   public static final String ACTION_SCAN = "com.siriusapplications.coinbase.MainActivity.ACTION_SCAN";
   public static final String ACTION_TRANSFER = "com.siriusapplications.coinbase.MainActivity.ACTION_TRANSFER";
   public static final String ACTION_TRANSACTIONS = "com.siriusapplications.coinbase.MainActivity.ACTION_TRANSACTIONS";
@@ -109,8 +109,6 @@ public class MainActivity extends CoinbaseActivity {
     mViewPager.setAdapter(mSectionsPagerAdapter);
     mViewPager.setPagingEnabled(false);
 
-    onNewIntent(getIntent());
-
     // configure the SlidingMenu
     mSlidingMenu = new SlidingMenu(this);
     mSlidingMenu.setMode(SlidingMenu.LEFT);
@@ -149,7 +147,7 @@ public class MainActivity extends CoinbaseActivity {
       @Override
       public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
           long arg3) {
-        
+
         switchTo(arg2);
       }
     });
@@ -167,19 +165,24 @@ public class MainActivity extends CoinbaseActivity {
 
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     switchTo(0);
+
+    onNewIntent(getIntent());
   }
-  
+
   private void switchTo(int index) {
 
 
     mViewPager.setCurrentItem(index, false);
     updateTitle();
-    mSlidingMenu.showContent();
+
+    if(mSlidingMenu != null) {
+      mSlidingMenu.showContent();
+    }
   }
-  
+
   private void updateTitle() {
-    
-    if(mSlidingMenu.isMenuShowing()) {
+
+    if(mSlidingMenu != null && mSlidingMenu.isMenuShowing()) {
       getSupportActionBar().setTitle(R.string.app_name);
     } else {
       getSupportActionBar().setTitle(mFragmentTitles[mViewPager.getCurrentItem()]);
@@ -227,7 +230,7 @@ public class MainActivity extends CoinbaseActivity {
   @Override
   public void onResume() {
     super.onResume();
-    
+
     // Connect to pusher
     new Thread(new Runnable() {
       public void run() {
@@ -242,7 +245,7 @@ public class MainActivity extends CoinbaseActivity {
   @Override
   protected void onPause() {
     super.onPause();
-    
+
     if(mPusher != null) {
       mPusher.disconnect();
       mPusher = null;
@@ -341,7 +344,7 @@ public class MainActivity extends CoinbaseActivity {
       String name = getString(mFragmentTitles[position]);
 
       ((TextView) convertView.findViewById(R.id.main_menu_item_title)).setText(name);
-      
+
       ImageView icon = (ImageView) convertView.findViewById(R.id.main_menu_item_icon);
       icon.setImageResource(mFragmentIcons[position]);
 
@@ -416,6 +419,10 @@ public class MainActivity extends CoinbaseActivity {
 
   public TransferFragment getTransferFragment() {
     return mTransferFragment;
+  }
+
+  public AccountSettingsFragment getAccountSettingsFragment() {
+    return mSettingsFragment;
   }
 
   public void setRefreshButtonAnimated(boolean animated) {

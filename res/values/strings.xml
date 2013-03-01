@@ -127,5 +127,14 @@
     <string name="transactiondetails_action_error">Could not take action on transaction.</string>
     <string name="barcode_scan_message">Place a Bitcoin barcode inside the viewfinder to scan it.</string>
     <string name="wallet_balance_home">≈ %1$s %2$s</string>
+    <string name="account_name">Name</string>
+    <string name="account_email">Email</string>
+    <string name="account_time_zone">Time zone</string>
+    <string name="account_native_currency">Native currency</string>
+    <string name="account_progress">Working...</string>
+    <string name="account_list_error">Could not load list.</string>
+    <string name="account_save_success">Saved.</string>
+    <string name="account_save_error">Could not save account settings.</string>
+    <string name="account_save_progress">Saving...</string>
     
 </resources>

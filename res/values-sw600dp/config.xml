@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="bool" format="boolean" name="pin_sliding_menu">true</item>
+    
+</resources>

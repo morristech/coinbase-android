@@ -71,4 +71,16 @@
         android:text="@string/buysell_submit_buy"
         android:enabled="false" />
 
+    <TextView
+        android:id="@+id/buysell_help"
+        android:textColor="#666666"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp"
+        android:layout_below="@+id/buysell_submit"
+        android:layout_centerHorizontal="true"
+        android:text="@string/buysell_help"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
 </RelativeLayout>

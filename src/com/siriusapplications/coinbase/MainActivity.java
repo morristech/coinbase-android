@@ -86,11 +86,14 @@ public class MainActivity extends CoinbaseActivity {
   Pusher mPusher;
   MenuItem mRefreshItem;
   boolean mRefreshItemState = false;
+  boolean mSlidingMenuPinned = true;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
+    
+    mSlidingMenuPinned = getResources().getBoolean(R.bool.pin_sliding_menu);
 
     mTransactionsFragment = new TransactionsFragment();
     mBuySellFragment = new BuySellFragment();
@@ -119,7 +122,17 @@ public class MainActivity extends CoinbaseActivity {
     mSlidingMenu.setFadeDegree(0f);
     mSlidingMenu.setBehindScrollScale(0);
     mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-    mSlidingMenu.setMenu(R.layout.activity_main_menu);
+    mSlidingMenu.setSlidingEnabled(!mSlidingMenuPinned);
+    
+    ListView slidingList;
+    if(!mSlidingMenuPinned) {
+
+      findViewById(android.R.id.list).setVisibility(View.GONE);
+      mSlidingMenu.setMenu(R.layout.activity_main_menu);
+      slidingList = (ListView) mSlidingMenu.findViewById(android.R.id.list);
+    } else {
+      slidingList = (ListView) findViewById(android.R.id.list);
+    }
 
     mSlidingMenu.setOnCloseListener(new SlidingMenu.OnCloseListener() {
 
@@ -140,7 +153,6 @@ public class MainActivity extends CoinbaseActivity {
     });
 
     // Set up Sliding Menu list
-    ListView slidingList = (ListView) mSlidingMenu.findViewById(android.R.id.list);
     slidingList.setAdapter(new SectionsListAdapter());
     slidingList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -163,7 +175,7 @@ public class MainActivity extends CoinbaseActivity {
       }
     }).start();
 
-    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(!mSlidingMenuPinned);
     switchTo(0);
 
     onNewIntent(getIntent());
@@ -182,7 +194,7 @@ public class MainActivity extends CoinbaseActivity {
 
   private void updateTitle() {
 
-    if(mSlidingMenu != null && mSlidingMenu.isMenuShowing()) {
+    if((mSlidingMenu != null && mSlidingMenu.isMenuShowing()) || mSlidingMenuPinned) {
       getSupportActionBar().setTitle(R.string.app_name);
     } else {
       getSupportActionBar().setTitle(mFragmentTitles[mViewPager.getCurrentItem()]);

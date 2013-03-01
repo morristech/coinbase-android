@@ -5,4 +5,5 @@
   <color name="barcode_possible_result_points">#c0ffbd21</color>
   <color name="barcode_result_view">#b0000000</color>
   <color name="barcode_result_points">#c099cc00</color>
+  <color name="main_menu_background">#171717</color>
 </resources>

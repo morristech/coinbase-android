@@ -165,6 +165,12 @@ public class TransferFragment extends Fragment {
 
     @Override
     protected void onPostExecute(String result) {
+      
+      if(result == null) {
+
+        loadReceiveAddressFromPreferences();
+        return;
+      }
 
       setReceiveAddress(result);
     }
@@ -481,12 +487,6 @@ public class TransferFragment extends Fragment {
   }
 
   private void setReceiveAddress(final String address) {
-
-    if(address == null) {
-      
-      loadReceiveAddressFromPreferences();
-      return;
-    }
 
     if(mReceiveAddress != null) {
       mReceiveAddress.setText(address);

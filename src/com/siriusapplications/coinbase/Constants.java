@@ -18,6 +18,8 @@ public class Constants {
   public static final String KEY_ACCOUNT_NATIVE_CURRENCY = "account_%d_native_currency";
   public static final String KEY_ACCOUNT_FULL_NAME = "account_%d_full_name";
   public static final String KEY_ACCOUNT_TIME_ZONE = "account_%d_time_zone";
+  public static final String KEY_ACCOUNT_LIMIT = "account_%1$d_limit_%2$s";
+  public static final String KEY_ACCOUNT_LIMIT_CURRENCY = "account_%1$d_limit_currency_%2$s";
   
   public static final String KEY_ACCOUNT_BALANCE = "account_%d_balance_amt";
   public static final String KEY_ACCOUNT_BALANCE_CURRENCY = "account_%d_balance_amt_currency";

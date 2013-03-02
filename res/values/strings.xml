@@ -139,5 +139,7 @@
     <string name="buysell_help">To link a bank account with your Coinbase account, visit https://coinbase.com in the browser.</string>
     <string name="transfer_amt_native">≈ %1$s %2$s</string>
     <string name="transactions_refresh_error">Could not sync transactions.</string>
+    <string name="account_limits">Your buy / sell limits</string>
+    <string name="account_limits_text">Buy %1$s %2$s per day, sell %3$s %4$s per day</string>
     
 </resources>

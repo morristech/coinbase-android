@@ -14,8 +14,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -54,6 +56,10 @@ public class AccountSettingsFragment extends ListFragment {
         e.putString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount), userInfo.getString("native_currency"));
         e.putString(String.format(Constants.KEY_ACCOUNT_FULL_NAME, activeAccount), userInfo.getString("name"));
         e.putString(String.format(Constants.KEY_ACCOUNT_TIME_ZONE, activeAccount), userInfo.getString("time_zone"));
+        e.putString(String.format(Constants.KEY_ACCOUNT_LIMIT, activeAccount, "buy"), userInfo.getJSONObject("buy_limit").getString("amount"));
+        e.putString(String.format(Constants.KEY_ACCOUNT_LIMIT, activeAccount, "sell"), userInfo.getJSONObject("sell_limit").getString("amount"));
+        e.putString(String.format(Constants.KEY_ACCOUNT_LIMIT_CURRENCY, activeAccount, "buy"), userInfo.getJSONObject("buy_limit").getString("currency"));
+        e.putString(String.format(Constants.KEY_ACCOUNT_LIMIT_CURRENCY, activeAccount, "sell"), userInfo.getJSONObject("sell_limit").getString("currency"));
 
         e.commit(); 
 
@@ -97,8 +103,10 @@ public class AccountSettingsFragment extends ListFragment {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+
       if(mActiveAccount == -1) {
-        mActiveAccount = PreferenceManager.getDefaultSharedPreferences(mParent).getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+        mActiveAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
       }
 
       View view = convertView;
@@ -111,9 +119,22 @@ public class AccountSettingsFragment extends ListFragment {
       TextView text1 = (TextView) view.findViewById(android.R.id.text1),
           text2 = (TextView) view.findViewById(android.R.id.text2);
 
+      String desc = null;
+      if("limits".equals(item[2])) {
+        
+        desc = String.format(getString(R.string.account_limits_text),
+            Utils.formatCurrencyAmount(prefs.getString(String.format(Constants.KEY_ACCOUNT_LIMIT, mActiveAccount, "buy"), "0")),
+            prefs.getString(String.format(Constants.KEY_ACCOUNT_LIMIT_CURRENCY, mActiveAccount, "buy"), "BTC"),
+            Utils.formatCurrencyAmount(prefs.getString(String.format(Constants.KEY_ACCOUNT_LIMIT, mActiveAccount, "sell"), "0")),
+            prefs.getString(String.format(Constants.KEY_ACCOUNT_LIMIT_CURRENCY, mActiveAccount, "sell"), "BTC"));
+
+      } else {
+        desc = prefs.getString(
+            String.format((String) item[1], mActiveAccount), null);
+      }
+
       text1.setText((Integer) item[0]);
-      text2.setText(PreferenceManager.getDefaultSharedPreferences(mParent).getString(
-          String.format((String) item[1], mActiveAccount), null));
+      text2.setText(desc);
 
       return view;
     }
@@ -165,7 +186,7 @@ public class AccountSettingsFragment extends ListFragment {
       return b.create();
     }
   }
-  
+
   public static class TextSettingFragment extends DialogFragment {
 
     @Override
@@ -179,7 +200,7 @@ public class AccountSettingsFragment extends ListFragment {
       String currentValue = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(key, null);
       DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
       int padding = (int)(16 * metrics.density);
-      
+
       final FrameLayout layout = new FrameLayout(getActivity());
       final EditText text = new EditText(getActivity());
       text.setText(currentValue);
@@ -189,7 +210,7 @@ public class AccountSettingsFragment extends ListFragment {
       layout.addView(text);
       layout.setPadding(padding, padding, padding, padding);
       b.setView(layout);
-      
+
       b.setTitle("Change " + userUpdateParam);
 
       b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -233,7 +254,7 @@ public class AccountSettingsFragment extends ListFragment {
       String apiEndpoint = params[0];
       mPreferenceKey = params[1];
       mUserUpdateParam = params[2];
-      
+
       String currentValue = PreferenceManager.getDefaultSharedPreferences(mParent).getString(mPreferenceKey, null);
 
       try {
@@ -246,7 +267,7 @@ public class AccountSettingsFragment extends ListFragment {
         for(int i = 0; i < array.length(); i++) {
           display[i] = array.getJSONArray(i).getString(0);
           data[i] = array.getJSONArray(i).getString(1);
-          
+
           if(data[i].equalsIgnoreCase(currentValue)) {
             mSelected = i;
           }
@@ -342,7 +363,7 @@ public class AccountSettingsFragment extends ListFragment {
       if(result) {
 
         Toast.makeText(mParent, R.string.account_save_success, Toast.LENGTH_SHORT).show();
-        
+
         mParent.refresh();
       } else {
 
@@ -357,6 +378,7 @@ public class AccountSettingsFragment extends ListFragment {
       { R.string.account_email, Constants.KEY_ACCOUNT_NAME, "email" },
       { R.string.account_time_zone, Constants.KEY_ACCOUNT_TIME_ZONE, "time_zone" },
       { R.string.account_native_currency, Constants.KEY_ACCOUNT_NATIVE_CURRENCY, "native_currency" },
+      { R.string.account_limits, Constants.KEY_ACCOUNT_LIMIT, "limits" },
       { R.string.account_refresh_token, Constants.KEY_ACCOUNT_REFRESH_TOKEN, "refresh_token" }
   };
 
@@ -412,11 +434,18 @@ public class AccountSettingsFragment extends ListFragment {
           String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
           "native_currency");
     } else if("refresh_token".equals(data[2])) {
-      
+
       // Refresh token
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
       int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
       LoginManager.getInstance().refreshAccessToken(mParent, activeAccount);
+    } else if("limits".equals(data[2])) {
+
+      // Open browset
+      Intent i = new Intent(Intent.ACTION_VIEW);
+      i.addCategory(Intent.CATEGORY_BROWSABLE);
+      i.setData(Uri.parse("https://coinbase.com/verifications"));
+      startActivity(i);
     }
   }
 

@@ -10,7 +10,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -125,7 +124,7 @@ public class BuySellFragment extends Fragment {
         int messageId = type == BuySellType.BUY ? R.string.buysell_success_buy : R.string.buysell_success_sell;
         String text = String.format(getString(messageId), (String) result[1]);
         Toast.makeText(mParent, text, Toast.LENGTH_SHORT).show();
-        
+
         // Sync transactions
         mParent.refresh();
       } else {
@@ -200,7 +199,7 @@ public class BuySellFragment extends Fragment {
   }
 
   private MainActivity mParent;
-  
+
   private UpdatePriceTask mUpdatePriceTask;
   private String mCurrentPrice, mCurrentPriceCurrency;
 
@@ -214,14 +213,14 @@ public class BuySellFragment extends Fragment {
 
     super.onCreate(savedInstanceState);
   }
-  
+
   @Override
   public void onAttach(Activity activity) {
-    
+
     super.onAttach(activity);
     mParent = (MainActivity) activity;
   }
-  
+
   public void setParent(MainActivity activity) {
 
     mParent = activity;
@@ -296,6 +295,8 @@ public class BuySellFragment extends Fragment {
         updatePrice();
       }
     });
+
+
 
     return view;
   }

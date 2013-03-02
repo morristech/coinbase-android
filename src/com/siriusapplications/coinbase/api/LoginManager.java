@@ -81,6 +81,29 @@ public class LoginManager {
   public boolean switchActiveAccount(Context context, int index) {
     return switchActiveAccount(context, index, null);
   }
+  
+  public int getAccountId(Context context, int index) {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    int numAccounts = prefs.getInt(Constants.KEY_MAX_ACCOUNT, -1) + 1;
+    
+    int currentIndex = 0;
+    for(int i = 0; i < numAccounts; i++) {
+
+      String account = prefs.getString(String.format(Constants.KEY_ACCOUNT_NAME, i), null);
+      if(account != null) {
+
+        if(currentIndex == index) {
+
+          return i;
+        }
+
+        currentIndex++;
+      }
+    }
+
+    return -1;
+  }
 
   public boolean switchActiveAccount(Context context, int index, Editor e) {
 
@@ -136,6 +159,12 @@ public class LoginManager {
     return -1;
   }
 
+  public String getAccessToken(Context context, int account) {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    return prefs.getString(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, account), null);
+  }
+
   public String getAccessToken(Context context) {
 
     if(!isSignedIn(context)) {
@@ -148,13 +177,12 @@ public class LoginManager {
     return prefs.getString(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, activeAccount), null);
   }
 
-  public void refreshAccessToken(Context context) {
+  public void refreshAccessToken(Context context, int account) {
 
     Log.i("Coinbase", "Refreshing access token...");
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-    String refreshToken = prefs.getString(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, activeAccount), null);
+    String refreshToken = prefs.getString(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, account), null);
 
     List<BasicNameValuePair> parametersBody = new ArrayList<BasicNameValuePair>();
     parametersBody.add(new BasicNameValuePair("grant_type", "refresh_token"));
@@ -163,7 +191,7 @@ public class LoginManager {
     String[] newTokens;
 
     try {
-      newTokens = doTokenRequest(context, parametersBody);
+      newTokens = doTokenRequest(context, parametersBody, account);
     } catch(Exception e) {
 
       e.printStackTrace();
@@ -180,8 +208,8 @@ public class LoginManager {
 
     Editor e = prefs.edit();
 
-    e.putString(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, activeAccount), newTokens[0]);
-    e.putString(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, activeAccount), newTokens[1]);
+    e.putString(String.format(Constants.KEY_ACCOUNT_ACCESS_TOKEN, account), newTokens[0]);
+    e.putString(String.format(Constants.KEY_ACCOUNT_REFRESH_TOKEN, account), newTokens[1]);
 
     e.commit();
   }
@@ -211,7 +239,7 @@ public class LoginManager {
     parametersBody.add(new BasicNameValuePair("code", code));
 
     try {
-      String[] tokens = doTokenRequest(context, parametersBody);
+      String[] tokens = doTokenRequest(context, parametersBody, -1);
 
       if(tokens == null) {
         return context.getString(R.string.login_error_auth);
@@ -250,7 +278,7 @@ public class LoginManager {
     }
   }
 
-  private String[] doTokenRequest(Context context, Collection<BasicNameValuePair> params) throws IOException, JSONException {
+  private String[] doTokenRequest(Context context, Collection<BasicNameValuePair> params, int account) throws IOException, JSONException {
 
     DefaultHttpClient client = new DefaultHttpClient();
 
@@ -268,7 +296,7 @@ public class LoginManager {
 
     if(code == 401) {
 
-      Log.e("Coinbase", "Authentication error.");
+      Log.e("Coinbase", "Authentication error getting token for account " + account);
       return null;
     } else if(code != 200) {
 

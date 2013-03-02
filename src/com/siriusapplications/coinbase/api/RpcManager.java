@@ -21,7 +21,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import com.siriusapplications.coinbase.Constants;
+
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 
 public class RpcManager {
@@ -52,30 +56,42 @@ public class RpcManager {
 
   public JSONObject callGet(Context context, String method) throws IOException, JSONException {
 
-    return call(context, method, RequestVerb.GET, null, true);
+    return call(context, method, RequestVerb.GET, null);
+  }
+
+  public JSONObject callGetOverrideAccount(Context context, String method, int account) throws IOException, JSONException {
+
+    return call(context, method, RequestVerb.GET, null, true, account);
   }
 
   public JSONObject callGet(Context context, String method, Collection<BasicNameValuePair> params) throws IOException, JSONException {
 
-    return call(context, method, RequestVerb.GET, params, true);
+    return call(context, method, RequestVerb.GET, params);
   }
   
   public JSONObject callPost(Context context, String method, Collection<BasicNameValuePair> params) throws IOException, JSONException {
     
-    return call(context, method, RequestVerb.POST, params, true);
+    return call(context, method, RequestVerb.POST, params);
   }
   
   public JSONObject callPut(Context context, String method, Collection<BasicNameValuePair> params) throws IOException, JSONException {
     
-    return call(context, method, RequestVerb.PUT, params, true);
+    return call(context, method, RequestVerb.PUT, params);
   }
   
   public JSONObject callDelete(Context context, String method, Collection<BasicNameValuePair> params) throws IOException, JSONException {
     
-    return call(context, method, RequestVerb.DELETE, params, true);
+    return call(context, method, RequestVerb.DELETE, params);
   }
 
-  private JSONObject call(Context context, String method, RequestVerb verb, Collection<BasicNameValuePair> params, boolean retry) throws IOException, JSONException {
+  private JSONObject call(Context context, String method, RequestVerb verb, Collection<BasicNameValuePair> params) throws IOException, JSONException {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    int account = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    return call(context, method, verb, params, true, account);
+  }
+
+  private JSONObject call(Context context, String method, RequestVerb verb, Collection<BasicNameValuePair> params, boolean retry, int account) throws IOException, JSONException {
 
     DefaultHttpClient client = new DefaultHttpClient();
 
@@ -115,7 +131,7 @@ public class RpcManager {
       request = new HttpGet(url);
     }
     
-    String accessToken = LoginManager.getInstance().getAccessToken(context);
+    String accessToken = LoginManager.getInstance().getAccessToken(context, account);
     request.addHeader("Authorization", String.format("Bearer %s", accessToken));
 
     HttpResponse response = client.execute(request);
@@ -126,11 +142,11 @@ public class RpcManager {
       // Authentication error.
       // This may be caused by an outdated access token - attempt to fetch a new one
       // before failing.
-      LoginManager.getInstance().refreshAccessToken(context);
-      return call(context, method, verb, params, false);
+      LoginManager.getInstance().refreshAccessToken(context, account);
+      return call(context, method, verb, params, false, account);
     } else if(code != 200) {
 
-      throw new IOException("HTTP response " + code + " to request " + method);
+      throw new IOException("HTTP response " + code + " to request " + method + " for account " + account);
     }
 
     String responseString = EntityUtils.toString(response.getEntity());

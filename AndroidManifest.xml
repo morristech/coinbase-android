@@ -66,6 +66,11 @@
         <service android:name="TransactionsRemoteViewsService"
               android:permission="android.permission.BIND_REMOTEVIEWS"></service>
         <service android:name="UpdateWidgetBalanceService"></service>
+        <activity android:name="WidgetChooseAccountActivity" android:theme="@style/Theme.Sherlock.Light.DarkActionBar">
+           <intent-filter>
+			        <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+			    </intent-filter>
+        </activity>
     </application>
 
 </manifest>

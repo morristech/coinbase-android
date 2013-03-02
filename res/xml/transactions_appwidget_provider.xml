@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:resizeMode="vertical"
+    android:configure="com.siriusapplications.coinbase.WidgetChooseAccountActivity"
     android:initialLayout="@layout/widget_transactions"
-    android:widgetCategory="home_screen|keyguard"
-    android:updatePeriodMillis="3600000" android:minResizeHeight="40dp" android:minWidth="250dp" android:minHeight="110dp" android:previewImage="@drawable/widget_transactions_preview">
-    
+    android:minHeight="110dp"
+    android:minResizeHeight="40dp"
+    android:minWidth="250dp"
+    android:previewImage="@drawable/widget_transactions_preview"
+    android:resizeMode="vertical"
+    android:updatePeriodMillis="3600000"
+    android:widgetCategory="home_screen|keyguard" >
 
 </appwidget-provider>

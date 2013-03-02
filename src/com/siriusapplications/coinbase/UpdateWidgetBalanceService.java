@@ -9,42 +9,53 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.siriusapplications.coinbase.api.RpcManager;
 
 public class UpdateWidgetBalanceService extends Service {
-  
+
   public static interface WidgetUpdater {
     public void updateWidget(Context context, AppWidgetManager manager, int appWidgetId, String balance);
   }
-  
+
   public static String EXTRA_WIDGET_ID = "widget_id";
   public static String EXTRA_UPDATER_CLASS = "updater_class";
-  
-  
+
+
 
   @Override
   public int onStartCommand(Intent intent, int flags, final int startId) {
-   
+
     final int widgetId = intent.getIntExtra(EXTRA_WIDGET_ID, -1);
     final Class<?> updaterClass = (Class<?>) intent.getSerializableExtra(EXTRA_UPDATER_CLASS);
-    
+
     new Thread(new Runnable() {
       public void run() {
-        
+
         try {
-        
-        // Step 1: Fetch balance
-        Log.i("Coinbase", "Service fetching balance...");
-        String balance = RpcManager.getInstance().callGet(UpdateWidgetBalanceService.this, "account/balance").getString("amount");
-        balance = Utils.formatCurrencyAmount(balance);
-        
-        // Step 2: Update widget
-        AppWidgetManager manager = AppWidgetManager.getInstance(UpdateWidgetBalanceService.this);
-        WidgetUpdater updater = (WidgetUpdater) updaterClass.newInstance();
-        updater.updateWidget(UpdateWidgetBalanceService.this, manager, widgetId, balance);
-        
+
+          int accountId = PreferenceManager.getDefaultSharedPreferences(UpdateWidgetBalanceService.this).getInt(
+              String.format(Constants.KEY_WIDGET_ACCOUNT, widgetId), -1);
+
+
+          // Step 1: Fetch balance
+          String balance;
+          if(accountId == -1) {
+            balance = "";
+          } else {
+            Log.i("Coinbase", "Service fetching balance...");
+            balance = RpcManager.getInstance().callGetOverrideAccount(
+                UpdateWidgetBalanceService.this, "account/balance", accountId).getString("amount");
+            balance = Utils.formatCurrencyAmount(balance);
+          }
+
+          // Step 2: Update widget
+          AppWidgetManager manager = AppWidgetManager.getInstance(UpdateWidgetBalanceService.this);
+          WidgetUpdater updater = (WidgetUpdater) updaterClass.newInstance();
+          updater.updateWidget(UpdateWidgetBalanceService.this, manager, widgetId, balance);
+
         } catch(JSONException e) {
           e.printStackTrace();
         } catch (InstantiationException e) {
@@ -54,11 +65,11 @@ public class UpdateWidgetBalanceService extends Service {
         } catch (IOException e) {
           e.printStackTrace();
         }
-        
+
         stopSelf(startId);
       }
     }).start();
-    
+
     return Service.START_REDELIVER_INTENT;
   }
 

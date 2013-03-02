@@ -9,11 +9,10 @@ import org.json.JSONTokener;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
-import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
@@ -24,6 +23,7 @@ import com.siriusapplications.coinbase.db.TransactionsDatabase.TransactionEntry;
 public class TransactionsRemoteViewsService extends RemoteViewsService {
   
   public static final String WIDGET_TRANSACTION_LIMIT = "10";
+  public static final String EXTRA_ACCOUNT_ID = "account_id";
 
   public class TransactionsRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
 
@@ -31,9 +31,11 @@ public class TransactionsRemoteViewsService extends RemoteViewsService {
 
     SQLiteDatabase mDatabase;
     Cursor mCursor;
+    int mAccountId;
 
-    public TransactionsRemoteViewsFactory(Context context) {
+    public TransactionsRemoteViewsFactory(Context context, int accountId) {
       mContext = context;
+      mAccountId = accountId;
     }
 
     @Override
@@ -42,11 +44,10 @@ public class TransactionsRemoteViewsService extends RemoteViewsService {
       TransactionsDatabase database = new TransactionsDatabase(mContext);
       mDatabase = database.getReadableDatabase();
 
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-
+      Log.i("Coinbase", "Filtering transactions for account " + mAccountId);
       mCursor = mDatabase.query(TransactionsDatabase.TransactionEntry.TABLE_NAME,
-          null, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) }, null, null, null, WIDGET_TRANSACTION_LIMIT);
+          null, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(mAccountId) }, null, null, null, WIDGET_TRANSACTION_LIMIT);
+      Log.i("Coinbase", "Got " + mCursor.getCount() + " transactions.");
     }
 
     @Override
@@ -145,7 +146,7 @@ public class TransactionsRemoteViewsService extends RemoteViewsService {
   @Override
   public RemoteViewsFactory onGetViewFactory(Intent intent) {
 
-    return new TransactionsRemoteViewsFactory(this);
+    return new TransactionsRemoteViewsFactory(this, intent.getIntExtra(EXTRA_ACCOUNT_ID, -1));
   }
 
 }

@@ -384,6 +384,7 @@ public class MainActivity extends CoinbaseActivity {
   public void addAccount() {
 
     startActivity(new Intent(this, LoginActivity.class));
+    finish();
   }
 
   public void startBarcodeScan() {

@@ -2,62 +2,82 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="15dp" >
-
+    android:layout_height="wrap_content">
+	<RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:id="@+id/wallet_layout"
+	    android:padding="15dp">
+	
+	    <TextView
+	        android:id="@+id/wallet_account"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:textColor="#666666"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+	
+	    <TextView
+	        android:id="@+id/wallet_balance"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/wallet_account"
+	        android:layout_alignParentLeft="true"
+	        android:layout_marginTop="5dp"
+	        android:text="@string/wallet_balance_def"
+	        style="@style/wallet_balance_invalid"
+	        android:textSize="35sp" />
+	
+	    <TextView
+	        android:id="@+id/wallet_balance_currency"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignBaseline="@+id/wallet_balance"
+	        android:layout_alignBottom="@+id/wallet_balance"
+	        android:layout_toRightOf="@+id/wallet_balance"
+	        android:layout_marginLeft="10dp"
+	        android:text="@string/wallet_balance_currency_def"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+	
+	    <TextView
+	        android:id="@+id/wallet_balance_home"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/wallet_balance"
+	        android:layout_alignParentLeft="true"
+	        android:textColor="#666666"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+	
+	    <Button
+	        android:id="@+id/wallet_send"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentRight="true"
+	        android:layout_centerVertical="true"
+	        android:text="@string/wallet_balance_send" />
+	
+	    <Button
+	        android:id="@+id/wallet_request"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerVertical="true"
+	        android:layout_toLeftOf="@+id/wallet_send"
+	        android:text="@string/wallet_balance_request" />
+    </RelativeLayout>
+	    
     <TextView
-        android:id="@+id/wallet_account"
-        android:layout_width="wrap_content"
+        android:id="@+id/wallet_error"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/wallet_layout"
         android:layout_alignParentLeft="true"
-        android:textColor="#666666"
+        android:textColor="#FFFFFF"
+        android:text="@string/transactions_refresh_error"
+        android:background="#B30000"
+        android:padding="10dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:visibility="gone"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/wallet_balance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/wallet_account"
-        android:layout_alignParentLeft="true"
-        android:layout_marginTop="5dp"
-        android:text="@string/wallet_balance_def"
-        style="@style/wallet_balance_invalid"
-        android:textSize="35sp" />
-
-    <TextView
-        android:id="@+id/wallet_balance_currency"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/wallet_balance"
-        android:layout_alignBottom="@+id/wallet_balance"
-        android:layout_toRightOf="@+id/wallet_balance"
-        android:layout_marginLeft="10dp"
-        android:text="@string/wallet_balance_currency_def"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/wallet_balance_home"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/wallet_balance"
-        android:layout_alignParentLeft="true"
-        android:textColor="#666666"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <Button
-        android:id="@+id/wallet_send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
-        android:text="@string/wallet_balance_send" />
-
-    <Button
-        android:id="@+id/wallet_request"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/wallet_send"
-        android:text="@string/wallet_balance_request" />
 
 </RelativeLayout>

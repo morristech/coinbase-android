@@ -112,8 +112,6 @@ public class TransactionsFragment extends ListFragment {
 
       if(result == null) {
         mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
-
-        Toast.makeText(mParent, R.string.wallet_balance_error, Toast.LENGTH_SHORT).show();
       } else {
 
         mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color));
@@ -255,6 +253,10 @@ public class TransactionsFragment extends ListFragment {
     protected void onPreExecute() {
 
       ((MainActivity) mParent).setRefreshButtonAnimated(true);
+      
+      if(mSyncErrorView != null) {
+        mSyncErrorView.setVisibility(View.GONE);
+      }
     }
 
     @Override
@@ -262,7 +264,9 @@ public class TransactionsFragment extends ListFragment {
 
       ((MainActivity) mParent).setRefreshButtonAnimated(false);
 
-      // TODO Handle false value (meaning an error occurred).
+      if(result != null && !result) {
+        mSyncErrorView.setVisibility(View.VISIBLE);
+      }
     }
 
   }
@@ -377,6 +381,7 @@ public class TransactionsFragment extends ListFragment {
   ListView mListView;
   ViewGroup mListHeader, mMainView;
   TextView mBalanceText, mBalanceCurrency, mBalanceHome, mAccount;
+  TextView mSyncErrorView;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -427,6 +432,7 @@ public class TransactionsFragment extends ListFragment {
     mBalanceCurrency = (TextView) mListHeader.findViewById(R.id.wallet_balance_currency);
     mBalanceHome = (TextView) mListHeader.findViewById(R.id.wallet_balance_home);
     mAccount = (TextView) mListHeader.findViewById(R.id.wallet_account);
+    mSyncErrorView = (TextView) mListHeader.findViewById(R.id.wallet_error);
 
     mAccount.setText(LoginManager.getInstance().getSelectedAccountName(mParent));
 

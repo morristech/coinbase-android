@@ -181,6 +181,14 @@ public class MainActivity extends CoinbaseActivity {
     onNewIntent(getIntent());
   }
 
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    super.onRestoreInstanceState(savedInstanceState);
+    
+    // Update title, in case restoring the instance state has changed the current fragment
+    updateTitle();
+  }
+
   private void switchTo(int index) {
 
 

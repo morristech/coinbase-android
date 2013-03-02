@@ -277,7 +277,9 @@ public class TransactionDetailsFragment extends Fragment {
 
     // Notes
     String notesText = data.optString("notes");
-    notes.setText("null".equals(notesText) ? null : notesText);
+    boolean noNotes = "null".equals(notesText) || notesText == null || "".equals(notesText);
+    notes.setText(noNotes ? null : notesText);
+    view.findViewById(R.id.transactiondetails_label_notes).setVisibility(noNotes ? View.GONE : View.VISIBLE);
 
     // Buttons
     boolean isBuy = data.optJSONObject("sender") != null && "transfers@coinbase.com".equals(data.optJSONObject("sender").optString("email"));

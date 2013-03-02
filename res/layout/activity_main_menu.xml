@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@android:id/list"
-    android:background="@color/main_menu_background">
+    android:background="@color/main_menu_background"
+    android:cacheColorHint="@color/main_menu_background">
     
 
 </ListView>

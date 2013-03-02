@@ -20,7 +20,7 @@
         android:layout_centerVertical="true"
         android:textColor="#d2d2d2"
         android:layout_marginLeft="5dp"
-        android:text="@string/title_section1"
+        android:text="@string/title_transactions"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

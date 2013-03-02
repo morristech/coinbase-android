@@ -64,15 +64,15 @@ public class MainActivity extends CoinbaseActivity {
   }
 
   private int[] mFragmentTitles = new int[] {
-      R.string.title_section1,
-      R.string.title_section2,
-      R.string.title_section3,
-      R.string.title_section4,
+      R.string.title_transactions,
+      R.string.title_transfer,
+      R.string.title_buysell,
+      R.string.title_account,
   };
   private int[] mFragmentIcons = new int[] {
       R.drawable.ic_action_transactions,
-      R.drawable.ic_action_buysell,
       R.drawable.ic_action_transfer,
+      R.drawable.ic_action_buysell,
       R.drawable.ic_action_account
   };
 
@@ -319,8 +319,8 @@ public class MainActivity extends CoinbaseActivity {
     public Fragment getItem(int i) {
       switch (i) {
       case 0: return mTransactionsFragment;
-      case 1: return mBuySellFragment;
-      case 2: return mTransferFragment;
+      case 1: return mTransferFragment;
+      case 2: return mBuySellFragment;
       case 3: return mSettingsFragment;
       }
       return null;

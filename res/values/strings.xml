@@ -1,10 +1,10 @@
 <resources>
 
     <string name="app_name">Coinbase</string>
-    <string name="title_section4">Account Settings</string>
-    <string name="title_section3">Send / Request</string>
-    <string name="title_section2">Buy / Sell Bitcoin</string>
-    <string name="title_section1">Transactions</string>
+    <string name="title_account">Account Settings</string>
+    <string name="title_transfer">Send / Request</string>
+    <string name="title_buysell">Buy / Sell Bitcoin</string>
+    <string name="title_transactions">Transactions</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">Coinbase</string>

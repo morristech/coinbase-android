@@ -588,7 +588,7 @@ public class TransferFragment extends Fragment {
 
   private void doNativeCurrencyUpdate() {
 
-    if(mAmount == null || "".equals(mAmount.trim())) {
+    if(mAmount == null || "".equals(mAmount) || ".".equals(mAmount)) {
       mNativeAmount.setText(null);
       return;
     }

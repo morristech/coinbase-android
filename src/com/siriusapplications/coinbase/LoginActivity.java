@@ -3,9 +3,12 @@ package com.siriusapplications.coinbase;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -80,7 +83,32 @@ public class LoginActivity extends CoinbaseActivity {
     
     mLoginWebView.setWebViewClient(new WebViewClient() {
       
+      @Override
+      public void onPageStarted(WebView view, String url, Bitmap favicon) {
+        
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+          // There is a bug where shouldOverrideUrlLoading is not called
+          // On versions of Android lower then Honeycomb
+          // When the URL change is a result of a redirect
+          // Emulate it here
+          boolean shouldOverride = _shouldOverrideUrlLoading(view, url);
+          if(shouldOverride) {
+            view.stopLoading();
+          }
+        }
+      }
+
+      @Override
       public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+          return _shouldOverrideUrlLoading(view, url);
+        } else {
+          return false;
+        }
+      }
+
+      public boolean _shouldOverrideUrlLoading(WebView view, String url) {
         
         if(url.startsWith(REDIRECT_URL)) {
           // OAuth redirect - we will handle this.
@@ -93,7 +121,8 @@ public class LoginActivity extends CoinbaseActivity {
           loadLoginUrl();
           return true;
         } else if(!url.contains("oauth") && !url.contains("signin") && !url.contains("signup") &&
-            !url.contains("users")) {
+            !url.contains("users") &&
+            !url.contains("sessions")) {
           
           // Do not allow leaving the login page.
           Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -103,6 +132,7 @@ public class LoginActivity extends CoinbaseActivity {
           return true;
         }
         
+        Log.i("Coinbase", "Login activity allowed to browse to " + url);
         return false;
       }
     });

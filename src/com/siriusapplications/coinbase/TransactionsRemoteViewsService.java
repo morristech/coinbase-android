@@ -44,6 +44,10 @@ public class TransactionsRemoteViewsService extends RemoteViewsService {
       TransactionsDatabase database = new TransactionsDatabase(mContext);
       mDatabase = database.getReadableDatabase();
 
+      query();
+    }
+     
+    private void query() {
       Log.i("Coinbase", "Filtering transactions for account " + mAccountId);
       mCursor = mDatabase.query(TransactionsDatabase.TransactionEntry.TABLE_NAME,
           null, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(mAccountId) }, null, null, null, WIDGET_TRANSACTION_LIMIT);
@@ -131,6 +135,7 @@ public class TransactionsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public void onDataSetChanged() {
+      query();
     }
 
     @Override

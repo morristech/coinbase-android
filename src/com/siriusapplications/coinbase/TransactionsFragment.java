@@ -15,6 +15,8 @@ import org.json.JSONTokener;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,7 +43,6 @@ import android.widget.Toast;
 import com.siriusapplications.coinbase.api.LoginManager;
 import com.siriusapplications.coinbase.api.RpcManager;
 import com.siriusapplications.coinbase.db.TransactionsDatabase;
-import com.siriusapplications.coinbase.db.TransactionsDatabase.EmailEntry;
 import com.siriusapplications.coinbase.db.TransactionsDatabase.TransactionEntry;
 
 public class TransactionsFragment extends ListFragment {
@@ -57,7 +58,7 @@ public class TransactionsFragment extends ListFragment {
 
         JSONObject balance = RpcManager.getInstance().callGet(mParent, "account/balance");
         JSONObject exchangeRates = RpcManager.getInstance().callGet(mParent, "currencies/exchange_rates");
-        
+
         String userHomeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
             "usd").toLowerCase(Locale.CANADA);
         BigDecimal homeAmount = new BigDecimal(balance.getString("amount")).multiply(
@@ -92,7 +93,7 @@ public class TransactionsFragment extends ListFragment {
 
     @Override
     protected void onPreExecute() {
-      
+
       mBalanceLoading = true;
 
       if(mBalanceText != null) {
@@ -102,9 +103,9 @@ public class TransactionsFragment extends ListFragment {
 
     @Override
     protected void onPostExecute(String[] result) {
-      
+
       mBalanceLoading = false;
-      
+
       if(mBalanceText == null) {
         return;
       }
@@ -124,7 +125,7 @@ public class TransactionsFragment extends ListFragment {
 
     @Override
     protected void onCancelled(String[] result) {
-      
+
       mBalanceLoading = false;
     }
 
@@ -222,6 +223,9 @@ public class TransactionsFragment extends ListFragment {
         // Update list
         loadTransactionsList();
 
+        // Update transaction widgets
+        updateWidgets();
+
         return true;
 
       } catch (JSONException e) {
@@ -234,6 +238,16 @@ public class TransactionsFragment extends ListFragment {
 
         db.endTransaction();
         db.close();
+      }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private void updateWidgets() {
+      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        AppWidgetManager widgetManager = AppWidgetManager.getInstance(mParent);
+        widgetManager.notifyAppWidgetViewDataChanged(
+            widgetManager.getAppWidgetIds(new ComponentName(mParent, TransactionsAppWidgetProvider.class)),
+            R.id.widget_list);
       }
     }
 
@@ -430,26 +444,26 @@ public class TransactionsFragment extends ListFragment {
       mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color));
       mBalanceHome.setText(String.format(mParent.getString(R.string.wallet_balance_home), oldHomeBalance, oldHomeCurrency));
     }
-    
+
     if(mBalanceLoading) {
 
       mBalanceText.setTextColor(mParent.getResources().getColor(R.color.wallet_balance_color_invalid));
     }
-    
+
     view.findViewById(R.id.wallet_send).setOnClickListener(new View.OnClickListener() {
-      
+
       @Override
       public void onClick(View v) {
-        
+
         mParent.openTransferMenu(false);
       }
     });
-    
+
     view.findViewById(R.id.wallet_request).setOnClickListener(new View.OnClickListener() {
-      
+
       @Override
       public void onClick(View v) {
-        
+
         mParent.openTransferMenu(true);
       }
     });

@@ -10,10 +10,12 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,7 +30,6 @@ import com.google.zxing.client.android.Intents;
 import com.justinschultz.pusherclient.Pusher;
 import com.siriusapplications.coinbase.CoinbaseActivity.RequiresAuthentication;
 import com.siriusapplications.coinbase.api.LoginManager;
-import com.siriusapplications.coinbase.pusher.CoinbasePusherListener;
 import com.slidingmenu.lib.SlidingMenu;
 
 @RequiresAuthentication
@@ -63,13 +64,13 @@ public class MainActivity extends CoinbaseActivity {
       return builder.create();
     }
   }
-  
+
   private enum SlidingMenuMode {
     NORMAL,
     PINNED,
     FAKE_GINGERBREAD_COMPAT;
   }
-  
+
   private static final int FRAGMENT_INDEX_TRANSACTIONS = 0;
   private static final int FRAGMENT_INDEX_TRANSFER = 1;
   private static final int FRAGMENT_INDEX_BUYSELL = 2;
@@ -105,7 +106,7 @@ public class MainActivity extends CoinbaseActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
-    
+
     if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
       mSlidingMenuMode = SlidingMenuMode.FAKE_GINGERBREAD_COMPAT;
     } else {
@@ -146,7 +147,7 @@ public class MainActivity extends CoinbaseActivity {
 
       mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
     }
-    
+
     ListView slidingList;
     if(mSlidingMenuMode == SlidingMenuMode.NORMAL) {
 
@@ -155,11 +156,11 @@ public class MainActivity extends CoinbaseActivity {
       slidingList = (ListView) mSlidingMenu.findViewById(android.R.id.list);
     } else {
       slidingList = (ListView) findViewById(android.R.id.list);
-      
+
       if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
         findViewById(R.id.main_gingerbread_compat_overlay).setVisibility(View.GONE);
         findViewById(R.id.main_gingerbread_compat_overlay).setOnClickListener(new View.OnClickListener() {
-          
+
           @Override
           public void onClick(View v) {
             // Close sliding menu
@@ -217,7 +218,7 @@ public class MainActivity extends CoinbaseActivity {
   @Override
   protected void onRestoreInstanceState(Bundle savedInstanceState) {
     super.onRestoreInstanceState(savedInstanceState);
-    
+
     // Update title, in case restoring the instance state has changed the current fragment
     updateTitle();
   }
@@ -230,18 +231,18 @@ public class MainActivity extends CoinbaseActivity {
 
     hideSlidingMenu();
   }
-  
+
   private boolean isSlidingMenuShowing() {
-    
+
     if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
       return mSlidingMenuCompatShowing;
     } else {
       return mSlidingMenu.isMenuShowing();
     }
   }
-  
+
   private void showSlidingMenu() {
-    
+
     if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
       findViewById(R.id.main_gingerbread_compat_overlay).setVisibility(View.VISIBLE);
       findViewById(R.id.main_gingerbread_compat_overlay).bringToFront();
@@ -251,9 +252,9 @@ public class MainActivity extends CoinbaseActivity {
       mSlidingMenu.showMenu();
     }
   }
-  
+
   private void hideSlidingMenu() {
-    
+
     if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
       findViewById(R.id.main_gingerbread_compat_overlay).setVisibility(View.GONE);
       mSlidingMenuCompatShowing = false;
@@ -266,7 +267,7 @@ public class MainActivity extends CoinbaseActivity {
   }
 
   private void updateTitle() {
-    
+
     getSupportActionBar().setDisplayHomeAsUpEnabled(mSlidingMenuMode != SlidingMenuMode.PINNED &&
         !isSlidingMenuShowing());
 
@@ -377,7 +378,7 @@ public class MainActivity extends CoinbaseActivity {
    * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one of the primary
    * sections of the app.
    */
-  public class SectionsPagerAdapter extends FragmentPagerAdapter {
+  public class SectionsPagerAdapter extends FragmentStatePagerAdapter {
 
     public SectionsPagerAdapter(FragmentManager fm) {
       super(fm);
@@ -402,6 +403,18 @@ public class MainActivity extends CoinbaseActivity {
     @Override
     public CharSequence getPageTitle(int position) {
       return getString(mFragmentTitles[position]).toUpperCase(Locale.CANADA);
+    }
+
+    @Override
+    /**
+     * If the PagerAdapter saves state, and the activity is recreated, the new activity will
+     * not call the PagerAdapter for the fragments and will just create new fragments itself.
+     * This will result in 2 of each fragment being instantiated, and the MainActivity having
+     * references to the fragments that are not used in the layout. By not saving state we force
+     * the framework to call the PagerAdapter for the fragment instances.
+     */
+    public Parcelable saveState() {
+      return null;
     }
   }
 

@@ -111,6 +111,7 @@ public class MainActivity extends CoinbaseActivity {
     mViewPager = (CustomViewPager) findViewById(R.id.pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
     mViewPager.setPagingEnabled(false);
+    mViewPager.setOffscreenPageLimit(mFragmentTitles.length); // Keep all fragment views initialized, for smooth scrolling
 
     // configure the SlidingMenu
     mSlidingMenu = new SlidingMenu(this);

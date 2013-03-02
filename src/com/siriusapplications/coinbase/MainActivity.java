@@ -62,6 +62,11 @@ public class MainActivity extends CoinbaseActivity {
       return builder.create();
     }
   }
+  
+  private static final int FRAGMENT_INDEX_TRANSACTIONS = 0;
+  private static final int FRAGMENT_INDEX_TRANSFER = 1;
+  private static final int FRAGMENT_INDEX_BUYSELL = 2;
+  private static final int FRAGMENT_INDEX_ACCOUNT = 3;
 
   private int[] mFragmentTitles = new int[] {
       R.string.title_transactions,
@@ -226,17 +231,17 @@ public class MainActivity extends CoinbaseActivity {
 
     if(intent.getData() != null && "bitcoin".equals(intent.getData().getScheme())) {
       // Handle bitcoin: URI
-      switchTo(2);
+      switchTo(FRAGMENT_INDEX_TRANSFER);
       mTransferFragment.fillFormForBitcoinUri(getIntent().getData());
     } else if(ACTION_SCAN.equals(intent.getAction())) {
       // Scan barcode
       startBarcodeScan();
     } else if(ACTION_TRANSFER.equals(intent.getAction())) {
 
-      switchTo(2);
+      switchTo(FRAGMENT_INDEX_TRANSFER);
     } else if(ACTION_TRANSACTIONS.equals(intent.getAction())) {
 
-      switchTo(0);
+      switchTo(FRAGMENT_INDEX_TRANSACTIONS);
     }
   }
 
@@ -275,7 +280,7 @@ public class MainActivity extends CoinbaseActivity {
 
   public void openTransferMenu(boolean isRequest) {
 
-    switchTo(2);
+    switchTo(FRAGMENT_INDEX_TRANSFER);
     mTransferFragment.switchType(isRequest);
   }
 
@@ -319,10 +324,10 @@ public class MainActivity extends CoinbaseActivity {
     @Override
     public Fragment getItem(int i) {
       switch (i) {
-      case 0: return mTransactionsFragment;
-      case 1: return mTransferFragment;
-      case 2: return mBuySellFragment;
-      case 3: return mSettingsFragment;
+      case FRAGMENT_INDEX_TRANSACTIONS: return mTransactionsFragment;
+      case FRAGMENT_INDEX_TRANSFER: return mTransferFragment;
+      case FRAGMENT_INDEX_BUYSELL: return mBuySellFragment;
+      case FRAGMENT_INDEX_ACCOUNT: return mSettingsFragment;
       }
       return null;
     }
@@ -417,7 +422,7 @@ public class MainActivity extends CoinbaseActivity {
         Uri uri = Uri.parse(contents);
         if(uri != null && "bitcoin".equals(uri.getScheme())) {
           // Is bitcoin URI
-          mViewPager.setCurrentItem(2); // Switch to transfer fragment
+          mViewPager.setCurrentItem(FRAGMENT_INDEX_TRANSFER); // Switch to transfer fragment
           mTransferFragment.fillFormForBitcoinUri(uri);
         }
 

@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.widget.ImageView;
@@ -31,6 +33,11 @@ public class DisplayQrCodeFragment extends DialogFragment {
     ImageView view = new ImageView(getActivity());
     view.setImageBitmap(bitmap);
     b.setView(view);
+    
+    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+      // Make sure dialog has white background so QR code is legible
+      view.setBackgroundColor(Color.WHITE);
+    }
     
     b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
       

@@ -184,7 +184,7 @@ public class TransactionsFragment extends ListFragment {
 
 
         // Remove all old transactions
-        db.delete(TransactionEntry.TABLE_NAME, null, null);
+        db.delete(TransactionEntry.TABLE_NAME, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) });
 
         // Update user ID
         Editor editor = prefs.edit();

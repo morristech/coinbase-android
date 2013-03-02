@@ -2,16 +2,19 @@ package com.siriusapplications.coinbase;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -24,6 +27,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
@@ -187,7 +191,7 @@ public class TransferFragment extends Fragment {
     protected Void doInBackground(Void... params) {
 
       JSONArray contacts;
-      
+
       // Fetch emails
       try {
         contacts = RpcManager.getInstance().callGet(mParent, "contacts", null).getJSONArray("response");
@@ -274,6 +278,47 @@ public class TransferFragment extends Fragment {
     }
   }
 
+  private class RefreshExchangeRateTask extends AsyncTask<Void, Void, BigDecimal> {
+
+    @Override
+    protected BigDecimal doInBackground(Void... params) {
+      
+      try {
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+
+        JSONObject exchangeRates = RpcManager.getInstance().callGet(mParent, "currencies/exchange_rates");
+
+        mNativeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
+            "usd").toLowerCase(Locale.CANADA);
+        return new BigDecimal(exchangeRates.getString("btc_to_" + mNativeCurrency));
+      } catch (IOException e) {
+        e.printStackTrace();
+      } catch (JSONException e) {
+        e.printStackTrace();
+      }
+      
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(BigDecimal result) {
+
+      mNativeExchangeTask = null;
+
+      if(result != null) {
+        mNativeExchangeRate = result;
+        mNativeExchangeRateTime = System.currentTimeMillis();
+        doNativeCurrencyUpdate();
+      }
+    }
+
+
+  }
+
+  private static final int EXCHANGE_RATE_EXPIRE_TIME = 60000 * 5; // Expires in 5 minutes
+
   private MainActivity mParent;
 
   private Spinner mTransferTypeView;
@@ -287,6 +332,12 @@ public class TransferFragment extends Fragment {
 
   private int mTransferType;
   private String mAmount, mNotes, mRecipient;
+
+  private TextView mNativeAmount;
+  private long mNativeExchangeRateTime;
+  private BigDecimal mNativeExchangeRate;
+  private RefreshExchangeRateTask mNativeExchangeTask;
+  private String mNativeCurrency;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -355,6 +406,9 @@ public class TransferFragment extends Fragment {
     mGenerateAddress = (Button) view.findViewById(R.id.transfer_address_generate);
     mReceiveAddressBarcode = (ImageView) view.findViewById(R.id.transfer_address_barcode);
 
+    mNativeAmount = (TextView) view.findViewById(R.id.transfer_money_native);
+    mNativeAmount.setText(null);
+
     mAmountView.addTextChangedListener(new TextWatcher() {
 
       @Override
@@ -369,6 +423,9 @@ public class TransferFragment extends Fragment {
       @Override
       public void onTextChanged(CharSequence s, int start, int before, int count) {
         mAmount = s.toString();
+
+        // Update native currency 
+        updateNativeCurrency();
       }
     });
 
@@ -511,6 +568,46 @@ public class TransferFragment extends Fragment {
     loadReceiveAddressFromPreferences();
 
     return view;
+  }
+
+  private void updateNativeCurrency() {
+
+    if(mNativeExchangeRate == null || 
+        (System.currentTimeMillis() - mNativeExchangeRateTime) > EXCHANGE_RATE_EXPIRE_TIME) {
+
+      // Need to fetch exchange rate again
+      if(mNativeExchangeTask != null) {
+        return;
+      }
+
+      refreshExchangeRate();
+    } else {
+      doNativeCurrencyUpdate();
+    }
+  }
+
+  private void doNativeCurrencyUpdate() {
+
+    if(mAmount == null || "".equals(mAmount.trim())) {
+      mNativeAmount.setText(null);
+      return;
+    }
+
+    BigDecimal amount = new BigDecimal(mAmount);
+    BigDecimal result = amount.multiply(mNativeExchangeRate);
+    mNativeAmount.setText(String.format(mParent.getString(R.string.transfer_amt_native), Utils.formatCurrencyAmount(result, false, 2),
+        mNativeCurrency.toUpperCase(Locale.CANADA)));
+  }
+
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  private void refreshExchangeRate() {
+    mNativeExchangeTask = new RefreshExchangeRateTask();
+    
+    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
+      mNativeExchangeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    } else {
+      mNativeExchangeTask.execute();
+    }
   }
 
   private void loadReceiveAddressFromPreferences() {

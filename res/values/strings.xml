@@ -137,5 +137,6 @@
     <string name="account_save_error">Could not save account settings.</string>
     <string name="account_save_progress">Saving...</string>
     <string name="buysell_help">To link a bank account with your Coinbase account, visit https://coinbase.com in the browser.</string>
+    <string name="transfer_amt_native">≈ %1$s %2$s</string>
     
 </resources>

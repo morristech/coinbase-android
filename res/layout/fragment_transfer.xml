@@ -28,12 +28,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/transfer_money_type"
-                android:layout_alignParentRight="true"
+                android:layout_toLeftOf="@+id/transfer_money_native"
                 android:layout_below="@+id/transfer_money_type"
                 android:layout_marginTop="10dp"
+                android:layout_marginRight="5dp"
                 android:ems="10"
                 android:hint="@string/transfer_amt"
                 android:inputType="numberDecimal" />
+
+            <TextView
+                android:id="@+id/transfer_money_native"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/transfer_money_amt"
+                android:layout_alignBottom="@+id/transfer_money_amt"
+                android:layout_alignParentRight="true"
+                android:text="@string/wallet_balance_home"
+                android:gravity="right"
+                android:textColor="#666666"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
     
     
             <EditText

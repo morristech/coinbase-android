@@ -60,7 +60,8 @@ public class LoginActivity extends CoinbaseActivity {
     requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);  
     setContentView(R.layout.activity_login);
     setProgressBarIndeterminateVisibility(false); 
-
+    getSupportActionBar().setTitle(R.string.login_title);
+    
     mLoginWebView = (WebView) findViewById(R.id.login_webview);
     
     // Load authorization URL before user clicks on the sign in button so that it loads quicker

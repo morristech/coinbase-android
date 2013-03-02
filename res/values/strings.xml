@@ -65,8 +65,7 @@
     <string name="login_change_signup">Already have an account?</string>
     <string name="login_change_login_desc">Coinbase is the simplest way to buy, use, and accept Bitcoin. Sign up now:</string>
     <string name="login_change_signup_desc">Sign in with your existing Coinbase account.</string>
-    <string name="login_title_login">Log in to your Coinbase account</string>
-    <string name="login_title_signup">Sign up for a Coinbase account</string>
+    <string name="login_title">Log in to Coinbase</string>
     <string name="login_button_signup">Sign up</string>
     <string name="accounts_new">Add account</string>
     <string name="sign_out_confirm">Are you sure you want to sign out?</string>

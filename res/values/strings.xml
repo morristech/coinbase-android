@@ -130,6 +130,7 @@
     <string name="account_email">Email</string>
     <string name="account_time_zone">Time zone</string>
     <string name="account_native_currency">Native currency</string>
+    <string name="account_refresh_token">Refresh token</string>
     <string name="account_progress">Working...</string>
     <string name="account_list_error">Could not load list.</string>
     <string name="account_save_success">Saved.</string>

@@ -33,6 +33,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.siriusapplications.coinbase.api.LoginManager;
 import com.siriusapplications.coinbase.api.RpcManager;
 
 public class AccountSettingsFragment extends ListFragment {
@@ -80,7 +81,7 @@ public class AccountSettingsFragment extends ListFragment {
 
     @Override
     public int getCount() {
-      return mPreferences.length;
+      return mPreferences.length - (Constants.DEBUG_BUILD ? 0 : 1);
     }
 
     @Override
@@ -355,7 +356,8 @@ public class AccountSettingsFragment extends ListFragment {
       { R.string.account_name, Constants.KEY_ACCOUNT_FULL_NAME, "name" },
       { R.string.account_email, Constants.KEY_ACCOUNT_NAME, "email" },
       { R.string.account_time_zone, Constants.KEY_ACCOUNT_TIME_ZONE, "time_zone" },
-      { R.string.account_native_currency, Constants.KEY_ACCOUNT_NATIVE_CURRENCY, "native_currency" }
+      { R.string.account_native_currency, Constants.KEY_ACCOUNT_NATIVE_CURRENCY, "native_currency" },
+      { R.string.account_refresh_token, Constants.KEY_ACCOUNT_REFRESH_TOKEN, "refresh_token" }
   };
 
   MainActivity mParent;
@@ -409,6 +411,12 @@ public class AccountSettingsFragment extends ListFragment {
       new ShowNetworkListTask().execute("currencies",
           String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
           "native_currency");
+    } else if("refresh_token".equals(data[2])) {
+      
+      // Refresh token
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+      LoginManager.getInstance().refreshAccessToken(mParent, activeAccount);
     }
   }
 

@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -63,6 +64,12 @@ public class MainActivity extends CoinbaseActivity {
     }
   }
   
+  private enum SlidingMenuMode {
+    NORMAL,
+    PINNED,
+    FAKE_GINGERBREAD_COMPAT;
+  }
+  
   private static final int FRAGMENT_INDEX_TRANSACTIONS = 0;
   private static final int FRAGMENT_INDEX_TRANSFER = 1;
   private static final int FRAGMENT_INDEX_BUYSELL = 2;
@@ -91,14 +98,20 @@ public class MainActivity extends CoinbaseActivity {
   Pusher mPusher;
   MenuItem mRefreshItem;
   boolean mRefreshItemState = false;
-  boolean mSlidingMenuPinned = true;
+  SlidingMenuMode mSlidingMenuMode = SlidingMenuMode.NORMAL;
+  boolean mSlidingMenuCompatShowing = false;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     
-    mSlidingMenuPinned = getResources().getBoolean(R.bool.pin_sliding_menu);
+    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+      mSlidingMenuMode = SlidingMenuMode.FAKE_GINGERBREAD_COMPAT;
+    } else {
+      mSlidingMenuMode = 
+          getResources().getBoolean(R.bool.pin_sliding_menu) ? SlidingMenuMode.PINNED : SlidingMenuMode.NORMAL;
+    }
 
     mTransactionsFragment = new TransactionsFragment();
     mBuySellFragment = new BuySellFragment();
@@ -127,24 +140,39 @@ public class MainActivity extends CoinbaseActivity {
     mSlidingMenu.setBehindWidthRes(R.dimen.main_menu_width);
     mSlidingMenu.setFadeDegree(0f);
     mSlidingMenu.setBehindScrollScale(0);
-    mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
-    mSlidingMenu.setSlidingEnabled(!mSlidingMenuPinned);
+    mSlidingMenu.setSlidingEnabled(mSlidingMenuMode == SlidingMenuMode.NORMAL);
+
+    if(mSlidingMenuMode != SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
+
+      mSlidingMenu.attachToActivity(this, SlidingMenu.SLIDING_CONTENT);
+    }
     
     ListView slidingList;
-    if(!mSlidingMenuPinned) {
+    if(mSlidingMenuMode == SlidingMenuMode.NORMAL) {
 
       findViewById(android.R.id.list).setVisibility(View.GONE);
       mSlidingMenu.setMenu(R.layout.activity_main_menu);
       slidingList = (ListView) mSlidingMenu.findViewById(android.R.id.list);
     } else {
       slidingList = (ListView) findViewById(android.R.id.list);
+      
+      if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
+        findViewById(R.id.main_gingerbread_compat_overlay).setVisibility(View.GONE);
+        findViewById(R.id.main_gingerbread_compat_overlay).setOnClickListener(new View.OnClickListener() {
+          
+          @Override
+          public void onClick(View v) {
+            // Close sliding menu
+            hideSlidingMenu();
+          }
+        });
+      }
     }
 
     mSlidingMenu.setOnCloseListener(new SlidingMenu.OnCloseListener() {
 
       @Override
       public void onClose() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         updateTitle();
       }
     });
@@ -153,7 +181,6 @@ public class MainActivity extends CoinbaseActivity {
 
       @Override
       public void onOpen() {
-        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         updateTitle();
       }
     });
@@ -181,7 +208,7 @@ public class MainActivity extends CoinbaseActivity {
       }
     }).start();
 
-    getSupportActionBar().setDisplayHomeAsUpEnabled(!mSlidingMenuPinned);
+    getSupportActionBar().setDisplayHomeAsUpEnabled(!(mSlidingMenuMode == SlidingMenuMode.PINNED));
     switchTo(0);
 
     onNewIntent(getIntent());
@@ -201,14 +228,49 @@ public class MainActivity extends CoinbaseActivity {
     mViewPager.setCurrentItem(index, false);
     updateTitle();
 
-    if(mSlidingMenu != null) {
-      mSlidingMenu.showContent();
+    hideSlidingMenu();
+  }
+  
+  private boolean isSlidingMenuShowing() {
+    
+    if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
+      return mSlidingMenuCompatShowing;
+    } else {
+      return mSlidingMenu.isMenuShowing();
+    }
+  }
+  
+  private void showSlidingMenu() {
+    
+    if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
+      findViewById(R.id.main_gingerbread_compat_overlay).setVisibility(View.VISIBLE);
+      findViewById(R.id.main_gingerbread_compat_overlay).bringToFront();
+      mSlidingMenuCompatShowing = true;
+      updateTitle();
+    } else {
+      mSlidingMenu.showMenu();
+    }
+  }
+  
+  private void hideSlidingMenu() {
+    
+    if(mSlidingMenuMode == SlidingMenuMode.FAKE_GINGERBREAD_COMPAT) {
+      findViewById(R.id.main_gingerbread_compat_overlay).setVisibility(View.GONE);
+      mSlidingMenuCompatShowing = false;
+      updateTitle();
+    } else {
+      if(mSlidingMenu != null) {
+        mSlidingMenu.showContent();
+      }
     }
   }
 
   private void updateTitle() {
+    
+    getSupportActionBar().setDisplayHomeAsUpEnabled(mSlidingMenuMode != SlidingMenuMode.PINNED &&
+        !isSlidingMenuShowing());
 
-    if((mSlidingMenu != null && mSlidingMenu.isMenuShowing()) || mSlidingMenuPinned) {
+    if((mSlidingMenu != null && isSlidingMenuShowing()) || mSlidingMenuMode == SlidingMenuMode.PINNED) {
       getSupportActionBar().setTitle(R.string.app_name);
     } else {
       getSupportActionBar().setTitle(mFragmentTitles[mViewPager.getCurrentItem()]);
@@ -304,7 +366,7 @@ public class MainActivity extends CoinbaseActivity {
       refresh();
       return true;
     case android.R.id.home:
-      mSlidingMenu.showMenu();
+      showSlidingMenu();
       return true;
     }
 

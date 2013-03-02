@@ -1,18 +1,26 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:tools="http://schemas.android.com/tools"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:id="@+id/main_layout">
-  <ListView
-      android:id="@android:id/list"
-      android:layout_width="@dimen/main_menu_width"
+
+    <FrameLayout 
+      android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:background="@color/main_menu_background"
-      android:cacheColorHint="@color/main_menu_background" />
+      android:id="@+id/main_gingerbread_compat_overlay">
+	    <ListView
+	        android:id="@android:id/list"
+	        android:layout_width="@dimen/main_menu_width"
+	        android:layout_height="match_parent"
+	        android:gravity="left"
+	        android:background="@color/main_menu_background"
+	        android:cacheColorHint="@color/main_menu_background" >
+	    </ListView>
+    </FrameLayout>
+
 	<com.siriusapplications.coinbase.CustomViewPager
 	    android:id="@+id/pager"
-	    android:layout_width="0dp"
-	    android:layout_weight="1"
+	    android:layout_width="match_parent"
 	    android:layout_height="match_parent" />
     
-</LinearLayout>
+</FrameLayout>

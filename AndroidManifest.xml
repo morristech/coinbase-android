@@ -40,6 +40,13 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/title_activity_login" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <data android:scheme="http" android:pathPattern="/users/.*/verify" android:host="coinbase.com"/>
+                <data android:scheme="https" android:pathPattern="/users/.*/verify" android:host="coinbase.com"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
         </activity>
         <activity android:name="TransactionDetailsActivity"></activity>
         <activity android:name="AboutActivity"></activity>

@@ -82,6 +82,11 @@ public class LoginActivity extends CoinbaseActivity {
           String oauthCode = Uri.parse(url).getQueryParameter("code");
           new OAuthCodeTask().execute(oauthCode);
           return true;
+        } else if(Uri.parse(url).getPath().startsWith("/transactions")) { 
+          // The coinbase site is trying to redirect us to the transactions page
+          // Since we are not logged in go to the login page
+          loadLoginUrl();
+          return true;
         } else if(!url.contains("oauth") && !url.contains("signin") && !url.contains("signup") &&
             !url.contains("users")) {
           
@@ -99,8 +104,13 @@ public class LoginActivity extends CoinbaseActivity {
 
     onNewIntent(getIntent());
   }
-  
- 
+
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    
+    setIntent(intent);
+  }
 
   @Override
   public void onResume() {
@@ -110,9 +120,14 @@ public class LoginActivity extends CoinbaseActivity {
      * Load the page on onResume so that if the app glitches out, and the user leaves and comes back
      * in an attempt to restart it, there is a chance it will be fixed.
      */
-    loadLoginUrl();
+    
+    if(getIntent().getData() != null) {
+      // Load this URL in the web view
+      mLoginWebView.loadUrl(getIntent().getDataString());
+    } else {
+      loadLoginUrl();
+    }
   }
-
 
 
   @Override

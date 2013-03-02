@@ -264,7 +264,7 @@ public class TransactionsFragment extends ListFragment {
 
       ((MainActivity) mParent).setRefreshButtonAnimated(false);
 
-      if(result != null && !result) {
+      if(result != null && !result && mSyncErrorView != null) {
         mSyncErrorView.setVisibility(View.VISIBLE);
       }
     }

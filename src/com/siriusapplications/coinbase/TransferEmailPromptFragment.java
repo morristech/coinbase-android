@@ -3,6 +3,8 @@ package com.siriusapplications.coinbase;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -36,6 +38,10 @@ public class TransferEmailPromptFragment extends DialogFragment {
     field.setThreshold(0);
     
     messageView.setText(message);
+    
+    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+      messageView.setTextColor(Color.WHITE);
+    }
 
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     builder.setView(view);

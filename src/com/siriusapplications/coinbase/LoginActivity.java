@@ -6,14 +6,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
@@ -23,9 +20,7 @@ public class LoginActivity extends CoinbaseActivity {
 
   private static final String REDIRECT_URL = "http://example.com/coinbase-redirect";
 
-  Button mLoginButton;
   WebView mLoginWebView;
-  RelativeLayout mLoginForm;
 
   private class OAuthCodeTask extends AsyncTask<String, Void, String> {
     
@@ -53,6 +48,7 @@ public class LoginActivity extends CoinbaseActivity {
       } else {
         // Failure.
         Toast.makeText(LoginActivity.this, result, Toast.LENGTH_LONG).show();
+        loadLoginUrl();
       }
     }
   }
@@ -65,18 +61,7 @@ public class LoginActivity extends CoinbaseActivity {
     setContentView(R.layout.activity_login);
     setProgressBarIndeterminateVisibility(false); 
 
-    mLoginButton = (Button) findViewById(R.id.login_button);
     mLoginWebView = (WebView) findViewById(R.id.login_webview);
-    mLoginForm = (RelativeLayout) findViewById(R.id.login_form);
-
-    mLoginButton.setOnClickListener(new View.OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-
-        doLogin();
-      }
-    });
     
     // Load authorization URL before user clicks on the sign in button so that it loads quicker
     mLoginWebView.getSettings().setJavaScriptEnabled(true);
@@ -87,7 +72,7 @@ public class LoginActivity extends CoinbaseActivity {
     CookieManager cookieManager = CookieManager.getInstance();
     cookieManager.removeAllCookie();
     
-    mLoginWebView.loadUrl(LoginManager.getInstance().generateOAuthUrl(REDIRECT_URL));
+    loadLoginUrl();
     
     mLoginWebView.setWebViewClient(new WebViewClient() {
       
@@ -97,7 +82,6 @@ public class LoginActivity extends CoinbaseActivity {
           // OAuth redirect - we will handle this.
           String oauthCode = Uri.parse(url).getQueryParameter("code");
           new OAuthCodeTask().execute(oauthCode);
-          setLayoutMode(false); // Switch back to the login form.
           return true;
         } else if(!url.contains("oauth") && !url.contains("signin") && !url.contains("signup")) {
           
@@ -122,16 +106,8 @@ public class LoginActivity extends CoinbaseActivity {
     return true;
   }
   
-  /** Sets the login form or webview visible. */
-  private void setLayoutMode(boolean webMode) {
-    
-    mLoginWebView.setVisibility(webMode ? View.VISIBLE : View.GONE);
-    mLoginForm.setVisibility(webMode ? View.GONE : View.VISIBLE);
-  }
-
-  private void doLogin() {
-    
-    // Switch to WebView layout
-    setLayoutMode(true);
+  private void loadLoginUrl() {
+    mLoginWebView.loadUrl(LoginManager.getInstance().generateOAuthUrl(REDIRECT_URL));
+    mLoginWebView.setBackgroundColor(0x00000000);
   }
 }

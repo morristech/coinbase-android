@@ -2,46 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-	<RelativeLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_gravity="center"
-	    android:id="@+id/login_form"
-	    android:padding="@dimen/layout_padding">
-	
-	    <TextView
-	        android:id="@+id/login_title"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentTop="true"
-	        android:layout_centerHorizontal="true"
-	        android:text="@string/login_title_login"
-	        android:textAppearance="?android:attr/textAppearanceMedium" />
-	
-	    <TextView
-	        android:id="@+id/login_desc"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/login_title"
-          android:layout_centerHorizontal="true"
-	        android:paddingTop="10dp"
-	        android:gravity="center"
-	        android:text="@string/login_desc" />
 
-	    <Button
-	        android:id="@+id/login_button"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@+id/login_desc"
-	        android:layout_marginTop="10dp"
-          android:layout_centerHorizontal="true"
-	        android:text="@string/login_button_login" />
-	
-	</RelativeLayout>
+  <ProgressBar
+      android:id="@+id/login_progress"
+      style="?android:attr/progressBarStyleLarge"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center" />
+  
   <WebView
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:id="@+id/login_webview"
-      android:visibility="gone">
+      android:id="@+id/login_webview">
 	</WebView>
+
 </FrameLayout>

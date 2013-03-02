@@ -72,8 +72,6 @@ public class LoginActivity extends CoinbaseActivity {
     CookieManager cookieManager = CookieManager.getInstance();
     cookieManager.removeAllCookie();
     
-    loadLoginUrl();
-    
     mLoginWebView.setWebViewClient(new WebViewClient() {
       
       public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -83,7 +81,8 @@ public class LoginActivity extends CoinbaseActivity {
           String oauthCode = Uri.parse(url).getQueryParameter("code");
           new OAuthCodeTask().execute(oauthCode);
           return true;
-        } else if(!url.contains("oauth") && !url.contains("signin") && !url.contains("signup")) {
+        } else if(!url.contains("oauth") && !url.contains("signin") && !url.contains("signup") &&
+            !url.contains("users")) {
           
           // Do not allow leaving the login page.
           Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -99,6 +98,21 @@ public class LoginActivity extends CoinbaseActivity {
 
     onNewIntent(getIntent());
   }
+  
+ 
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    
+    /*
+     * Load the page on onResume so that if the app glitches out, and the user leaves and comes back
+     * in an attempt to restart it, there is a chance it will be fixed.
+     */
+    loadLoginUrl();
+  }
+
+
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {

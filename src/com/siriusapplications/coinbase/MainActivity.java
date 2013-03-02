@@ -117,7 +117,7 @@ public class MainActivity extends CoinbaseActivity {
     mSlidingMenu.setMode(SlidingMenu.LEFT);
     mSlidingMenu.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
     mSlidingMenu.setShadowWidthRes(R.dimen.main_menu_shadow_width);
-    mSlidingMenu.setShadowDrawable(R.drawable.defaultshadow);
+    mSlidingMenu.setShadowDrawable(R.drawable.main_menu_shadow);
     mSlidingMenu.setBehindWidthRes(R.dimen.main_menu_width);
     mSlidingMenu.setFadeDegree(0f);
     mSlidingMenu.setBehindScrollScale(0);

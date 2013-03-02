@@ -9,11 +9,13 @@ import android.os.Bundle;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.siriusapplications.coinbase.api.LoginManager;
 
 public class LoginActivity extends CoinbaseActivity {
@@ -22,6 +24,9 @@ public class LoginActivity extends CoinbaseActivity {
 
   WebView mLoginWebView;
 
+  MenuItem mRefreshItem;
+  boolean mRefreshItemState = false;
+  
   private class OAuthCodeTask extends AsyncTask<String, Void, String> {
     
     ProgressDialog mDialog;
@@ -101,6 +106,15 @@ public class LoginActivity extends CoinbaseActivity {
         return false;
       }
     });
+    mLoginWebView.setWebChromeClient(new WebChromeClient() {
+
+      @Override
+      public void onProgressChanged(WebView view, int newProgress) {
+
+        setProgressBarVisible(newProgress != 100); 
+      }
+      
+    });
 
     onNewIntent(getIntent());
   }
@@ -110,6 +124,23 @@ public class LoginActivity extends CoinbaseActivity {
     super.onNewIntent(intent);
     
     setIntent(intent);
+  }
+
+  public void setProgressBarVisible(boolean animated) {
+
+    mRefreshItemState = animated;
+
+    if(mRefreshItem == null) {
+      return;
+    }
+
+    if(animated) {
+      mRefreshItem.setVisible(true);
+      mRefreshItem.setActionView(R.layout.actionbar_indeterminate_progress);
+    } else {
+      mRefreshItem.setVisible(false);
+      mRefreshItem.setActionView(null);
+    }
   }
 
   @Override
@@ -133,11 +164,12 @@ public class LoginActivity extends CoinbaseActivity {
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getSupportMenuInflater().inflate(R.menu.activity_login, menu);
+    mRefreshItem = menu.findItem(R.id.menu_refresh);
+    setProgressBarVisible(mRefreshItemState);
     return true;
   }
   
   private void loadLoginUrl() {
     mLoginWebView.loadUrl(LoginManager.getInstance().generateOAuthUrl(REDIRECT_URL));
-    mLoginWebView.setBackgroundColor(0x00000000);
   }
 }

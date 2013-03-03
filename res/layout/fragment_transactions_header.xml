@@ -30,12 +30,14 @@
 	
 	    <TextView
 	        android:id="@+id/wallet_balance_currency"
-	        android:layout_width="wrap_content"
+	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
 	        android:layout_alignBaseline="@+id/wallet_balance"
 	        android:layout_alignBottom="@+id/wallet_balance"
 	        android:layout_toRightOf="@+id/wallet_balance"
+          android:layout_toLeftOf="@+id/wallet_request"
 	        android:layout_marginLeft="10dp"
+	        android:singleLine="true"
 	        android:text="@string/wallet_balance_currency_def"
 	        android:textAppearance="?android:attr/textAppearanceSmall" />
 	

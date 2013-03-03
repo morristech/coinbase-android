@@ -41,7 +41,7 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login" >
+            android:label="@string/title_activity_login" android:noHistory="true" android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <data android:scheme="http" android:pathPattern="/users/.*/verify" android:host="coinbase.com"/>

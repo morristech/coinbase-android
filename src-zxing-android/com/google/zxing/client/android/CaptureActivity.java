@@ -64,7 +64,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private Result savedResultToShow;
   private ViewfinderView viewfinderView;
   private TextView statusView;
-  private Result lastResult;
   private boolean hasSurface;
   private IntentSource source;
   private Collection<BarcodeFormat> decodeFormats;
@@ -95,10 +94,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     hasSurface = false;
     inactivityTimer = new InactivityTimer(this);
     beepManager = new BeepManager(this);
-
-    // TODO PreferenceManager.setDefaultValues(this, R.xml.zxing_preferences, false);
-
-    showHelpOnFirstLaunch();
   }
   
   @Override
@@ -126,8 +121,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     statusView = (TextView) findViewById(R.id.status_view);
 
     handler = null;
-    lastResult = null;
-
     resetStatusView();
 
     SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
@@ -260,8 +253,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
    */
   public void handleDecode(Result rawResult, Bitmap barcode) {
     inactivityTimer.onActivity();
-    lastResult = rawResult;
-
     boolean fromLiveScan = barcode != null;
     if (fromLiveScan) {
       // Then not from history, so beep/vibrate and we have an image to draw on
@@ -343,15 +334,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     finish();
   }
 
-  /**
-   * We want the help screen to be shown automatically the first time a new version of the app is
-   * run. The easiest way to do this is to check android:versionCode from the manifest, and compare
-   * it to a value stored as a preference.
-   */
-  private boolean showHelpOnFirstLaunch() {
-    return false;
-  }
-
   private void initCamera(SurfaceHolder surfaceHolder) {
     if (surfaceHolder == null) {
       throw new IllegalStateException("No SurfaceHolder provided");
@@ -413,7 +395,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
   private void resetStatusView() {
     statusView.setVisibility(View.VISIBLE);
     viewfinderView.setVisibility(View.VISIBLE);
-    lastResult = null;
   }
 
   public void drawViewfinder() {

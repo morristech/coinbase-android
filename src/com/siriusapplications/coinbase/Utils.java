@@ -39,24 +39,38 @@ public class Utils {
     fragment.setArguments(args);
     fragment.show(m, "Utils.showMessageDialog");
   }
+  
+  public static enum CurrencyType {
+    BTC(4, 1),
+    TRADITIONAL(2, 2);
+    
+    
+    int maximumFractionDigits;
+    int minimumFractionDigits;
+    
+    CurrencyType(int max, int min) {
+      maximumFractionDigits = max;
+      minimumFractionDigits = min;
+    }
+  }
 
   public static final String formatCurrencyAmount(String amount) {
-    return formatCurrencyAmount(new BigDecimal(amount), false, 4);
+    return formatCurrencyAmount(new BigDecimal(amount), false, CurrencyType.BTC);
   }
 
   public static final String formatCurrencyAmount(BigDecimal amount) {
-    return formatCurrencyAmount(amount, false, 4);
+    return formatCurrencyAmount(amount, false, CurrencyType.BTC);
   }
 
   public static final String formatCurrencyAmount(String amount, boolean ignoreSign) {
-    return formatCurrencyAmount(new BigDecimal(amount), false, 4);
+    return formatCurrencyAmount(new BigDecimal(amount), false, CurrencyType.BTC);
   }
 
-  public static final String formatCurrencyAmount(BigDecimal balanceNumber, boolean ignoreSign, int digits) {
+  public static final String formatCurrencyAmount(BigDecimal balanceNumber, boolean ignoreSign, CurrencyType type) {
 
     DecimalFormat df = new DecimalFormat();
-    df.setMaximumFractionDigits(digits);
-    df.setMinimumFractionDigits(digits);
+    df.setMaximumFractionDigits(type.maximumFractionDigits);
+    df.setMinimumFractionDigits(type.minimumFractionDigits);
     df.setGroupingUsed(false);
 
     if(ignoreSign && balanceNumber.compareTo(BigDecimal.ZERO) == -1) {

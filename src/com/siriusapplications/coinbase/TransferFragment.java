@@ -51,6 +51,7 @@ import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
+import com.siriusapplications.coinbase.Utils.CurrencyType;
 import com.siriusapplications.coinbase.api.RpcManager;
 import com.siriusapplications.coinbase.db.TransactionsDatabase;
 import com.siriusapplications.coinbase.db.TransactionsDatabase.EmailEntry;
@@ -595,7 +596,7 @@ public class TransferFragment extends Fragment {
 
     BigDecimal amount = new BigDecimal(mAmount);
     BigDecimal result = amount.multiply(mNativeExchangeRate);
-    mNativeAmount.setText(String.format(mParent.getString(R.string.transfer_amt_native), Utils.formatCurrencyAmount(result, false, 2),
+    mNativeAmount.setText(String.format(mParent.getString(R.string.transfer_amt_native), Utils.formatCurrencyAmount(result, false, CurrencyType.TRADITIONAL),
         mNativeCurrency.toUpperCase(Locale.CANADA)));
   }
 

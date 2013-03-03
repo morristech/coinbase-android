@@ -38,8 +38,8 @@ import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.siriusapplications.coinbase.Utils.CurrencyType;
 import com.siriusapplications.coinbase.api.LoginManager;
 import com.siriusapplications.coinbase.api.RpcManager;
 import com.siriusapplications.coinbase.db.TransactionsDatabase;
@@ -65,7 +65,7 @@ public class TransactionsFragment extends ListFragment {
             new BigDecimal(exchangeRates.getString("btc_to_" + userHomeCurrency)));
 
         String balanceString = Utils.formatCurrencyAmount(balance.getString("amount"));
-        String balanceHomeString = Utils.formatCurrencyAmount(homeAmount, false, 2);
+        String balanceHomeString = Utils.formatCurrencyAmount(homeAmount, false, CurrencyType.TRADITIONAL);
 
         String[] result = new String[] { balanceString, balance.getString("currency"),
             balanceHomeString, userHomeCurrency.toUpperCase(Locale.CANADA) };

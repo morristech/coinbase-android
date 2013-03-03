@@ -151,7 +151,13 @@ public class TransactionsFragment extends ListFragment {
           getParams.add(new BasicNameValuePair("page", Integer.toString(i)));
           JSONObject response = RpcManager.getInstance().callGet(mParent, "transactions", getParams);
 
-          JSONArray transactionsArray = response.getJSONArray("transactions");
+          JSONArray transactionsArray = response.optJSONArray("transactions");
+
+          if(transactionsArray == null) {
+            // No transactions
+            continue;
+          }
+
           currentUserId = response.getJSONObject("current_user").getString("id");
           numPages = response.getInt("num_pages");
 
@@ -253,7 +259,7 @@ public class TransactionsFragment extends ListFragment {
     protected void onPreExecute() {
 
       ((MainActivity) mParent).setRefreshButtonAnimated(true);
-      
+
       if(mSyncErrorView != null) {
         mSyncErrorView.setVisibility(View.GONE);
       }

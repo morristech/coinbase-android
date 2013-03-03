@@ -9,7 +9,7 @@
       android:layout_height="match_parent"
       android:background="@color/main_menu_background"
       android:cacheColorHint="@color/main_menu_background" />
-	<com.siriusapplications.coinbase.CustomViewPager
+	<com.coinbase.android.CustomViewPager
 	    android:id="@+id/pager"
 	    android:layout_width="0dp"
 	    android:layout_weight="1"

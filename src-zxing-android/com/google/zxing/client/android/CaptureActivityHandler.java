@@ -34,7 +34,7 @@ import android.util.Log;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.client.android.camera.CameraManager;
-import com.siriusapplications.coinbase.R;
+import com.coinbase.android.R;
 
 /**
  * This class handles all the messaging which comprises the state machine for capture.

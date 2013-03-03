@@ -45,7 +45,7 @@ import com.google.zxing.Result;
 import com.google.zxing.ResultMetadataType;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
-import com.siriusapplications.coinbase.R;
+import com.coinbase.android.R;
 
 /**
  * This activity opens the camera and does the actual scanning on a background thread. It draws a

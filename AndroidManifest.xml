@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.siriusapplications.coinbase"
+    package="com.coinbase.android"
     android:versionCode="1"
     android:versionName="@string/version_name" >
 
@@ -20,7 +20,7 @@
         android:theme="@style/Theme.Coinbase"
         android:allowBackup="true">
         <activity
-            android:name=".MainActivity"
+            android:name="com.coinbase.android.MainActivity"
             android:label="@string/title_activity_main" android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +40,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
+            android:name="com.coinbase.android.LoginActivity"
             android:label="@string/title_activity_login" android:noHistory="true" android:excludeFromRecents="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -50,7 +50,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name="TransactionDetailsActivity">
+        <activity android:name="com.coinbase.android.TransactionDetailsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <data android:scheme="http" android:pathPattern="/transactions/.*" android:host="coinbase.com"/>
@@ -59,8 +59,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name="AboutActivity"></activity>
-        <receiver android:name="BalanceAppWidgetProvider"
+        <activity android:name="com.coinbase.android.AboutActivity"></activity>
+        <receiver android:name="com.coinbase.android.BalanceAppWidgetProvider"
             android:label="@string/widget_balance_label">
 				    <intent-filter>
 				        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -68,7 +68,7 @@
 				    <meta-data android:name="android.appwidget.provider"
 				               android:resource="@xml/balance_appwidget_provider" />
 				</receiver>
-        <receiver android:name="TransactionsAppWidgetProvider"
+        <receiver android:name="com.coinbase.android.TransactionsAppWidgetProvider"
             android:label="@string/widget_transactions_label">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -80,10 +80,10 @@
               android:configChanges="orientation|keyboardHidden"
               android:theme="@android:style/Theme.NoTitleBar"
               android:windowSoftInputMode="stateAlwaysHidden"></activity>
-        <service android:name="TransactionsRemoteViewsService"
+        <service android:name="com.coinbase.android.TransactionsRemoteViewsService"
               android:permission="android.permission.BIND_REMOTEVIEWS"></service>
-        <service android:name="UpdateWidgetBalanceService"></service>
-        <activity android:name="WidgetChooseAccountActivity">
+        <service android:name="com.coinbase.android.UpdateWidgetBalanceService"></service>
+        <activity android:name="com.coinbase.android.WidgetChooseAccountActivity">
            <intent-filter>
 			        <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
 			    </intent-filter>

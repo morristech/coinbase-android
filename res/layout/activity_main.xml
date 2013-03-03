@@ -18,7 +18,7 @@
 	    </ListView>
     </FrameLayout>
 
-	<com.siriusapplications.coinbase.CustomViewPager
+	<com.coinbase.android.CustomViewPager
 	    android:id="@+id/pager"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent" />

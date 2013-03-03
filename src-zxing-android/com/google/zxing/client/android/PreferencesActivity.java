@@ -26,7 +26,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
 
-import com.siriusapplications.coinbase.R;
+import com.coinbase.android.R;
 
 /**
  * The main settings activity.

@@ -30,7 +30,7 @@ import android.view.View;
 
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
-import com.siriusapplications.coinbase.R;
+import com.coinbase.android.R;
 
 /**
  * This view is overlaid on top of the camera preview. It adds the viewfinder rectangle and partial

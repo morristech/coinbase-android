@@ -15,4 +15,9 @@ The official Android application for Coinbase (https://coinbase.com/).
 
 ## Building
 
-To build the Coinbase Android app the libraries ActionBarSherlock and SlidingMenu are required.
+To build the Android app in Eclipse:
+
+1.	Go to File > Import... > Android > Existing Code into Android Workspace
+2.	For root directory, choose the directory you downloaded the code into
+3.	Check the projects coinbase-android, library-actionbarsherlock, library-slidingmenu and deselect all others
+4. 	Build!

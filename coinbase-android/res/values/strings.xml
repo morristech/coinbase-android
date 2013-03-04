@@ -90,6 +90,7 @@
     <string name="transaction_user_you">You</string>
     <string-array name="contributors">
         <item >Isaac Waller (isaac@siriusapplications.com)</item>
+        <item>Julian Langschaedel (meta.rb@gmail.com)</item>
     </string-array>
     <string name="version_name">1.0</string>
     <string name="menu_about">About</string>

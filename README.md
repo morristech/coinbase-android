@@ -15,10 +15,10 @@ The official Android application for Coinbase (https://coinbase.com/).
 
 ## Building
 
-To build the Android app in Eclipse:
+To build the Android app in [Eclipse](http://developer.android.com/sdk/index.html):
 
-1.  `git clone git@github.com:coinbase/coinbase-android.git'
-2.	Open [Eclipse](http://developer.android.com/sdk/index.html) and go to File > Import... > Android > Existing Code into Android Workspace
+1.  `git clone git@github.com:coinbase/coinbase-android.git`
+2.	Open Eclipse and go to File > Import... > Android > Existing Code into Android Workspace
 3.	Choose the root directory of the cloned project
 4.	Deselect all projects and only add: coinbase-android, library-actionbarsherlock, library-slidingmenu
 5.  Go to Window > Android SDK Manager and check the box to install "Google APIs" under Android 4.2.2 (this is needed for SlidingMenu)

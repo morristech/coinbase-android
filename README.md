@@ -1,15 +1,16 @@
 coinbase-android
 ================
 
-The official Android application for Coinbase (https://coinbase.com/).
+The official Android application for [Coinbase](https://coinbase.com/).
 
 ## Features
-* View transactions and balance, view transaction details
-* Multiple account support
-* Buy and sell Bitcoin using your U.S. bank account
-* Send money to an email address or bitcoin address
-* Scan bitcoin QR codes and open bitcoin: links
-* Request money using email, QR code, or NFC
+* Send/request bitcoin payments using email, QR codes, or NFC
+* Buy and sell bitcoin right from your mobile phone
+* View transaction history, details, and balance
+* See prices in BTC or your native currency
+* Support for multiple accounts
+* 100% open source - contributions welcome
+* Revoke [access](https://coinbase.com/account/integrations) remotely if you lose your phone.
 
 <a href="https://dl.dropbox.com/u/1779882/Screenshot_2013-02-27-18-42-39.png"><img src="https://dl.dropbox.com/u/1779882/Screenshot_2013-02-27-18-42-39.png" width="250" /></a>
 

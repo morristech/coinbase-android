@@ -196,7 +196,7 @@ public class TransferFragment extends Fragment {
 
       // Fetch emails
       try {
-        contacts = RpcManager.getInstance().callGet(mParent, "contacts", null).getJSONArray("response");
+        contacts = RpcManager.getInstance().callGet(mParent, "contacts", null).getJSONArray("contacts");
 
       } catch (IOException e) {
         e.printStackTrace();
@@ -221,7 +221,7 @@ public class TransferFragment extends Fragment {
 
         for(int i = 0; i < contacts.length(); i++) {
 
-          String email = contacts.getString(i);
+          String email = contacts.getJSONObject(i).getJSONObject("contact").getString("email");
 
           ContentValues emailValues = new ContentValues();
           emailValues.put(EmailEntry.COLUMN_NAME_EMAIL, email);

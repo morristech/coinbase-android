@@ -152,14 +152,14 @@ public class TransactionsFragment extends ListFragment {
           getParams.add(new BasicNameValuePair("page", Integer.toString(i)));
           JSONObject response = RpcManager.getInstance().callGet(mParent, "transactions", getParams);
 
+          currentUserId = response.getJSONObject("current_user").getString("id");
+
           JSONArray transactionsArray = response.optJSONArray("transactions");
 
           if(transactionsArray == null) {
             // No transactions
             continue;
           }
-
-          currentUserId = response.getJSONObject("current_user").getString("id");
           numPages = response.getInt("num_pages");
 
           for(int j = 0; j < transactionsArray.length(); j++) {

@@ -11,7 +11,7 @@ The official Android application for Coinbase (https://coinbase.com/).
 * Scan bitcoin QR codes and open bitcoin: links
 * Request money using email, QR code, or NFC
 
-![A screenshot](https://dl.dropbox.com/u/1779882/Screenshot_2013-02-27-18-42-39.png)
+<a href="https://dl.dropbox.com/u/1779882/Screenshot_2013-02-27-18-42-39.png"><img src="https://dl.dropbox.com/u/1779882/Screenshot_2013-02-27-18-42-39.png" width="250" /></a>
 
 ## Building
 

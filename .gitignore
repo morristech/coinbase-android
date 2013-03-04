@@ -23,3 +23,7 @@ proguard/
 *.ipr
 *.iws
 .idea/
+
+# Settings
+coinbase-android/.settings/
+library-slidingmenu/library/.settings/

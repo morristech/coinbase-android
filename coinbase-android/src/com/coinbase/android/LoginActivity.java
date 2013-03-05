@@ -9,17 +9,18 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.coinbase.android.R;
 import com.coinbase.api.LoginManager;
 
 public class LoginActivity extends CoinbaseActivity {
@@ -27,12 +28,14 @@ public class LoginActivity extends CoinbaseActivity {
   private static final String REDIRECT_URL = "http://example.com/coinbase-redirect";
 
   WebView mLoginWebView;
+  View mLoginIntro;
 
+  Button mLoginButton;
   MenuItem mRefreshItem;
   boolean mRefreshItemState = false;
-  
+
   private class OAuthCodeTask extends AsyncTask<String, Void, String> {
-    
+
     ProgressDialog mDialog;
 
     @Override
@@ -47,9 +50,9 @@ public class LoginActivity extends CoinbaseActivity {
     }
 
     protected void onPostExecute(String result) {
-      
+
       mDialog.dismiss();
-      
+
       if(result == null) {
         // Success!
         startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -70,23 +73,34 @@ public class LoginActivity extends CoinbaseActivity {
     setContentView(R.layout.activity_login);
     setProgressBarIndeterminateVisibility(false); 
     getSupportActionBar().setTitle(R.string.login_title);
-    
+
     mLoginWebView = (WebView) findViewById(R.id.login_webview);
-    
+    mLoginIntro = findViewById(R.id.login_intro);
+
+    mLoginButton = (Button) findViewById(R.id.login_intro_submit);
+    mLoginButton.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+
+        changeMode(false);
+      }
+    });
+
     // Load authorization URL before user clicks on the sign in button so that it loads quicker
     mLoginWebView.getSettings().setJavaScriptEnabled(true);
     mLoginWebView.getSettings().setSavePassword(false);
-    
+
     // Clear cookies so that user is not already logged in if they want to add a new account
     CookieSyncManager.createInstance(this); 
     CookieManager cookieManager = CookieManager.getInstance();
     cookieManager.removeAllCookie();
-    
+
     mLoginWebView.setWebViewClient(new WebViewClient() {
-      
+
       @Override
       public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        
+
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
           // There is a bug where shouldOverrideUrlLoading is not called
           // On versions of Android lower then Honeycomb
@@ -101,7 +115,7 @@ public class LoginActivity extends CoinbaseActivity {
 
       @Override
       public boolean shouldOverrideUrlLoading(WebView view, String url) {
-        
+
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
           return _shouldOverrideUrlLoading(view, url);
         } else {
@@ -110,7 +124,7 @@ public class LoginActivity extends CoinbaseActivity {
       }
 
       public boolean _shouldOverrideUrlLoading(WebView view, String url) {
-        
+
         if(url.startsWith(REDIRECT_URL)) {
           // OAuth redirect - we will handle this.
           String oauthCode = Uri.parse(url).getQueryParameter("code");
@@ -124,7 +138,7 @@ public class LoginActivity extends CoinbaseActivity {
         } else if(!url.contains("oauth") && !url.contains("signin") && !url.contains("signup") &&
             !url.contains("users") &&
             !url.contains("sessions")) {
-          
+
           // Do not allow leaving the login page.
           Intent intent = new Intent(Intent.ACTION_VIEW);
           intent.setData(Uri.parse(url));
@@ -132,7 +146,7 @@ public class LoginActivity extends CoinbaseActivity {
           startActivity(intent);
           return true;
         }
-        
+
         Log.i("Coinbase", "Login activity allowed to browse to " + url);
         return false;
       }
@@ -144,16 +158,17 @@ public class LoginActivity extends CoinbaseActivity {
 
         setProgressBarVisible(newProgress != 100); 
       }
-      
+
     });
 
+    changeMode(true);
     onNewIntent(getIntent());
   }
 
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-    
+
     setIntent(intent);
   }
 
@@ -177,12 +192,12 @@ public class LoginActivity extends CoinbaseActivity {
   @Override
   public void onResume() {
     super.onResume();
-    
+
     /*
      * Load the page on onResume so that if the app glitches out, and the user leaves and comes back
      * in an attempt to restart it, there is a chance it will be fixed.
      */
-    
+
     if(getIntent().getData() != null) {
       // Load this URL in the web view
       mLoginWebView.loadUrl(getIntent().getDataString());
@@ -199,8 +214,14 @@ public class LoginActivity extends CoinbaseActivity {
     setProgressBarVisible(mRefreshItemState);
     return true;
   }
-  
+
   private void loadLoginUrl() {
     mLoginWebView.loadUrl(LoginManager.getInstance().generateOAuthUrl(REDIRECT_URL));
+  }
+
+  private void changeMode(boolean intro) {
+
+    mLoginIntro.setVisibility(intro ? View.VISIBLE : View.GONE);
+    mLoginWebView.setVisibility(intro ? View.GONE : View.VISIBLE);
   }
 }

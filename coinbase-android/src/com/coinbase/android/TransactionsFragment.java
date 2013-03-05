@@ -34,12 +34,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.FrameLayout;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.coinbase.android.R;
 import com.coinbase.android.Utils.CurrencyType;
 import com.coinbase.android.db.TransactionsDatabase;
 import com.coinbase.android.db.TransactionsDatabase.TransactionEntry;
@@ -130,23 +131,30 @@ public class TransactionsFragment extends ListFragment {
 
   }
 
-  private class SyncTransactionsTask extends AsyncTask<Void, Void, Boolean> {
+  private class SyncTransactionsTask extends AsyncTask<Integer, Void, Boolean> {
+
+    public static final int MAX_PAGES = 3;
+    public static final int MAX_ENDLESS_PAGES = 10;
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground(Integer... params) {
 
       List<JSONObject> transactions = new ArrayList<JSONObject>();
       String currentUserId = null;
       SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
       int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
+      int startPage = (params.length == 0 || params[0] == null) ? 0 : params[0];
+      int loadedPage;
+
       // Make API call to download list of transactions
       try {
 
         int numPages = 1; // Real value will be set after first list iteration
+        loadedPage = startPage;
 
         // Loop is required to sync all pages of transaction history
-        for(int i = 1; i <= numPages; i++) {
+        for(int i = startPage + 1; i <= startPage + Math.min(numPages, MAX_PAGES); i++) {
 
           List<BasicNameValuePair> getParams = new ArrayList<BasicNameValuePair>();
           getParams.add(new BasicNameValuePair("page", Integer.toString(i)));
@@ -167,7 +175,11 @@ public class TransactionsFragment extends ListFragment {
             JSONObject transaction = transactionsArray.getJSONObject(j).getJSONObject("transaction");
             transactions.add(transaction);
           }
+
+          loadedPage++;
         }
+
+        mMaxPage = numPages;
 
       } catch (IOException e) {
         Log.e("Coinbase", "I/O error refreshing transactions.");
@@ -189,8 +201,10 @@ public class TransactionsFragment extends ListFragment {
       try {
 
 
-        // Remove all old transactions
-        db.delete(TransactionEntry.TABLE_NAME, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) });
+        if(startPage == 0) {
+          // Remove all old transactions
+          db.delete(TransactionEntry.TABLE_NAME, TransactionEntry.COLUMN_NAME_ACCOUNT + " = ?", new String[] { Integer.toString(activeAccount) });
+        }
 
         // Update user ID
         Editor editor = prefs.edit();
@@ -224,6 +238,7 @@ public class TransactionsFragment extends ListFragment {
         }
 
         db.setTransactionSuccessful();
+        mLastLoadedPage = loadedPage;
 
         // Update list
         loadTransactionsList();
@@ -274,6 +289,8 @@ public class TransactionsFragment extends ListFragment {
       if(result != null && !result && mSyncErrorView != null) {
         mSyncErrorView.setVisibility(View.VISIBLE);
       }
+
+      mSyncTask = null;
     }
 
   }
@@ -382,6 +399,32 @@ public class TransactionsFragment extends ListFragment {
     }
   }
 
+  private class TransactionsInfiniteScrollListener implements OnScrollListener {
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem,
+        int visibleItemCount, int totalItemCount) {
+
+      int padding = 2;
+      boolean shouldLoadMore = firstVisibleItem + visibleItemCount + padding >= totalItemCount;
+
+      if(shouldLoadMore && mLastLoadedPage != -1 && mLastLoadedPage < SyncTransactionsTask.MAX_ENDLESS_PAGES &&
+          mLastLoadedPage != mMaxPage) {
+
+        // Load more transactions
+        if(mSyncTask == null) {
+          mSyncTask = new SyncTransactionsTask();
+          mSyncTask.execute(mLastLoadedPage);
+        }
+      }
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+      // Unused
+    }
+  }
+
   MainActivity mParent;
   boolean mBalanceLoading;
   FrameLayout mListHeaderContainer;
@@ -389,6 +432,9 @@ public class TransactionsFragment extends ListFragment {
   ViewGroup mListHeader, mMainView;
   TextView mBalanceText, mBalanceCurrency, mBalanceHome, mAccount;
   TextView mSyncErrorView;
+
+  SyncTransactionsTask mSyncTask;
+  int mLastLoadedPage = -1, mMaxPage = -1;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -434,6 +480,8 @@ public class TransactionsFragment extends ListFragment {
     mListHeaderContainer = new FrameLayout(mParent);
     setHeaderPinned(true);
     mListView.addHeaderView(mListHeaderContainer);
+
+    mListView.setOnScrollListener(new TransactionsInfiniteScrollListener());
 
     mBalanceText = (TextView) mListHeader.findViewById(R.id.wallet_balance);
     mBalanceCurrency = (TextView) mListHeader.findViewById(R.id.wallet_balance_currency);
@@ -493,7 +541,10 @@ public class TransactionsFragment extends ListFragment {
     new LoadBalanceTask().execute();
 
     // Reload transactions
-    new SyncTransactionsTask().execute();
+    if(mSyncTask == null) {
+      mSyncTask = new SyncTransactionsTask();
+      mSyncTask.execute();
+    }
   }
 
   private void setHeaderPinned(boolean pinned) {

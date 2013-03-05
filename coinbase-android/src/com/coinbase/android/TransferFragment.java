@@ -800,6 +800,8 @@ public class TransferFragment extends Fragment {
       Log.e("Coinbase", "bitcoin: URI had no address (" + uri + ")");
       return;
     }
+    
+    amount = amount.replaceAll("[^0-9\\.]", "");
 
     mAmount = amount;
     mNotes = message;

@@ -128,36 +128,6 @@
             
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/transfer_address_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/transfer_send_money"
-            android:layout_alignParentLeft="true"
-            android:layout_marginTop="@dimen/layout_padding"
-            android:text="@string/transfer_address_title"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:id="@+id/transfer_address"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/transfer_address_title"
-            android:layout_alignLeft="@+id/transfer_address_title"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <Button
-            android:id="@+id/transfer_address_copy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/transfer_address"
-            android:layout_below="@+id/transfer_address"
-            android:layout_marginTop="10dp"
-            android:text="@string/transfer_address_copy" />
-
     </RelativeLayout>
 
 </ScrollView>

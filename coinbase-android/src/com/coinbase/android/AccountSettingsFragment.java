@@ -9,16 +9,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.DialogFragment;
@@ -26,8 +30,13 @@ import android.support.v4.app.ListFragment;
 import android.text.InputType;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -35,7 +44,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.coinbase.android.R;
 import com.coinbase.api.LoginManager;
 import com.coinbase.api.RpcManager;
 
@@ -374,12 +382,61 @@ public class AccountSettingsFragment extends ListFragment {
 
   }
 
+  private class LoadReceiveAddressTask extends AsyncTask<Boolean, Void, String> {
+
+    @Override
+    protected String doInBackground(Boolean... params) {
+
+      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+
+      try {
+
+        boolean shouldGenerateNew = params[0];
+        String address;
+
+        if(shouldGenerateNew) {
+
+          JSONObject response = RpcManager.getInstance().callPost(mParent, "account/generate_receive_address", null);
+
+          address = response.optString("address");
+
+        } else {
+
+          JSONObject response = RpcManager.getInstance().callGet(mParent, "account/receive_address");
+
+          address = response.optString("address");
+        }
+
+        if(address != null) {
+          // Save balance in preferences
+          Editor editor = prefs.edit();
+          editor.putString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), address);
+          editor.commit();
+        }
+
+        return address;
+
+      } catch (IOException e) {
+
+        e.printStackTrace();
+      } catch (JSONException e) {
+
+        e.printStackTrace();
+      }
+
+      return null;
+    }
+
+  }
+
   private Object[][] mPreferences = new Object[][] {
       { R.string.account_name, Constants.KEY_ACCOUNT_FULL_NAME, "name" },
       { R.string.account_email, Constants.KEY_ACCOUNT_NAME, "email" },
       { R.string.account_time_zone, Constants.KEY_ACCOUNT_TIME_ZONE, "time_zone" },
       { R.string.account_native_currency, Constants.KEY_ACCOUNT_NATIVE_CURRENCY, "native_currency" },
       { R.string.account_limits, Constants.KEY_ACCOUNT_LIMIT, "limits" },
+      { R.string.account_receive_address, Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, "receive_address" },
       { R.string.account_refresh_token, Constants.KEY_ACCOUNT_REFRESH_TOKEN, "refresh_token" }
   };
 
@@ -404,6 +461,13 @@ public class AccountSettingsFragment extends ListFragment {
       }
     };
     prefs.registerOnSharedPreferenceChangeListener(mChangeListener);
+  }
+
+  @Override
+  public void onViewCreated(View view, Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
+    registerForContextMenu(getListView());
   }
 
   @Override
@@ -434,11 +498,11 @@ public class AccountSettingsFragment extends ListFragment {
   public void onListItemClick(ListView l, View v, int position, long id) {
 
     Object[] data = (Object[]) l.getItemAtPosition(position);
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
 
     if("name".equals(data[2]) || "email".equals(data[2])) {
       // Show text prompt
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
       TextSettingFragment f = new TextSettingFragment();
       Bundle args = new Bundle();
       args.putString("key", String.format((String) data[1], activeAccount));
@@ -451,25 +515,69 @@ public class AccountSettingsFragment extends ListFragment {
     } else if("native_currency".equals(data[2])) {
 
       // Show list of currencies
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
       new ShowNetworkListTask().execute("currencies",
           String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
           "native_currency");
     } else if("refresh_token".equals(data[2])) {
 
       // Refresh token
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
       LoginManager.getInstance().refreshAccessToken(mParent, activeAccount);
     } else if("limits".equals(data[2])) {
 
-      // Open browset
+      // Open browser
       Intent i = new Intent(Intent.ACTION_VIEW);
       i.addCategory(Intent.CATEGORY_BROWSABLE);
       i.setData(Uri.parse("https://coinbase.com/verifications"));
       startActivity(i);
+    } else if("receive_address".equals(data[2])) {
+
+      // Copy to clipboard
+      setClipboard(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), ""));
+      Toast.makeText(mParent, R.string.account_receive_address_copied, Toast.LENGTH_SHORT).show();
     }
+  }
+
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  private void setClipboard(String text) {
+
+    int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+    if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+
+      android.content.ClipboardManager clipboard = 
+          (android.content.ClipboardManager) mParent.getSystemService(Context.CLIPBOARD_SERVICE); 
+      ClipData clip = ClipData.newPlainText("Coinbase", text);
+      clipboard.setPrimaryClip(clip); 
+    } else {
+
+      android.text.ClipboardManager clipboard =
+          (android.text.ClipboardManager) mParent.getSystemService(Context.CLIPBOARD_SERVICE); 
+      clipboard.setText(text);
+    }
+  }
+
+  @Override
+  public void onCreateContextMenu(ContextMenu menu, View v,
+      ContextMenuInfo _menuInfo) {
+
+    AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo) _menuInfo;
+    Object[] data = (Object[]) getListView().getItemAtPosition(menuInfo.position);
+
+    if("receive_address".equals(data[2])) {
+
+      menu.add(Menu.NONE, R.id.account_receive_address_generate, Menu.NONE, R.string.account_receive_address_generate);
+    }
+  }
+
+  @Override
+  public boolean onContextItemSelected(MenuItem item) {
+
+    if(item.getItemId() == R.id.account_receive_address_generate) {
+
+      new LoadReceiveAddressTask().execute(true);
+      return true;
+    }
+
+    return super.onContextItemSelected(item);
   }
 
   public void refresh() {
@@ -477,5 +585,6 @@ public class AccountSettingsFragment extends ListFragment {
     setListAdapter(new PreferenceListAdapter());
 
     new RefreshSettingsTask().execute();
+    new LoadReceiveAddressTask().execute(false);
   }
 }

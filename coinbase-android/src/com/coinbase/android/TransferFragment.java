@@ -120,72 +120,6 @@ public class TransferFragment extends Fragment {
     }
   }
 
-  private class LoadReceiveAddressTask extends AsyncTask<Boolean, Void, String> {
-
-    @Override
-    protected String doInBackground(Boolean... params) {
-
-      SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-      int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-
-      try {
-
-        boolean shouldGenerateNew = params[0];
-        String address;
-
-        if(shouldGenerateNew) {
-
-          JSONObject response = RpcManager.getInstance().callPost(mParent, "account/generate_receive_address", null);
-
-          address = response.optString("address");
-
-        } else {
-
-          JSONObject response = RpcManager.getInstance().callGet(mParent, "account/receive_address");
-
-          address = response.optString("address");
-        }
-
-        if(address != null) {
-          // Save balance in preferences
-          Editor editor = prefs.edit();
-          editor.putString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), address);
-          editor.commit();
-        }
-
-        return address;
-
-      } catch (IOException e) {
-
-        e.printStackTrace();
-      } catch (JSONException e) {
-
-        e.printStackTrace();
-      }
-
-      return null;
-    }
-
-    @Override
-    protected void onPreExecute() {
-
-      loadReceiveAddressFromPreferences();
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-
-      if(result == null) {
-
-        loadReceiveAddressFromPreferences();
-        return;
-      }
-
-      setReceiveAddress(result);
-    }
-
-  }
-
   private class ReloadContactsDatabaseTask extends AsyncTask<Void, Void, Void> {
 
     @Override
@@ -317,10 +251,9 @@ public class TransferFragment extends Fragment {
   private MainActivity mParent;
 
   private Spinner mTransferTypeView, mTransferCurrencyView;
-  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mCopyAddress, mClearButton;
+  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mClearButton;
   private EditText mAmountView, mNotesView;
   private AutoCompleteTextView mRecipientView;
-  private TextView mReceiveAddress;
 
   private SimpleCursorAdapter mAutocompleteAdapter;
 
@@ -418,9 +351,6 @@ public class TransferFragment extends Fragment {
     mAutocompleteAdapter = Utils.getEmailAutocompleteAdapter(mParent);
     mRecipientView.setAdapter(mAutocompleteAdapter);
     mRecipientView.setThreshold(0);
-
-    mReceiveAddress = (TextView) view.findViewById(R.id.transfer_address);
-    mCopyAddress = (Button) view.findViewById(R.id.transfer_address_copy);
 
     mNativeAmount = (TextView) view.findViewById(R.id.transfer_money_native);
     mNativeAmount.setText(null);
@@ -575,16 +505,6 @@ public class TransferFragment extends Fragment {
       }
     });
 
-    mCopyAddress.setOnClickListener(new View.OnClickListener() {
-
-      @Override
-      public void onClick(View v) {
-
-        setClipboard(mReceiveAddress.getText().toString());
-        Toast.makeText(mParent, R.string.transfer_address_copied, Toast.LENGTH_SHORT).show();
-      }
-    });
-
     mClearButton.setOnClickListener(new View.OnClickListener() {
 
       @Override
@@ -595,8 +515,6 @@ public class TransferFragment extends Fragment {
         mRecipientView.setText("");
       }
     });
-
-    loadReceiveAddressFromPreferences();
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
     mPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -615,24 +533,6 @@ public class TransferFragment extends Fragment {
     prefs.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
 
     return view;
-  }
-
-  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-  private void setClipboard(String text) {
-
-    int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-    if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-
-      android.content.ClipboardManager clipboard = 
-          (android.content.ClipboardManager) mParent.getSystemService(Context.CLIPBOARD_SERVICE); 
-      ClipData clip = ClipData.newPlainText("Coinbase", text);
-      clipboard.setPrimaryClip(clip); 
-    } else {
-
-      android.text.ClipboardManager clipboard =
-          (android.text.ClipboardManager) mParent.getSystemService(Context.CLIPBOARD_SERVICE); 
-      clipboard.setText(text);
-    }
   }
 
   private void updateNativeCurrency() {
@@ -685,13 +585,6 @@ public class TransferFragment extends Fragment {
     }
   }
 
-  private void loadReceiveAddressFromPreferences() {
-
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-    setReceiveAddress(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null));
-  }
-
   private BigDecimal getBtcAmount() {
 
     if(mAmount == null || "".equals(mAmount)) {
@@ -737,13 +630,6 @@ public class TransferFragment extends Fragment {
     }
 
     return requestUri;
-  }
-
-  private void setReceiveAddress(final String address) {
-
-    if(mReceiveAddress != null) {
-      mReceiveAddress.setText(address);
-    }
   }
 
   private void initializeTypeSpinner() {
@@ -946,9 +832,6 @@ public class TransferFragment extends Fragment {
   }
 
   public void refresh() {
-
-    // Reload receive address
-    new LoadReceiveAddressTask().execute(false);
 
     // Reload contacts
     new ReloadContactsDatabaseTask().execute();

@@ -109,7 +109,6 @@
     <string name="about_title">About %1$s</string>
     <string name="transfer_address_title">Your receive address</string>
     <string name="transfer_address_copy">Copy address</string>
-    <string name="transfer_address_copied">Copied.</string>
     <string name="menu_refresh">Refresh</string>
     <string name="transfer_nfc_ready">NFC is enabled.\n\nHold the back of your device against the back of the other device and touch the screen.</string>
     <string name="transfer_nfc_failure">Could not start NFC transfer.</string>
@@ -147,5 +146,8 @@
     <string name="login_intro_submit">Log in / sign up</string>
     <string name="login_intro_desc">Coinbase is the simplest way to buy, use and accept Bitcoin. Connect your existing Coinbase account or create a new one to get started.</string>
     <string name="login_intro_title">Bitcoin Made Easy</string>
+    <string name="account_receive_address">Bitcoin address</string>
+    <string name="account_receive_address_copied">Copied to clipboard.</string>
+    <string name="account_receive_address_generate">Generate new address</string>
     
 </resources>

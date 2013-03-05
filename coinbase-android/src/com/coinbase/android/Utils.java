@@ -1,8 +1,9 @@
 package com.coinbase.android;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Hashtable;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,7 +20,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.widget.FilterQueryProvider;
 
-import com.coinbase.android.R;
 import com.coinbase.android.db.TransactionsDatabase;
 import com.coinbase.android.db.TransactionsDatabase.EmailEntry;
 import com.google.zxing.BarcodeFormat;
@@ -69,16 +69,16 @@ public class Utils {
 
   public static final String formatCurrencyAmount(BigDecimal balanceNumber, boolean ignoreSign, CurrencyType type) {
 
-    DecimalFormat df = new DecimalFormat();
-    df.setMaximumFractionDigits(type.maximumFractionDigits);
-    df.setMinimumFractionDigits(type.minimumFractionDigits);
-    df.setGroupingUsed(false);
-
+    Locale locale = Locale.getDefault();
+    NumberFormat nf = NumberFormat.getInstance(locale);
+    nf.setMaximumFractionDigits(type.maximumFractionDigits);
+    nf.setMinimumFractionDigits(type.minimumFractionDigits);
+    
     if(ignoreSign && balanceNumber.compareTo(BigDecimal.ZERO) == -1) {
       balanceNumber = balanceNumber.multiply(new BigDecimal(-1));
     }
 
-    return df.format(balanceNumber);
+    return nf.format(balanceNumber);
   }
 
   /** Based off of ZXing Android client code */

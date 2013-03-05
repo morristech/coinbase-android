@@ -1,6 +1,7 @@
 package com.coinbase.android;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +33,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.coinbase.android.R;
+import com.coinbase.android.Utils.CurrencyType;
 import com.coinbase.api.RpcManager;
 
 public class BuySellFragment extends Fragment {
@@ -185,10 +186,10 @@ public class BuySellFragment extends Fragment {
             mTotal.setText(null);
           } else {
 
-            mCurrentPrice = result[0];
+            mCurrentPrice = Utils.formatCurrencyAmount(new BigDecimal(result[0]), false, CurrencyType.TRADITIONAL);
             mCurrentPriceCurrency = result[1];
             mSubmitButton.setEnabled(true);
-            mTotal.setText(String.format(mParent.getString(R.string.buysell_total), result[0], result[1]));
+            mTotal.setText(String.format(mParent.getString(R.string.buysell_total), mCurrentPrice, result[1]));
             return;
           }
         }

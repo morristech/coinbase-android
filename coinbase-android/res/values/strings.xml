@@ -107,7 +107,8 @@
     <string name="about_contributors">Contributors:\n\n%1$s</string>
     <string name="about_title">About %1$s</string>
     <string name="transfer_address_title">Your receive address</string>
-    <string name="transfer_address_generate">Generate new</string>
+    <string name="transfer_address_copy">Copy address</string>
+    <string name="transfer_address_copied">Copied.</string>
     <string name="menu_refresh">Refresh</string>
     <string name="transfer_nfc_ready">NFC is enabled.\n\nHold the back of your device against the back of the other device and touch the screen.</string>
     <string name="transfer_nfc_failure">Could not start NFC transfer.</string>

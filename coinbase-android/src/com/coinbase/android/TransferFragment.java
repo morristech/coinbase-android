@@ -19,7 +19,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -44,12 +47,10 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.coinbase.android.R;
 import com.coinbase.android.Utils.CurrencyType;
 import com.coinbase.android.db.TransactionsDatabase;
 import com.coinbase.android.db.TransactionsDatabase.EmailEntry;
@@ -284,7 +285,7 @@ public class TransferFragment extends Fragment {
 
     @Override
     protected BigDecimal doInBackground(Void... params) {
-      
+
       try {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
@@ -300,7 +301,7 @@ public class TransferFragment extends Fragment {
       } catch (JSONException e) {
         e.printStackTrace();
       }
-      
+
       return null;
     }
 
@@ -324,11 +325,10 @@ public class TransferFragment extends Fragment {
   private MainActivity mParent;
 
   private Spinner mTransferTypeView;
-  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mGenerateAddress;
+  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mCopyAddress;
   private EditText mAmountView, mNotesView;
   private AutoCompleteTextView mRecipientView;
   private TextView mReceiveAddress;
-  private ImageView mReceiveAddressBarcode;
 
   private SimpleCursorAdapter mAutocompleteAdapter;
 
@@ -405,8 +405,7 @@ public class TransferFragment extends Fragment {
     mRecipientView.setThreshold(0);
 
     mReceiveAddress = (TextView) view.findViewById(R.id.transfer_address);
-    mGenerateAddress = (Button) view.findViewById(R.id.transfer_address_generate);
-    mReceiveAddressBarcode = (ImageView) view.findViewById(R.id.transfer_address_barcode);
+    mCopyAddress = (Button) view.findViewById(R.id.transfer_address_copy);
 
     mNativeAmount = (TextView) view.findViewById(R.id.transfer_money_native);
     mNativeAmount.setText(null);
@@ -558,18 +557,37 @@ public class TransferFragment extends Fragment {
       }
     });
 
-    mGenerateAddress.setOnClickListener(new View.OnClickListener() {
+    mCopyAddress.setOnClickListener(new View.OnClickListener() {
 
       @Override
       public void onClick(View v) {
 
-        new LoadReceiveAddressTask().execute(true);
+        setClipboard(mReceiveAddress.getText().toString());
+        Toast.makeText(mParent, R.string.transfer_address_copied, Toast.LENGTH_SHORT).show();
       }
     });
 
     loadReceiveAddressFromPreferences();
 
     return view;
+  }
+
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+  private void setClipboard(String text) {
+
+    int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+    if (currentapiVersion >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+
+      android.content.ClipboardManager clipboard = 
+          (android.content.ClipboardManager) mParent.getSystemService(Context.CLIPBOARD_SERVICE); 
+      ClipData clip = ClipData.newPlainText("Coinbase", text);
+      clipboard.setPrimaryClip(clip); 
+    } else {
+
+      android.text.ClipboardManager clipboard =
+          (android.text.ClipboardManager) mParent.getSystemService(Context.CLIPBOARD_SERVICE); 
+      clipboard.setText(text);
+    }
   }
 
   private void updateNativeCurrency() {
@@ -604,7 +622,7 @@ public class TransferFragment extends Fragment {
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
   private void refreshExchangeRate() {
     mNativeExchangeTask = new RefreshExchangeRateTask();
-    
+
     if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB) {
       mNativeExchangeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     } else {
@@ -650,32 +668,6 @@ public class TransferFragment extends Fragment {
 
     if(mReceiveAddress != null) {
       mReceiveAddress.setText(address);
-    }
-
-    if(mReceiveAddressBarcode != null) {
-      try {
-        int size = (int)(mParent.getResources().getDisplayMetrics().density * 128);
-        Bitmap barcode = Utils.createBarcode("bitcoin:" + address, BarcodeFormat.QR_CODE,
-            size, size);
-        mReceiveAddressBarcode.setImageBitmap(barcode);
-
-      } catch (WriterException e) {
-        // Could not generate barcode
-        e.printStackTrace();
-      }
-
-      mReceiveAddressBarcode.setOnClickListener(new View.OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-
-          DisplayQrCodeFragment f = new DisplayQrCodeFragment();
-          Bundle args = new Bundle();
-          args.putString("data", "bitcoin:" + address);
-          f.setArguments(args);
-          f.show(getFragmentManager(), "qrreceive");
-        }
-      });
     }
   }
 
@@ -800,7 +792,7 @@ public class TransferFragment extends Fragment {
       Log.e("Coinbase", "bitcoin: URI had no address (" + uri + ")");
       return;
     }
-    
+
     amount = amount.replaceAll("[^0-9\\.]", "");
 
     mAmount = amount;

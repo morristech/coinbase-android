@@ -28,7 +28,7 @@ public class TransferEmailPromptFragment extends DialogFragment {
         notes = getArguments().getString("notes");
 
     int messageResource = R.string.transfer_email_prompt_text;
-    String message = String.format(getString(messageResource), amount);
+    String message = String.format(getString(messageResource), Utils.formatCurrencyAmount(amount));
 
     View view = View.inflate(getActivity(), R.layout.transfer_email_prompt, null);
     TextView messageView = (TextView) view.findViewById(R.id.transfer_email_prompt_text);

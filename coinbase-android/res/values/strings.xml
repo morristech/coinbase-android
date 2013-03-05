@@ -21,7 +21,7 @@
     <string name="login_error_auth">Could not sign in.</string>
     <string name="transfer_send_money">Send money</string>
     <string name="transfer_send_money_button">Send</string>
-    <string name="transfer_amt">Amount (BTC)</string>
+    <string name="transfer_amt">Amount</string>
     <string name="transfer_notes">Notes</string>
     <string name="wallet_balance">%1$s</string>
     <string name="wallet_balance_currency">%1$s</string>

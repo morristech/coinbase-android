@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -20,14 +21,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -55,8 +54,6 @@ import com.coinbase.android.Utils.CurrencyType;
 import com.coinbase.android.db.TransactionsDatabase;
 import com.coinbase.android.db.TransactionsDatabase.EmailEntry;
 import com.coinbase.api.RpcManager;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
 
 public class TransferFragment extends Fragment {
 
@@ -256,7 +253,7 @@ public class TransferFragment extends Fragment {
           notes = getArguments().getString("notes");
 
       int messageResource = type == TransferType.REQUEST ? R.string.transfer_confirm_message_request : R.string.transfer_confirm_message_send;
-      String message = String.format(getString(messageResource), amount, toFrom);
+      String message = String.format(getString(messageResource), Utils.formatCurrencyAmount(amount), toFrom);
 
       AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
       builder.setMessage(message)
@@ -281,21 +278,15 @@ public class TransferFragment extends Fragment {
     }
   }
 
-  private class RefreshExchangeRateTask extends AsyncTask<Void, Void, BigDecimal> {
+  private class RefreshExchangeRateTask extends AsyncTask<Void, Void, JSONObject> {
 
     @Override
-    protected BigDecimal doInBackground(Void... params) {
+    protected JSONObject doInBackground(Void... params) {
 
       try {
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
-        int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
-
         JSONObject exchangeRates = RpcManager.getInstance().callGet(mParent, "currencies/exchange_rates");
-
-        mNativeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
-            "usd").toLowerCase(Locale.CANADA);
-        return new BigDecimal(exchangeRates.getString("btc_to_" + mNativeCurrency));
+        return exchangeRates;
       } catch (IOException e) {
         e.printStackTrace();
       } catch (JSONException e) {
@@ -306,12 +297,12 @@ public class TransferFragment extends Fragment {
     }
 
     @Override
-    protected void onPostExecute(BigDecimal result) {
+    protected void onPostExecute(JSONObject result) {
 
       mNativeExchangeTask = null;
 
       if(result != null) {
-        mNativeExchangeRate = result;
+        mNativeExchangeRates = result;
         mNativeExchangeRateTime = System.currentTimeMillis();
         doNativeCurrencyUpdate();
       }
@@ -324,7 +315,7 @@ public class TransferFragment extends Fragment {
 
   private MainActivity mParent;
 
-  private Spinner mTransferTypeView;
+  private Spinner mTransferTypeView, mTransferCurrencyView;
   private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mCopyAddress;
   private EditText mAmountView, mNotesView;
   private AutoCompleteTextView mRecipientView;
@@ -333,13 +324,14 @@ public class TransferFragment extends Fragment {
   private SimpleCursorAdapter mAutocompleteAdapter;
 
   private int mTransferType;
-  private String mAmount, mNotes, mRecipient;
+  private String mAmount, mNotes, mRecipient, mTransferCurrency;
 
   private TextView mNativeAmount;
   private long mNativeExchangeRateTime;
-  private BigDecimal mNativeExchangeRate;
+  private JSONObject mNativeExchangeRates;
   private RefreshExchangeRateTask mNativeExchangeTask;
-  private String mNativeCurrency;
+  private String[] mCurrenciesArray = new String[] { "BTC" };
+  private SharedPreferences.OnSharedPreferenceChangeListener mPreferenceChangeListener = null;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -364,6 +356,9 @@ public class TransferFragment extends Fragment {
     super.onDestroyView();
 
     Utils.disposeOfEmailAutocompleteAdapter(mAutocompleteAdapter);
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    prefs.unregisterOnSharedPreferenceChangeListener(mPreferenceChangeListener);
   }
 
   @Override
@@ -390,6 +385,24 @@ public class TransferFragment extends Fragment {
       }
     });
     initializeTypeSpinner();
+
+    mTransferCurrencyView = (Spinner) view.findViewById(R.id.transfer_money_currency);
+    mTransferCurrencyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+      @Override
+      public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+          long arg3) {
+
+        onCurrencyChanged();
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> arg0) {
+        // Will never happen.
+        throw new RuntimeException("onNothingSelected triggered on transfer currency spinner");
+      }
+    });
+    initializeCurrencySpinner();
 
     mSubmitSend = (Button) view.findViewById(R.id.transfer_money_button_send);
     mSubmitEmail = (Button) view.findViewById(R.id.transfer_money_button_email);
@@ -464,6 +477,9 @@ public class TransferFragment extends Fragment {
       }
     });
 
+    int currencyIndex = Arrays.asList(mCurrenciesArray).indexOf(mTransferCurrency);
+    mTransferCurrencyView.setSelection(currencyIndex == -1 ? 0 : currencyIndex);
+
     mTransferTypeView.setSelection(mTransferType);
     mAmountView.setText(mAmount);
     mNotesView.setText(mNotes);
@@ -491,7 +507,7 @@ public class TransferFragment extends Fragment {
         Bundle b = new Bundle();
 
         b.putSerializable("type", TransferType.values()[mTransferType]);
-        b.putString("amount", mAmount);
+        b.putString("amount", getBtcAmount().toPlainString());
         b.putString("notes", mNotes);
         b.putString("toFrom", mRecipient);
 
@@ -518,7 +534,7 @@ public class TransferFragment extends Fragment {
         Bundle b = new Bundle();
 
         b.putSerializable("type", TransferType.values()[mTransferType]);
-        b.putString("amount", mAmount);
+        b.putString("amount", getBtcAmount().toPlainString());
         b.putString("notes", mNotes);
 
         dialog.setArguments(b);
@@ -569,6 +585,22 @@ public class TransferFragment extends Fragment {
 
     loadReceiveAddressFromPreferences();
 
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    mPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+      @Override
+      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+          String key) {
+
+        int activeAccount = sharedPreferences.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+        if(key.equals(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount))) {
+          // Refresh native currency dropdown
+          initializeCurrencySpinner();
+        }
+      }
+    };
+    prefs.registerOnSharedPreferenceChangeListener(mPreferenceChangeListener);
+
     return view;
   }
 
@@ -592,7 +624,7 @@ public class TransferFragment extends Fragment {
 
   private void updateNativeCurrency() {
 
-    if(mNativeExchangeRate == null || 
+    if(mNativeExchangeRates == null || 
         (System.currentTimeMillis() - mNativeExchangeRateTime) > EXCHANGE_RATE_EXPIRE_TIME) {
 
       // Need to fetch exchange rate again
@@ -613,10 +645,20 @@ public class TransferFragment extends Fragment {
       return;
     }
 
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    String nativeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
+        "usd").toLowerCase(Locale.CANADA);
+
+    boolean fromBitcoin = "BTC".equalsIgnoreCase(mTransferCurrency);
+    String format = fromBitcoin ? "%s_to_" + nativeCurrency.toLowerCase(Locale.CANADA) : "%s_to_btc";
+    String key = String.format(format, mTransferCurrency.toLowerCase(Locale.CANADA));
+    String resultCurrency = fromBitcoin ? nativeCurrency : "BTC";
+
     BigDecimal amount = new BigDecimal(mAmount);
-    BigDecimal result = amount.multiply(mNativeExchangeRate);
+    BigDecimal result = amount.multiply(new BigDecimal(mNativeExchangeRates.optString(key, "0")));
     mNativeAmount.setText(String.format(mParent.getString(R.string.transfer_amt_native), Utils.formatCurrencyAmount(result, false, CurrencyType.TRADITIONAL),
-        mNativeCurrency.toUpperCase(Locale.CANADA)));
+        resultCurrency.toUpperCase(Locale.CANADA)));
   }
 
   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -637,6 +679,26 @@ public class TransferFragment extends Fragment {
     setReceiveAddress(prefs.getString(String.format(Constants.KEY_ACCOUNT_RECEIVE_ADDRESS, activeAccount), null));
   }
 
+  private BigDecimal getBtcAmount() {
+
+    if(mAmount == null || "".equals(mAmount)) {
+      return null;
+    }
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    String nativeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
+        "usd").toLowerCase(Locale.CANADA);
+
+    boolean fromBitcoin = "BTC".equalsIgnoreCase(mTransferCurrency);
+    String format = fromBitcoin ? "%s_to_" + nativeCurrency.toLowerCase(Locale.CANADA) : "%s_to_btc";
+    String key = String.format(format, mTransferCurrency.toLowerCase(Locale.CANADA));
+
+    BigDecimal amount = new BigDecimal(mAmount);
+    BigDecimal result = amount.multiply(new BigDecimal(mNativeExchangeRates.optString(key, "0")));
+    return result;
+  }
+
   private String generateRequestUri() {
 
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
@@ -647,7 +709,7 @@ public class TransferFragment extends Fragment {
     boolean hasAmount = false;
 
     if(mAmount != null && !"".equals(mAmount)) {
-      requestUri += "?amount=" + mAmount;
+      requestUri += "?amount=" + getBtcAmount();
       hasAmount = true;
     }
 
@@ -696,6 +758,41 @@ public class TransferFragment extends Fragment {
     mTransferTypeView.setAdapter(arrayAdapter);
   }
 
+  private void initializeCurrencySpinner() {
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    int activeAccount = prefs.getInt(Constants.KEY_ACTIVE_ACCOUNT, -1);
+    String nativeCurrency = prefs.getString(String.format(Constants.KEY_ACCOUNT_NATIVE_CURRENCY, activeAccount),
+        "usd").toUpperCase(Locale.CANADA);
+
+    mCurrenciesArray = new String[] {
+        "BTC",
+        nativeCurrency,
+    };
+
+    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+        mParent, R.layout.fragment_transfer_currency, Arrays.asList(mCurrenciesArray)) {
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+
+        TextView view = (TextView) super.getView(position, convertView, parent);
+        view.setText(mCurrenciesArray[position]);
+        return view;
+      }
+
+      @Override
+      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+
+        TextView view = (TextView) super.getDropDownView(position, convertView, parent);
+        view.setText(mCurrenciesArray[position]);
+        return view;
+      }
+    };
+    arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    mTransferCurrencyView.setAdapter(arrayAdapter);
+  }
+
   private void onTypeChanged() {
 
     TransferType type = (TransferType) mTransferTypeView.getSelectedItem();
@@ -707,6 +804,14 @@ public class TransferFragment extends Fragment {
     mSubmitQr.setVisibility(isSend ? View.GONE : View.VISIBLE);
     mSubmitNfc.setVisibility(isSend ? View.GONE : View.VISIBLE);
     mRecipientView.setVisibility(isSend ? View.VISIBLE : View.GONE);
+  }
+
+  private void onCurrencyChanged() {
+
+    String currency = (String) mTransferCurrencyView.getSelectedItem();
+    mTransferCurrency = currency;
+
+    updateNativeCurrency();
   }
 
   protected void startTransferTask(TransferType type, String amount, String notes, String toFrom) {
@@ -799,9 +904,11 @@ public class TransferFragment extends Fragment {
     mNotes = message;
     mRecipient = address;
     mTransferType = 0;
+    mTransferCurrency = "BTC";
 
     if(mTransferTypeView != null) {
       mTransferTypeView.setSelection(0); // SEND
+      mTransferCurrencyView.setSelection(0); // BTC is always first
       mAmountView.setText(amount);
       mNotesView.setText(message);
       mRecipientView.setText(address);

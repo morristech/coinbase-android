@@ -20,7 +20,7 @@
         android:theme="@style/Theme.Coinbase"
         android:allowBackup="true">
         <activity
-            android:name="com.coinbase.android.MainActivity"
+            android:name="com.coinbase.android.MainActivity" android:launchMode="singleTask"
             android:label="@string/title_activity_main" android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

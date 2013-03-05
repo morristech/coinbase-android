@@ -16,24 +16,23 @@
       android:layout_gravity="center"
       android:padding="15dp">
 
+      <ImageView
+          android:id="@+id/login_intro_logo"
+          android:layout_width="wrap_content"
+          android:layout_height="50dp"
+          android:layout_centerHorizontal="true"
+          android:src="@drawable/coinbase_logo_transparent" />
+
       <TextView
           android:id="@+id/login_intro_title"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_centerHorizontal="true"
-          android:text="@string/login_intro_title"
-          android:textAppearance="?android:attr/textAppearanceLarge" />
-
-      <TextView
-          android:id="@+id/login_intro_desc"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_below="@+id/login_intro_title"
-          android:layout_centerHorizontal="true"
-          android:gravity="center"
           android:layout_marginTop="10dp"
-          android:text="@string/login_intro_desc"
-          android:textAppearance="?android:attr/textAppearanceSmall" />
+          android:text="@string/login_intro_title"
+          android:layout_below="@+id/login_intro_logo"
+          android:visibility="gone"
+          android:textAppearance="?android:attr/textAppearanceMedium" />
 
       <Button
           android:id="@+id/login_intro_submit"
@@ -41,7 +40,7 @@
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
           android:layout_centerHorizontal="true"
-          android:layout_below="@+id/login_intro_desc"
+          android:layout_below="@+id/login_intro_title"
           android:text="@string/login_intro_submit"
           android:paddingLeft="25dp"
           android:paddingRight="25dp" />

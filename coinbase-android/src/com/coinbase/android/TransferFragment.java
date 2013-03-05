@@ -917,7 +917,9 @@ public class TransferFragment extends Fragment {
       return;
     }
 
-    amount = amount.replaceAll("[^0-9\\.]", "");
+    if(amount != null) {
+      amount = amount.replaceAll("[^0-9\\.]", "");
+    }
 
     mAmount = amount;
     mNotes = message;

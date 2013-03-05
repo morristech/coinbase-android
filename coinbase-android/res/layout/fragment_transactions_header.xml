@@ -26,7 +26,7 @@
 	        android:layout_marginTop="5dp"
 	        android:text="@string/wallet_balance_def"
 	        style="@style/wallet_balance_invalid"
-	        android:textSize="35sp" />
+	        android:textSize="30sp" />
 	
 	    <TextView
 	        android:id="@+id/wallet_balance_currency"

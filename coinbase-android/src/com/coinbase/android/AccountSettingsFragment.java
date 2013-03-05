@@ -122,7 +122,7 @@ public class AccountSettingsFragment extends ListFragment {
 
       String desc = null;
       if("limits".equals(item[2])) {
-        
+
         desc = String.format(getString(R.string.account_limits_text),
             Utils.formatCurrencyAmount(prefs.getString(String.format(Constants.KEY_ACCOUNT_LIMIT, mActiveAccount, "buy"), "0")),
             prefs.getString(String.format(Constants.KEY_ACCOUNT_LIMIT_CURRENCY, mActiveAccount, "buy"), "BTC"),
@@ -384,12 +384,34 @@ public class AccountSettingsFragment extends ListFragment {
   };
 
   MainActivity mParent;
+  SharedPreferences.OnSharedPreferenceChangeListener mChangeListener;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
     setListAdapter(new PreferenceListAdapter());
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    mChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+      @Override
+      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+          String key) {
+
+        // Refresh list
+        setListAdapter(new PreferenceListAdapter());
+      }
+    };
+    prefs.registerOnSharedPreferenceChangeListener(mChangeListener);
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mParent);
+    prefs.unregisterOnSharedPreferenceChangeListener(mChangeListener);
   }
 
   @Override

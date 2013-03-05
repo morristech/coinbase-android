@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -38,6 +37,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +46,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -316,7 +317,7 @@ public class TransferFragment extends Fragment {
   private MainActivity mParent;
 
   private Spinner mTransferTypeView, mTransferCurrencyView;
-  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mCopyAddress;
+  private Button mSubmitSend, mSubmitEmail, mSubmitQr, mSubmitNfc, mCopyAddress, mClearButton;
   private EditText mAmountView, mNotesView;
   private AutoCompleteTextView mRecipientView;
   private TextView mReceiveAddress;
@@ -408,6 +409,7 @@ public class TransferFragment extends Fragment {
     mSubmitEmail = (Button) view.findViewById(R.id.transfer_money_button_email);
     mSubmitQr = (Button) view.findViewById(R.id.transfer_money_button_qrcode);
     mSubmitNfc = (Button) view.findViewById(R.id.transfer_money_button_nfc);
+    mClearButton = (Button) view.findViewById(R.id.transfer_money_button_clear);
 
     mAmountView = (EditText) view.findViewById(R.id.transfer_money_amt);
     mNotesView = (EditText) view.findViewById(R.id.transfer_money_notes);
@@ -580,6 +582,17 @@ public class TransferFragment extends Fragment {
 
         setClipboard(mReceiveAddress.getText().toString());
         Toast.makeText(mParent, R.string.transfer_address_copied, Toast.LENGTH_SHORT).show();
+      }
+    });
+
+    mClearButton.setOnClickListener(new View.OnClickListener() {
+
+      @Override
+      public void onClick(View v) {
+
+        mAmountView.setText("");
+        mNotesView.setText("");
+        mRecipientView.setText("");
       }
     });
 
@@ -804,6 +817,12 @@ public class TransferFragment extends Fragment {
     mSubmitQr.setVisibility(isSend ? View.GONE : View.VISIBLE);
     mSubmitNfc.setVisibility(isSend ? View.GONE : View.VISIBLE);
     mRecipientView.setVisibility(isSend ? View.VISIBLE : View.GONE);
+
+    RelativeLayout.LayoutParams clearParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+    clearParams.addRule(RelativeLayout.BELOW, isSend ? R.id.transfer_money_recipient : R.id.transfer_money_notes);
+    clearParams.addRule(RelativeLayout.ALIGN_LEFT, isSend ? R.id.transfer_money_recipient : R.id.transfer_money_notes);
+    clearParams.topMargin = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());
+    mClearButton.setLayoutParams(clearParams);
   }
 
   private void onCurrencyChanged() {

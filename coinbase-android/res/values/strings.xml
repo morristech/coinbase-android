@@ -33,6 +33,7 @@
     <string name="transfer_button_send">Send</string><string name="transfer_button_email">Email</string>
     <string name="transfer_button_qrcode">QR Code</string>
     <string name="transfer_button_nfc">NFC</string>
+    <string name="transfer_button_clear">Clear</string>
     <string name="transfer_request_money">Request money</string>
     <string name="transfer_request_money_button">Request</string>
     <string name="transfer_buy_title">Buy / sell Bitcoin</string>

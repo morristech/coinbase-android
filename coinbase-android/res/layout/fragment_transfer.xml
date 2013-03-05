@@ -83,6 +83,12 @@
                 android:inputType="textEmailAddress" >
     
             </AutoCompleteTextView>
+
+            <Button
+                android:id="@+id/transfer_money_button_clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/transfer_button_clear" />
     
             <Button
                 android:id="@+id/transfer_money_button_send"

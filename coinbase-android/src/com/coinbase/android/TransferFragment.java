@@ -487,6 +487,9 @@ public class TransferFragment extends Fragment {
         args.putString("data", requestUri);
         f.setArguments(args);
         f.show(getFragmentManager(), "qrrequest");
+
+        // After using a receive address, generate a new one for next time.
+        mParent.getAccountSettingsFragment().regenerateReceiveAddress();
       }
     });
 
@@ -502,6 +505,9 @@ public class TransferFragment extends Fragment {
         args.putString("data", requestUri);
         f.setArguments(args);
         f.show(getFragmentManager(), "nfcrequest");
+
+        // After using a receive address, generate a new one for next time.
+        mParent.getAccountSettingsFragment().regenerateReceiveAddress();
       }
     });
 

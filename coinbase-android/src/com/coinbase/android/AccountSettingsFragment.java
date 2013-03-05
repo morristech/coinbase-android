@@ -573,11 +573,16 @@ public class AccountSettingsFragment extends ListFragment {
 
     if(item.getItemId() == R.id.account_receive_address_generate) {
 
-      new LoadReceiveAddressTask().execute(true);
+      regenerateReceiveAddress();
       return true;
     }
 
     return super.onContextItemSelected(item);
+  }
+
+  public void regenerateReceiveAddress() {
+
+    new LoadReceiveAddressTask().execute(true);
   }
 
   public void refresh() {

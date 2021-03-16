@@ -71,7 +71,7 @@
 		<android-support.version>r7</android-support.version>
 
 		<android-maven.version>3.3.2</android-maven.version>
-		<junit.version>4.10</junit.version>
+		<junit.version>4.13.1</junit.version>
 
 		<github.downloads.repositoryOwner>JakeWharton</github.downloads.repositoryOwner>
 		<github.downloads.repositoryName>ActionBarSherlock</github.downloads.repositoryName>
